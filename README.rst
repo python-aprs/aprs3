@@ -1,8 +1,10 @@
-aprs - Python APRS Module
-*************************
+aprs3 - Python APRS Module
+**************************
 
-aprs is a Python Module that supports connecting to APRS Interfaces, and
+aprs3 is a Python Module that supports connecting to APRS Interfaces, and
 receiving, parsing and sending APRS Frames.
+
+This fork is currently a WiP. Please stand by May 2022.
 
 Included are several Interface Classes:
 
@@ -21,6 +23,7 @@ Versions
 
 - 6.5.x branch will be the last version of this Module that supports Python 2.7.x
 - 7.x.x branch and-on will be Python 3.x ONLY.
+- 8.x.x branch is a large rewrite as ``aprs3``
 
 Installation
 ============
