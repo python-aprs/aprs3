@@ -28,8 +28,6 @@ from .util import valid_callsign  # NOQA
 
 from .geo_util import dec2dm_lat, dec2dm_lng, ambiguate  # NOQA
 
-from .fcs import FCS  # NOQA
-
 from .functions import (parse_frame, parse_callsign,   # NOQA
                         parse_callsign_ax25, parse_info_field)
 
