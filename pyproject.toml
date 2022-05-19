@@ -1,0 +1,35 @@
+[build-system]
+requires = [
+    "setuptools>=61",
+    "setuptools_scm[toml]>=6.2",
+    "wheel",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aprs3"
+description = "Python module for encoding and decoding APRS data."
+authors = [
+    {name = "Masen Furer KF7HVM", email = "kf7hvm@0x26.net"},
+    {name = "Greg Albrecht W2GMD", email = "oss@undef.net"}
+]
+dependencies = [
+    "kiss3 >= 8.0.0a5",
+]
+readme = "README.rst"
+license = {file = "LICENSE"}
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Topic :: Communications :: Ham Radio",
+    "Programming Language :: Python",
+    "License :: OSI Approved :: Apache Software License"
+]
+keywords=[
+    'Ham Radio', 'APRS', 'KISS'
+]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/python-aprs/aprs3"
+
+[tool.setuptools_scm]
