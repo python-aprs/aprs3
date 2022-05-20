@@ -3,87 +3,127 @@
 
 """Python APRS Module Class Definitions."""
 
+from datetime import datetime
+import enum
+from functools import lru_cache
 import logging
 import typing
+from typing import Optional, Type
+
+from attrs import define, field
+
+from .parser import decode_position_uncompressed, decode_timestamp
 
 __author__ = 'Greg Albrecht W2GMD <oss@undef.net>'  # NOQA pylint: disable=R0801
 __copyright__ = 'Copyright 2017 Greg Albrecht and Contributors'  # NOQA pylint: disable=R0801
 __license__ = 'Apache License, Version 2.0'  # NOQA pylint: disable=R0801
 
 
-class InformationField(object):
+class DataType(enum.Enum):
+    """APRS101.PDF p. 27"""
+    CURRENT_MIC_E_DATA = b'\x1c'
+    OLD_MIC_E_DATA = b'\x1c'
+    POSITION_W_O_TIMESTAMP = b'!'
+    PEET_BROS_U_II = b'#'
+    RAW_GPS_DATA = b'$'
+    AGRELO_DFJR = b'%'
+    OLD_MIC_E_DATA_2 = b"'"
+    ITEM = b")"
+    PEET_BROS_U_II_2 = b'*'
+    INVALID_DATA = b','
+    POSITION_W_TIMESTAMP_NO_MSG = b'/'
+    MESSAGE = b":"
+    OBJECT = b";"
+    STATION_CAPABILITIES = b"<"
+    POSITION_W_O_TIMESTAMP_MSG = b"="
+    STATUS = b">"
+    QUERY = b"?"
+    POSITION_W_TIMESTAMP_MSG = b"@"
+    TELEMETRY_DATA = b"T"
+    MAIDENHEAD_GRID_LOCATOR_BEACON = b"["
+    WEATHER_REPORT_W_O_POSITION = b"_"
+    CURRENT_MIC_E_DATA_2 = b"`"
+    USER_DEFINED = b"{"
+    THIRD_PARTY_TRAFFIC = b"}"
+
+
+class DataTypeError(ValueError):
+    pass
+
+
+@define(frozen=True, slots=True)
+class InformationField:
     """
     Class for APRS 'Information' Field.
     """
+    raw: bytes
+    data_type: DataType
+    data: bytes
+    data_ext: bytes = field(default=b"")
+    comment: bytes = field(default=b"")
 
-    _logger = logging.getLogger(__name__)  # pylint: disable=R0801
-    if not _logger.handlers:  # pylint: disable=R0801
-        _logger.setLevel(aprs.LOG_LEVEL)  # pylint: disable=R0801
-        _console_handler = logging.StreamHandler()  # pylint: disable=R0801
-        _console_handler.setLevel(aprs.LOG_LEVEL)  # pylint: disable=R0801
-        _console_handler.setFormatter(aprs.LOG_FORMAT)  # pylint: disable=R0801
-        _logger.addHandler(_console_handler)  # pylint: disable=R0801
-        _logger.propagate = False  # pylint: disable=R0801
+    @classmethod
+    @lru_cache(len(DataType.__members__))
+    def _find_handler(cls, data_type: DataType) -> Type["InformationField"]:
+        for subcls in cls.__subclasses__():
+            if data_type in subcls.__data_type__:
+                return subcls
 
-    __slots__ = ['data_type', 'data', 'safe']
-
-    def __init__(self, data: bytes=b'', data_type: bytes=b'undefined',
-                 safe: bool=False) -> None:
-        self.data = data
-        self.data_type = data_type
-        self.safe = safe
-
-    def __repr__(self) -> str:
-        if self.safe:
-            try:
-                decoded_data = self.data.decode('UTF-8')
-            except UnicodeDecodeError as ex:
-                decoded_data = self.data.decode('UTF-8', 'backslashreplace')
-            return decoded_data
-        else:
-            return self.data.decode()
+    @classmethod
+    def from_bytes(cls, raw: bytes) -> "InformationField":
+        data_type = DataType(raw[0:1])
+        handler = cls._find_handler(data_type)
+        if handler is None:
+            x1j_header, found_data_type, data = raw.partition(b"!")
+            if len(x1j_header) <= 40:
+                # special case in APRS101
+                return PositionReportWithoutTimestamp.from_bytes(found_data_type + data)
+            return cls(raw=raw, data_type=data_type, data=b"", data_ext=b"", comment=raw[1:])
+        return handler.from_bytes(raw)
 
     def __bytes__(self) -> bytes:
-        return self.data
+        return self.raw
 
 
-class PositionFrame(Frame):
+@define
+class PositionReport(InformationField):
+    timestamp: Optional[datetime] = field(default=None)
+    lat: float = field(default=0.0)
+    sym_table_id: bytes = field(default=b"/")
+    long: float = field(default=0.0)
+    symbol_code: bytes = field(default=b"-")
 
-    __slots__ = ['lat', 'lng', 'source', 'destination', 'path', 'table',
-                 'symbol', 'comment', 'ambiguity']
+    __data_type__ = [
+        DataType.POSITION_W_O_TIMESTAMP,
+        DataType.POSITION_W_O_TIMESTAMP_MSG,
+        DataType.POSITION_W_TIMESTAMP_MSG,
+        DataType.POSITION_W_TIMESTAMP_NO_MSG,
+    ]
 
-    _logger = logging.getLogger(__name__)  # pylint: disable=R0801
-    if not _logger.handlers:  # pylint: disable=R0801
-        _logger.setLevel(aprs.LOG_LEVEL)  # pylint: disable=R0801
-        _console_handler = logging.StreamHandler()  # pylint: disable=R0801
-        _console_handler.setLevel(aprs.LOG_LEVEL)  # pylint: disable=R0801
-        _console_handler.setFormatter(aprs.LOG_FORMAT)  # pylint: disable=R0801
-        _logger.addHandler(_console_handler)  # pylint: disable=R0801
-        _logger.propagate = False  # pylint: disable=R0801
-
-    def __init__(self, source: bytes, destination: bytes, path: typing.List,
-                 table: bytes, symbol: bytes, comment: bytes, lat: float,
-                 lng: float, ambiguity: float) -> None:
-        self.table = table
-        self.symbol = symbol
-        self.comment = comment
-        self.lat = lat
-        self.lng = lng
-        self.ambiguity = ambiguity
-        info = self.create_info_field()
-        super(PositionFrame, self).__init__(source, destination, path, info)
-
-    def create_info_field(self) -> bytes:
-        enc_lat = aprs.dec2dm_lat(self.lat)
-        enc_lat_amb = bytes(aprs.ambiguate(enc_lat, self.ambiguity), 'UTF-8')
-        enc_lng = aprs.dec2dm_lng(self.lng)
-        enc_lng_amb = bytes(aprs.ambiguate(enc_lng, self.ambiguity), 'UTF-8')
-        frame = [
-            b'=',
-            enc_lat_amb,
-            self.table,
-            enc_lng_amb,
-            self.symbol,
-            self.comment
-        ]
-        return b''.join(frame)
+    @classmethod
+    def from_bytes(cls, raw: bytes) -> "PositionReport":
+        data_type = DataType(raw[0:1])
+        if data_type not in cls.__data_type__:
+            raise DataTypeError("{!r} cannot be handled by {!r} (expecting {!r})".format(data_type, cls, cls.__data_type__))
+        timestamp = None
+        if data_type in [
+            DataType.POSITION_W_TIMESTAMP_MSG,
+            DataType.POSITION_W_TIMESTAMP_NO_MSG,
+        ]:
+            timestamp = decode_timestamp(raw[1:8])
+            data = raw[8:]
+        else:
+            data = raw[1:]
+        try:
+            position = decode_position_uncompressed(data[:19])
+            position["comment"] = data[19:]
+        except ValueError:
+            # eventually we may try to decode other position types here
+            raise
+        return cls(
+            raw=raw,
+            data_type=data_type,
+            data=data,
+            timestamp=timestamp,
+            **position
+        )

@@ -3,7 +3,7 @@
 
 """Python APRS Module Geo Utility Function Definitions."""
 
-import aprs.decimaldegrees
+from . import decimaldegrees
 
 __author__ = 'Greg Albrecht W2GMD <oss@undef.net>'  # NOQA pylint: disable=R0801
 __copyright__ = 'Copyright 2017 Greg Albrecht and Contributors'  # NOQA pylint: disable=R0801
@@ -28,7 +28,7 @@ def dec2dm_lat(dec: float) -> str:
         >>> aprs_lat
         '0800.60S'
     """
-    dec_min = aprs.decimaldegrees.decimal2dm(dec)
+    dec_min = decimaldegrees.decimal2dm(dec)
 
     deg = dec_min[0]
     abs_deg = abs(deg)
@@ -57,7 +57,7 @@ def dec2dm_lng(dec: float) -> str:
         >>> aprs_lng
         '09900.60W'
     """
-    dec_min = aprs.decimaldegrees.decimal2dm(dec)
+    dec_min = decimaldegrees.decimal2dm(dec)
 
     deg = dec_min[0]
     abs_deg = abs(deg)

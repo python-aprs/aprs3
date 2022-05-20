@@ -3,6 +3,7 @@
 
 """Python APRS Module Constants."""
 
+import enum
 import os
 
 __author__ = 'Greg Albrecht W2GMD <oss@undef.net>'  # NOQA pylint: disable=R0801
@@ -30,3 +31,9 @@ DATA_TYPE_MAP = {
     b';': b'object',
     b'`': b'old_mice'
 }
+
+
+class TimestampFormat(enum.Enum):
+    DayHoursMinutesLocal = b"/"
+    DayHoursMinutesZulu = b"z"
+    HoursMinutesSecondsZulu = b"h"
