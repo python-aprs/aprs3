@@ -127,3 +127,45 @@ class PositionReport(InformationField):
             timestamp=timestamp,
             **position
         )
+
+
+@define
+class Message(InformationField):
+    addressee: bytes = field(default=b"")
+    text: bytes = field(default=b"")
+    number: Optional[bytes] = field(default=None)
+
+    __data_type__ = [DataType.MESSAGE]
+
+    @classmethod
+    def from_bytes(cls, raw: bytes) -> "Message":
+        data_type = DataType(raw[0:1])
+        if data_type not in cls.__data_type__:
+            raise DataTypeError("{!r} cannot be handled by {!r} (expecting {!r})".format(data_type, cls, cls.__data_type__))
+        data = raw[1:]
+        end_of_addressee = data[9:10]
+        if end_of_addressee != DataType.MESSAGE.value:
+            raise ValueError("Expecting {!r} at index 9 of {!r}".format(DataType.MESSAGE.value, data))
+        init_kwargs = dict(addressee=data[:9].strip())
+        text = data[10:]
+        if b"{" in text[-6:]:
+            text, mid, number = text.rpartition(b"{")
+            init_kwargs["number"] = number
+        return cls(
+            raw=raw,
+            data_type=data_type,
+            data=data,
+            text=text,
+            **init_kwargs,
+        )
+
+    def __bytes__(self):
+        return b"".join(
+            [
+                DataType.MESSAGE.value,
+                self.addressee.ljust(9),
+                DataType.MESSAGE.value,
+                self.text[:67],
+                b"{%s" % self.number if self.number else b""
+            ]
+        )
