@@ -14,24 +14,27 @@ from attrs import define, field
 
 from .parser import decode_position_uncompressed, decode_timestamp
 
-__author__ = 'Greg Albrecht W2GMD <oss@undef.net>'  # NOQA pylint: disable=R0801
-__copyright__ = 'Copyright 2017 Greg Albrecht and Contributors'  # NOQA pylint: disable=R0801
-__license__ = 'Apache License, Version 2.0'  # NOQA pylint: disable=R0801
+__author__ = "Greg Albrecht W2GMD <oss@undef.net>"  # NOQA pylint: disable=R0801
+__copyright__ = (
+    "Copyright 2017 Greg Albrecht and Contributors"  # NOQA pylint: disable=R0801
+)
+__license__ = "Apache License, Version 2.0"  # NOQA pylint: disable=R0801
 
 
 class DataType(enum.Enum):
     """APRS101.PDF p. 27"""
-    CURRENT_MIC_E_DATA = b'\x1c'
-    OLD_MIC_E_DATA = b'\x1c'
-    POSITION_W_O_TIMESTAMP = b'!'
-    PEET_BROS_U_II = b'#'
-    RAW_GPS_DATA = b'$'
-    AGRELO_DFJR = b'%'
+
+    CURRENT_MIC_E_DATA = b"\x1c"
+    OLD_MIC_E_DATA = b"\x1c"
+    POSITION_W_O_TIMESTAMP = b"!"
+    PEET_BROS_U_II = b"#"
+    RAW_GPS_DATA = b"$"
+    AGRELO_DFJR = b"%"
     OLD_MIC_E_DATA_2 = b"'"
     ITEM = b")"
-    PEET_BROS_U_II_2 = b'*'
-    INVALID_DATA = b','
-    POSITION_W_TIMESTAMP_NO_MSG = b'/'
+    PEET_BROS_U_II_2 = b"*"
+    INVALID_DATA = b","
+    POSITION_W_TIMESTAMP_NO_MSG = b"/"
     MESSAGE = b":"
     OBJECT = b";"
     STATION_CAPABILITIES = b"<"
@@ -56,6 +59,7 @@ class InformationField:
     """
     Class for APRS 'Information' Field.
     """
+
     raw: bytes
     data_type: DataType
     data: bytes
@@ -77,8 +81,10 @@ class InformationField:
             x1j_header, found_data_type, data = raw.partition(b"!")
             if len(x1j_header) <= 40:
                 # special case in APRS101
-                return PositionReportWithoutTimestamp.from_bytes(found_data_type + data)
-            return cls(raw=raw, data_type=data_type, data=b"", data_ext=b"", comment=raw[1:])
+                return PositionReport.from_bytes(found_data_type + data)
+            return cls(
+                raw=raw, data_type=data_type, data=b"", data_ext=b"", comment=raw[1:]
+            )
         return handler.from_bytes(raw)
 
     def __bytes__(self) -> bytes:
@@ -104,7 +110,11 @@ class PositionReport(InformationField):
     def from_bytes(cls, raw: bytes) -> "PositionReport":
         data_type = DataType(raw[0:1])
         if data_type not in cls.__data_type__:
-            raise DataTypeError("{!r} cannot be handled by {!r} (expecting {!r})".format(data_type, cls, cls.__data_type__))
+            raise DataTypeError(
+                "{!r} cannot be handled by {!r} (expecting {!r})".format(
+                    data_type, cls, cls.__data_type__
+                )
+            )
         timestamp = None
         if data_type in [
             DataType.POSITION_W_TIMESTAMP_MSG,
@@ -141,11 +151,17 @@ class Message(InformationField):
     def from_bytes(cls, raw: bytes) -> "Message":
         data_type = DataType(raw[0:1])
         if data_type not in cls.__data_type__:
-            raise DataTypeError("{!r} cannot be handled by {!r} (expecting {!r})".format(data_type, cls, cls.__data_type__))
+            raise DataTypeError(
+                "{!r} cannot be handled by {!r} (expecting {!r})".format(
+                    data_type, cls, cls.__data_type__
+                )
+            )
         data = raw[1:]
         end_of_addressee = data[9:10]
         if end_of_addressee != DataType.MESSAGE.value:
-            raise ValueError("Expecting {!r} at index 9 of {!r}".format(DataType.MESSAGE.value, data))
+            raise ValueError(
+                "Expecting {!r} at index 9 of {!r}".format(DataType.MESSAGE.value, data)
+            )
         init_kwargs = dict(addressee=data[:9].strip())
         text = data[10:]
         if b"{" in text[-6:]:
@@ -166,6 +182,6 @@ class Message(InformationField):
                 self.addressee.ljust(9),
                 DataType.MESSAGE.value,
                 self.text[:67],
-                b"{%s" % self.number if self.number else b""
+                b"{%s" % self.number if self.number else b"",
             ]
         )

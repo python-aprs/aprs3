@@ -56,7 +56,9 @@ def decode_timestamp_dhm(data: bytes) -> datetime:
 def decode_timestamp_hms(data: bytes) -> datetime:
     now = datetime.now(tz=timezone.utc)
     ts = datetime.strptime(data[:6].decode("ascii"), "%H%M%S")
-    maybe_ts = ts.replace(year=now.year, month=now.month, day=now.day, tzinfo=timezone.utc)
+    maybe_ts = ts.replace(
+        year=now.year, month=now.month, day=now.day, tzinfo=timezone.utc
+    )
     if maybe_ts > (now + FUTURE_TIMESTAMP_THRESHOLD):
         # can't have a timestamp (too far) in the future, so assume it's from yesterday
         return maybe_ts - timedelta(days=1)
@@ -78,7 +80,10 @@ def decode_timestamp_mdhm(data: bytes) -> datetime:
 def decode_timestamp(data: bytes) -> datetime:
     try:
         ts_format = TimestampFormat(data[6:7])
-        if ts_format in [TimestampFormat.DayHoursMinutesLocal, TimestampFormat.DayHoursMinutesZulu]:
+        if ts_format in [
+            TimestampFormat.DayHoursMinutesLocal,
+            TimestampFormat.DayHoursMinutesZulu,
+        ]:
             return decode_timestamp_dhm(data)
         return decode_timestamp_hms(data)
     except ValueError:
