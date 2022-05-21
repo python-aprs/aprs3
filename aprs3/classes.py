@@ -6,9 +6,8 @@
 from datetime import datetime
 import enum
 from functools import lru_cache
-import logging
-import typing
-from typing import Optional, Type
+import re
+from typing import Optional, Tuple, Type, Union
 
 from attrs import define, field
 
@@ -54,6 +53,63 @@ class DataTypeError(ValueError):
     pass
 
 
+class DataExt:
+    @classmethod
+    def from_bytes(cls, raw: bytes) -> Tuple[Union["DataExt", bytes], bytes]:
+        if raw.startswith(b"PHG"):
+            try:
+                return PHG.from_bytes(raw[:7]), raw[7:]
+            except ValueError:
+                pass
+        elif re.match(rb"[0-9]{3}/", raw):
+            try:
+                return CourseSpeed.from_bytes(raw[:7]), raw[7:]
+            except ValueError:
+                pass
+        return b"", raw
+
+
+@define
+class CourseSpeed(DataExt):
+    course: int = field(default=0)
+    speed: int = field(default=0)
+
+    @classmethod
+    def from_bytes(cls, raw: bytes) -> "CourseSpeed":
+        course, slash, speed = raw[:7].partition(b"/")
+        if not slash or len(course) != len(speed):
+            raise ValueError("{!r} is not a Course/Speed extension field".format(raw))
+        return cls(
+            course=int(course.decode("ascii")),
+            speed=int(speed.decode("ascii")),
+        )
+
+
+@define
+class PHG(DataExt):
+    """
+    PHGphgd
+    """
+
+    power_w: int = field(default=0)
+    height_ft: int = field(default=0)
+    gain_db: int = field(default=0)
+    directivity: int = field(default=0)
+
+    @classmethod
+    def from_bytes(cls, raw: bytes) -> "PHG":
+        if not raw.startswith(b"PHG"):
+            raise ValueError("{!r} is not a PHG extension field".format(raw))
+        power_code, height_code, gain_code, directivity_code = raw[3:7]
+        zero_byte = ord(b"0")
+        return cls(
+            power_w=int(power_code - zero_byte) ** 2,
+            height_ft=10 * (2 ** int(height_code - zero_byte)),
+            gain_db=int(gain_code - zero_byte),
+            directivity=int(directivity_code - zero_byte) * 45,
+        )
+
+
 @define(frozen=True, slots=True)
 class InformationField:
     """
@@ -63,7 +119,7 @@ class InformationField:
     raw: bytes
     data_type: DataType
     data: bytes
-    data_ext: bytes = field(default=b"")
+    data_ext: Union[bytes, DataExt] = field(default=b"")
     comment: bytes = field(default=b"")
 
     @classmethod
@@ -91,6 +147,9 @@ class InformationField:
         return self.raw
 
 
+ALTITUDE_REX = re.compile(rb"/A=(-[0-9]+)")
+
+
 @define
 class PositionReport(InformationField):
     timestamp: Optional[datetime] = field(default=None)
@@ -98,6 +157,7 @@ class PositionReport(InformationField):
     sym_table_id: bytes = field(default=b"/")
     long: float = field(default=0.0)
     symbol_code: bytes = field(default=b"-")
+    altitude_ft: Optional[int] = field(default=None)
 
     __data_type__ = [
         DataType.POSITION_W_O_TIMESTAMP,
@@ -124,18 +184,26 @@ class PositionReport(InformationField):
             data = raw[8:]
         else:
             data = raw[1:]
+        comment = b""
         try:
             position = decode_position_uncompressed(data[:19])
-            position["comment"] = data[19:]
+            data, comment = data[:19], data[19:]
         except ValueError:
             # eventually we may try to decode other position types here
             raise
+        # try to decode extended data
+        data_ext, comment = DataExt.from_bytes(comment)
+        # try to find the altitude comment
+        alt_match = ALTITUDE_REX.search(comment)
         return cls(
             raw=raw,
             data_type=data_type,
             data=data,
+            data_ext=data_ext,
+            comment=comment,
             timestamp=timestamp,
-            **position
+            altitude_ft=int(alt_match.group(1).decode("ascii")) if alt_match else None,
+            **position,
         )
 
 
