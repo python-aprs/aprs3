@@ -43,151 +43,139 @@ dddmm.hhW (i.e. degrees, minutes and hundredths of a minute west).
 
 """
 
-import unittest  # pylint: disable=R0801
+from aprs3 import geo_util
 
-from .context import aprs  # pylint: disable=R0801
-from .context import aprs_test_classes  # pylint: disable=R0801
-
-from . import constants  # pylint: disable=R0801
-
-__author__ = 'Greg Albrecht W2GMD <oss@undef.net>'  # NOQA pylint: disable=R0801
-__copyright__ = 'Copyright 2017 Greg Albrecht and Contributors'  # NOQA pylint: disable=R0801
-__license__ = 'Apache License, Version 2.0'  # NOQA pylint: disable=R0801
+__author__ = "Greg Albrecht W2GMD <oss@undef.net>"  # NOQA pylint: disable=R0801
+__copyright__ = (
+    "Copyright 2017 Greg Albrecht and Contributors"  # NOQA pylint: disable=R0801
+)
+__license__ = "Apache License, Version 2.0"  # NOQA pylint: disable=R0801
 
 
-class APRSGeoTestCase(aprs_test_classes.APRSTestClass):  # NOQA pylint: disable=R0904
+def test_latitude_north():
+    """Test Decimal to APRS Latitude conversion."""
+    test_lat = 37.7418096
+    aprs_lat = geo_util.dec2dm_lat(test_lat)
 
-    """Tests for Python APRS Utils."""
+    lat_deg = int(aprs_lat.split(".")[0][:1])
+    # lat_hsec = aprs_lat.split('.')[1]
 
-    def test_latitude_north(self):
-        """Test Decimal to APRS Latitude conversion."""
-        test_lat = 37.7418096
-        aprs_lat = aprs.geo_util.dec2dm_lat(test_lat)
-        self._logger.info('test_lat=%s aprs_lat=%s', test_lat, aprs_lat)
-
-        lat_deg = int(aprs_lat.split('.')[0][:1])
-        # lat_hsec = aprs_lat.split('.')[1]
-
-        self.assertTrue(len(aprs_lat) == 8)
-        self.assertTrue(lat_deg >= 00)
-        self.assertTrue(lat_deg <= 90)
-        self.assertTrue(aprs_lat.endswith('N'))
-
-    def test_latitude_south(self):
-        """Test Decimal to APRS Latitude conversion."""
-        test_lat = -37.7418096
-        aprs_lat = aprs.geo_util.dec2dm_lat(test_lat)
-        self._logger.info('test_lat=%s aprs_lat=%s', test_lat, aprs_lat)
-
-        lat_deg = int(aprs_lat.split('.')[0][:1])
-
-        self.assertTrue(len(aprs_lat) == 8)
-        self.assertTrue(lat_deg >= 00)
-        self.assertTrue(lat_deg <= 90)
-        self.assertTrue(aprs_lat.endswith('S'))
-
-    def test_latitude_south_padding_minutes(self):
-        """
-        Test Decimal to APRS Latitude conversion for latitudes in the
-        following situations:
-            - minutes < 10
-            - whole degrees latitude < 10
-        """
-        test_lat = -38.01
-        aprs_lat = aprs.geo_util.dec2dm_lat(test_lat)
-        self._logger.info('test_lat=%s aprs_lat=%s', test_lat, aprs_lat)
-
-        lat_deg = int(aprs_lat.split('.')[0][:1])
-
-        self.assertTrue(len(aprs_lat) == 8)
-        self.assertTrue(lat_deg >= 00)
-        self.assertTrue(lat_deg <= 90)
-        self.assertTrue(aprs_lat.endswith('S'))
-
-    def test_latitude_south_padding_degrees(self):
-        """
-        Test Decimal to APRS Latitude conversion for latitudes in the
-        following situations:
-            - minutes < 10
-            - whole degrees latitude < 10
-        """
-        test_lat = -8.01
-        aprs_lat = aprs.geo_util.dec2dm_lat(test_lat)
-        self._logger.info('test_lat=%s aprs_lat=%s', test_lat, aprs_lat)
-
-        lat_deg = int(aprs_lat.split('.')[0][:1])
-
-        self.assertTrue(len(aprs_lat) == 8)
-        self.assertTrue(lat_deg >= 00)
-        self.assertTrue(lat_deg <= 90)
-        self.assertTrue(aprs_lat.endswith('S'))
-
-    def test_longitude_west(self):
-        """Test Decimal to APRS Longitude conversion."""
-        test_lng = -122.38833
-        aprs_lng = aprs.geo_util.dec2dm_lng(test_lng)
-        self._logger.info('test_lng=%s aprs_lng=%s', test_lng, aprs_lng)
-
-        lng_deg = int(aprs_lng.split('.')[0][:2])
-        # lng_hsec = aprs_lng.split('.')[1]
-
-        self.assertTrue(len(aprs_lng) == 9)
-        self.assertTrue(lng_deg >= 000)
-        self.assertTrue(lng_deg <= 180)
-        self.assertTrue(aprs_lng.endswith('W'))
-
-    def test_longitude_west_padding_minutes(self):
-        """
-        Test Decimal to APRS Longitude conversion for longitude in the
-        following situations:
-            - minutes < 10
-            - whole degrees longitude < 100
-        """
-        test_lng = -122.01
-        aprs_lng = aprs.geo_util.dec2dm_lng(test_lng)
-        self._logger.info('test_lng=%s aprs_lng=%s', test_lng, aprs_lng)
-
-        lng_deg = int(aprs_lng.split('.')[0][:2])
-        # lng_hsec = aprs_lng.split('.')[1]
-
-        self.assertTrue(len(aprs_lng) == 9)
-        self.assertTrue(lng_deg >= 000)
-        self.assertTrue(lng_deg <= 180)
-        self.assertTrue(aprs_lng.endswith('W'))
-
-    def test_longitude_west_padding_degrees(self):
-        """
-        Test Decimal to APRS Longitude conversion for longitude in the
-        following situations:
-            - minutes < 10
-            - whole degrees longitude < 100
-        """
-        test_lng = -99.01
-        aprs_lng = aprs.geo_util.dec2dm_lng(test_lng)
-        self._logger.info('test_lng=%s aprs_lng=%s', test_lng, aprs_lng)
-
-        lng_deg = int(aprs_lng.split('.')[0][:2])
-        # lng_hsec = aprs_lng.split('.')[1]
-
-        self.assertTrue(len(aprs_lng) == 9)
-        self.assertTrue(lng_deg >= 000)
-        self.assertTrue(lng_deg <= 180)
-        self.assertTrue(aprs_lng.endswith('W'))
-
-    def test_longitude_east(self):
-        """Test Decimal to APRS Longitude conversion."""
-        test_lng = 122.38833
-        aprs_lng = aprs.geo_util.dec2dm_lng(test_lng)
-        self._logger.info('test_lng=%s aprs_lng=%s', test_lng, aprs_lng)
-
-        lng_deg = int(aprs_lng.split('.')[0][:2])
-        # lng_hsec = aprs_lng.split('.')[1]
-
-        self.assertTrue(len(aprs_lng) == 9)
-        self.assertTrue(lng_deg >= 000)
-        self.assertTrue(lng_deg <= 180)
-        self.assertTrue(aprs_lng.endswith('E'))
+    assert len(aprs_lat) == 8
+    assert lat_deg >= 00
+    assert lat_deg <= 90
+    assert aprs_lat.endswith("N")
 
 
-if __name__ == '__main__':
-    unittest.main()
+def test_latitude_south():
+    """Test Decimal to APRS Latitude conversion."""
+    test_lat = -37.7418096
+    aprs_lat = geo_util.dec2dm_lat(test_lat)
+
+    lat_deg = int(aprs_lat.split(".")[0][:1])
+
+    assert len(aprs_lat) == 8
+    assert lat_deg >= 00
+    assert lat_deg <= 90
+    assert aprs_lat.endswith("S")
+
+
+def test_latitude_south_padding_minutes():
+    """
+    Test Decimal to APRS Latitude conversion for latitudes in the
+    following situations:
+        - minutes < 10
+        - whole degrees latitude < 10
+    """
+    test_lat = -38.01
+    aprs_lat = geo_util.dec2dm_lat(test_lat)
+
+    lat_deg = int(aprs_lat.split(".")[0][:1])
+
+    assert len(aprs_lat) == 8
+    assert lat_deg >= 00
+    assert lat_deg <= 90
+    assert aprs_lat.endswith("S")
+
+
+def test_latitude_south_padding_degrees():
+    """
+    Test Decimal to APRS Latitude conversion for latitudes in the
+    following situations:
+        - minutes < 10
+        - whole degrees latitude < 10
+    """
+    test_lat = -8.01
+    aprs_lat = geo_util.dec2dm_lat(test_lat)
+
+    lat_deg = int(aprs_lat.split(".")[0][:1])
+
+    assert len(aprs_lat) == 8
+    assert lat_deg >= 00
+    assert lat_deg <= 90
+    assert aprs_lat.endswith("S")
+
+
+def test_longitude_west():
+    """Test Decimal to APRS Longitude conversion."""
+    test_lng = -122.38833
+    aprs_lng = geo_util.dec2dm_lng(test_lng)
+
+    lng_deg = int(aprs_lng.split(".")[0][:2])
+    # lng_hsec = aprs_lng.split('.')[1]
+
+    assert len(aprs_lng) == 9
+    assert lng_deg >= 000
+    assert lng_deg <= 180
+    assert aprs_lng.endswith("W")
+
+
+def test_longitude_west_padding_minutes():
+    """
+    Test Decimal to APRS Longitude conversion for longitude in the
+    following situations:
+        - minutes < 10
+        - whole degrees longitude < 100
+    """
+    test_lng = -122.01
+    aprs_lng = geo_util.dec2dm_lng(test_lng)
+
+    lng_deg = int(aprs_lng.split(".")[0][:2])
+    # lng_hsec = aprs_lng.split('.')[1]
+
+    assert len(aprs_lng) == 9
+    assert lng_deg >= 000
+    assert lng_deg <= 180
+    assert aprs_lng.endswith("W")
+
+
+def test_longitude_west_padding_degrees():
+    """
+    Test Decimal to APRS Longitude conversion for longitude in the
+    following situations:
+        - minutes < 10
+        - whole degrees longitude < 100
+    """
+    test_lng = -99.01
+    aprs_lng = geo_util.dec2dm_lng(test_lng)
+
+    lng_deg = int(aprs_lng.split(".")[0][:2])
+    # lng_hsec = aprs_lng.split('.')[1]
+
+    assert len(aprs_lng) == 9
+    assert lng_deg >= 000
+    assert lng_deg <= 180
+    assert aprs_lng.endswith("W")
+
+
+def test_longitude_east():
+    """Test Decimal to APRS Longitude conversion."""
+    test_lng = 122.38833
+    aprs_lng = geo_util.dec2dm_lng(test_lng)
+
+    lng_deg = int(aprs_lng.split(".")[0][:2])
+    # lng_hsec = aprs_lng.split('.')[1]
+
+    assert len(aprs_lng) == 9
+    assert lng_deg >= 000
+    assert lng_deg <= 180
+    assert aprs_lng.endswith("E")
