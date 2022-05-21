@@ -15,7 +15,7 @@ authors = [
 ]
 dependencies = [
     "attrs > 20",
-    "kiss3 >= 8.0.0a5",
+    "kiss3 >= 8.0.0a6",
 ]
 readme = "README.rst"
 license = {file = "LICENSE"}
