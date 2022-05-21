@@ -12,7 +12,15 @@ import pytest
 
 from kiss3.ax25 import Frame
 
-from aprs3.classes import CourseSpeed, DataType, InformationField, PHG, PositionReport
+from aprs3.classes import (
+    CourseSpeed,
+    DataType,
+    DFS,
+    InformationField,
+    PHG,
+    PositionReport,
+    RNG,
+)
 
 
 @pytest.mark.parametrize(
@@ -84,6 +92,38 @@ from aprs3.classes import CourseSpeed, DataType, InformationField, PHG, Position
                 symbol_code=b"-",
             ),
             id="position, uncompressed, with timestamp, comment",
+        ),
+        pytest.param(
+            "FOO>APRS:!4605.21N/12327.31W#RNG0125Foo comment",
+            PositionReport(
+                raw=b"!4605.21N/12327.31W#RNG0125Foo comment",
+                data_type=DataType.POSITION_W_O_TIMESTAMP,
+                data=b"4605.21N/12327.31W#",
+                data_ext=RNG(range=125),
+                comment=b"Foo comment",
+                timestamp=None,
+                lat=Decimal("46.08683333333333333333333333"),
+                sym_table_id=b"/",
+                long=Decimal("-123.4551666666666666666666667"),
+                symbol_code=b"#",
+            ),
+            id="position, uncompressed, without timestamp, rng, comment",
+        ),
+        pytest.param(
+            "FOO>APRS:!4605.21N/12327.31W#DFS8745Foo comment",
+            PositionReport(
+                raw=b"!4605.21N/12327.31W#DFS8745Foo comment",
+                data_type=DataType.POSITION_W_O_TIMESTAMP,
+                data=b"4605.21N/12327.31W#",
+                data_ext=DFS(strength_s=8, height_ft=1280, gain_db=4, directivity=225),
+                comment=b"Foo comment",
+                timestamp=None,
+                lat=Decimal("46.08683333333333333333333333"),
+                sym_table_id=b"/",
+                long=Decimal("-123.4551666666666666666666667"),
+                symbol_code=b"#",
+            ),
+            id="position, uncompressed, without timestamp, dfs, comment",
         ),
     ),
 )

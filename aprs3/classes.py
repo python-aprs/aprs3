@@ -3,6 +3,7 @@
 
 """Python APRS Module Class Definitions."""
 
+from abc import ABC, abstractmethod
 from datetime import datetime
 import enum
 from functools import lru_cache
@@ -53,19 +54,27 @@ class DataTypeError(ValueError):
     pass
 
 
-class DataExt:
+class DataExt(ABC):
     @classmethod
-    def from_bytes(cls, raw: bytes) -> Tuple[Union["DataExt", bytes], bytes]:
-        if raw.startswith(b"PHG"):
-            try:
-                return PHG.from_bytes(raw[:7]), raw[7:]
-            except ValueError:
-                pass
-        elif re.match(rb"[0-9]{3}/", raw):
-            try:
-                return CourseSpeed.from_bytes(raw[:7]), raw[7:]
-            except ValueError:
-                pass
+    @abstractmethod
+    def try_parse(cls, raw: bytes) -> bool:
+        """Return True if this subclass might be able to parse raw bytes."""
+
+    @classmethod
+    def from_bytes(cls, raw: bytes) -> Union["DataExt", bytes]:
+        for subcls in cls.__subclasses__():
+            if subcls.try_parse(raw):
+                try:
+                    return subcls.from_bytes(raw[:7])
+                except ValueError:
+                    pass
+        return b""
+
+    @classmethod
+    def split_parse(cls, raw: bytes) -> Tuple[Union["DataExt", bytes], bytes]:
+        parsed = cls.from_bytes(raw)
+        if parsed:
+            return parsed, raw[7:]
         return b"", raw
 
 
@@ -73,6 +82,11 @@ class DataExt:
 class CourseSpeed(DataExt):
     course: int = field(default=0)
     speed: int = field(default=0)
+
+    @classmethod
+    def try_parse(cls, raw: bytes) -> bool:
+        """Return True if this subclass might be able to parse raw bytes."""
+        return re.match(rb"[0-9]{3}/", raw[:4])
 
     @classmethod
     def from_bytes(cls, raw: bytes) -> "CourseSpeed":
@@ -97,6 +111,11 @@ class PHG(DataExt):
     directivity: int = field(default=0)
 
     @classmethod
+    def try_parse(cls, raw: bytes) -> bool:
+        """Return True if this subclass might be able to parse raw bytes."""
+        return raw.startswith(b"PHG")
+
+    @classmethod
     def from_bytes(cls, raw: bytes) -> "PHG":
         if not raw.startswith(b"PHG"):
             raise ValueError("{!r} is not a PHG extension field".format(raw))
@@ -107,6 +126,80 @@ class PHG(DataExt):
             height_ft=10 * (2 ** int(height_code - zero_byte)),
             gain_db=int(gain_code - zero_byte),
             directivity=int(directivity_code - zero_byte) * 45,
+        )
+
+
+@define
+class RNG(DataExt):
+    """
+    RNGrrrr
+    """
+
+    range: int = field(default=0)
+
+    @classmethod
+    def try_parse(cls, raw: bytes) -> bool:
+        """Return True if this subclass might be able to parse raw bytes."""
+        return raw.startswith(b"RNG")
+
+    @classmethod
+    def from_bytes(cls, raw: bytes) -> "RNG":
+        if not raw.startswith(b"RNG"):
+            raise ValueError("{!r} is not a RNG extension field".format(raw))
+        return cls(range=int(raw[3:7]))
+
+
+@define
+class DFS(DataExt):
+    """
+    DFSshgd
+    """
+
+    strength_s: int = field(default=0)
+    height_ft: int = field(default=0)
+    gain_db: int = field(default=0)
+    directivity: int = field(default=0)
+
+    @classmethod
+    def try_parse(cls, raw: bytes) -> bool:
+        """Return True if this subclass might be able to parse raw bytes."""
+        return raw.startswith(b"DFS")
+
+    @classmethod
+    def from_bytes(cls, raw: bytes) -> "DFS":
+        if not raw.startswith(b"DFS"):
+            raise ValueError("{!r} is not a DFS extension field".format(raw))
+        strength_code, height_code, gain_code, directivity_code = raw[3:7]
+        zero_byte = ord(b"0")
+        return cls(
+            strength_s=int(strength_code - zero_byte),
+            height_ft=10 * (2 ** int(height_code - zero_byte)),
+            gain_db=int(gain_code - zero_byte),
+            directivity=int(directivity_code - zero_byte) * 45,
+        )
+
+
+@define
+class AreaObject(DataExt):
+    """
+    Tyy/Cxx
+    """
+
+    t: bytes = field(default=b"")
+    c: bytes = field(default=b"")
+
+    @classmethod
+    def try_parse(cls, raw: bytes) -> bool:
+        """Return True if this subclass might be able to parse raw bytes."""
+        return re.match(rb"T../C..", raw[:7])
+
+    @classmethod
+    def from_bytes(cls, raw: bytes) -> "AreaObject":
+        if not re.match(rb"T../C..", raw[:7]):
+            raise ValueError("{!r} is not an Area Object extension field".format(raw))
+        return cls(
+            t=raw[1:3],
+            c=raw[5:7],
         )
 
 
@@ -150,7 +243,7 @@ class InformationField:
 ALTITUDE_REX = re.compile(rb"/A=(-[0-9]+)")
 
 
-@define
+@define(frozen=True, slots=True)
 class PositionReport(InformationField):
     timestamp: Optional[datetime] = field(default=None)
     lat: float = field(default=0.0)
@@ -192,7 +285,7 @@ class PositionReport(InformationField):
             # eventually we may try to decode other position types here
             raise
         # try to decode extended data
-        data_ext, comment = DataExt.from_bytes(comment)
+        data_ext, comment = DataExt.split_parse(comment)
         # try to find the altitude comment
         alt_match = ALTITUDE_REX.search(comment)
         return cls(
@@ -207,7 +300,7 @@ class PositionReport(InformationField):
         )
 
 
-@define
+@define(frozen=True, slots=True)
 class Message(InformationField):
     addressee: bytes = field(default=b"")
     text: bytes = field(default=b"")
