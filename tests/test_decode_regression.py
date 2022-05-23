@@ -21,6 +21,7 @@ from aprs3.classes import (
     PositionReport,
     RNG,
 )
+from aprs3.constants import TimestampFormat
 
 
 @pytest.mark.parametrize(
@@ -86,6 +87,7 @@ from aprs3.classes import (
                 timestamp=datetime.datetime(
                     2022, 5, 20, 23, 50, tzinfo=datetime.timezone.utc
                 ),
+                timestamp_format=TimestampFormat.DayHoursMinutesZulu,
                 lat=Decimal("46.97316666666666666666666667"),
                 sym_table_id=b"/",
                 long=Decimal("-123.1381666666666666666666667"),
@@ -131,3 +133,12 @@ def test_decode(packet_text, exp_decoded_iframe):
     f = Frame.from_str(packet_text)
     iframe = InformationField.from_bytes(f.info)
     assert iframe == exp_decoded_iframe
+    if (
+        iframe.data_type == DataType.POSITION_W_O_TIMESTAMP
+        and iframe.data_type.value != f.info[0:1]
+    ):
+        # special case for node prefix before '!' data
+        assert bytes(iframe) == bytes(exp_decoded_iframe)
+    else:
+        # otherwise the re-encoded packet should match the input exactly
+        assert bytes(iframe) == f.info

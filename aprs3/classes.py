@@ -2,17 +2,22 @@
 # -*- coding: utf-8 -*-
 
 """Python APRS Module Class Definitions."""
-
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, timezone
 import enum
 from functools import lru_cache
+import math
 import re
 from typing import Optional, Tuple, Type, Union
 
-from attrs import define, field
+from attrs import define, field, NOTHING
 
-from .parser import decode_position_uncompressed, decode_timestamp
+from .constants import TimestampFormat, timestamp_formats_map
+from .parser import (
+    decode_position_uncompressed,
+    decode_timestamp,
+    encode_position_uncompressed,
+)
 
 __author__ = "Greg Albrecht W2GMD <oss@undef.net>"  # NOQA pylint: disable=R0801
 __copyright__ = (
@@ -77,6 +82,10 @@ class DataExt(ABC):
             return parsed, raw[7:]
         return b"", raw
 
+    @abstractmethod
+    def __bytes__(self) -> bytes:
+        """Serialize the data extension as bytes."""
+
 
 @define
 class CourseSpeed(DataExt):
@@ -97,6 +106,9 @@ class CourseSpeed(DataExt):
             course=int(course.decode("ascii")),
             speed=int(speed.decode("ascii")),
         )
+
+    def __bytes__(self) -> bytes:
+        return b"%03d/%03d" % ((self.course % 360), (self.speed % 1000))
 
 
 @define
@@ -128,6 +140,13 @@ class PHG(DataExt):
             directivity=int(directivity_code - zero_byte) * 45,
         )
 
+    def __bytes__(self) -> bytes:
+        power_code = int(round(math.sqrt(self.power_w))) % 10
+        height_code = bytes([ord(b"0") + int(round(math.log2(self.height_ft / 10)))])
+        gain_code = self.gain_db % 10
+        directivity_code = int(round(self.directivity / 45)) % 10
+        return b"PHG%d%b%d%d" % (power_code, height_code, gain_code, directivity_code)
+
 
 @define
 class RNG(DataExt):
@@ -147,6 +166,9 @@ class RNG(DataExt):
         if not raw.startswith(b"RNG"):
             raise ValueError("{!r} is not a RNG extension field".format(raw))
         return cls(range=int(raw[3:7]))
+
+    def __bytes__(self) -> bytes:
+        return b"RNG%04d" % (self.range % 10000)
 
 
 @define
@@ -178,6 +200,18 @@ class DFS(DataExt):
             directivity=int(directivity_code - zero_byte) * 45,
         )
 
+    def __bytes__(self) -> bytes:
+        strength_code = bytes([ord(b"0") + self.strength_s])
+        height_code = bytes([ord(b"0") + int(round(math.log2(self.height_ft / 10)))])
+        gain_code = self.gain_db % 10
+        directivity_code = int(round(self.directivity / 45)) % 10
+        return b"DFS%b%b%d%d" % (
+            strength_code,
+            height_code,
+            gain_code,
+            directivity_code,
+        )
+
 
 @define
 class AreaObject(DataExt):
@@ -201,6 +235,9 @@ class AreaObject(DataExt):
             t=raw[1:3],
             c=raw[5:7],
         )
+
+    def __bytes__(self) -> bytes:
+        return b"T% 2b/C% 2b" % (self.t[:2], self.c[:2])
 
 
 @define(frozen=True, slots=True)
@@ -246,6 +283,7 @@ ALTITUDE_REX = re.compile(rb"/A=(-[0-9]+)")
 @define(frozen=True, slots=True)
 class PositionReport(InformationField):
     timestamp: Optional[datetime] = field(default=None)
+    timestamp_format: Optional[TimestampFormat] = field(default=None)
     lat: float = field(default=0.0)
     sym_table_id: bytes = field(default=b"/")
     long: float = field(default=0.0)
@@ -268,12 +306,12 @@ class PositionReport(InformationField):
                     data_type, cls, cls.__data_type__
                 )
             )
-        timestamp = None
+        timestamp = timestamp_format = None
         if data_type in [
             DataType.POSITION_W_TIMESTAMP_MSG,
             DataType.POSITION_W_TIMESTAMP_NO_MSG,
         ]:
-            timestamp = decode_timestamp(raw[1:8])
+            timestamp_format, timestamp = decode_timestamp(raw[1:8])
             data = raw[8:]
         else:
             data = raw[1:]
@@ -295,9 +333,34 @@ class PositionReport(InformationField):
             data_ext=data_ext,
             comment=comment,
             timestamp=timestamp,
+            timestamp_format=timestamp_format,
             altitude_ft=int(alt_match.group(1).decode("ascii")) if alt_match else None,
             **position,
         )
+
+    def __bytes__(self) -> bytes:
+        data = [self.data_type.value]
+        if self.data_type in [
+            DataType.POSITION_W_TIMESTAMP_MSG,
+            DataType.POSITION_W_TIMESTAMP_NO_MSG,
+        ]:
+            ts = self.timestamp or datetime.now(tz=timezone.utc)
+            ts_format = self.timestamp_format or TimestampFormat.HoursMinutesSecondsZulu
+            data.append(
+                ts.strftime(timestamp_formats_map[ts_format]).encode("ascii")
+                + ts_format.value,
+            )
+        data.append(
+            encode_position_uncompressed(
+                self.lat, self.long, self.sym_table_id, self.symbol_code
+            )
+        )
+        if self.data_ext:
+            data.append(bytes(self.data_ext))
+        if self.altitude_ft and not ALTITUDE_REX.search(self.comment):
+            data.append(b"/A=%06d" % self.altitude_ft)
+        data.append(self.comment)
+        return b"".join(data)
 
 
 @define(frozen=True, slots=True)
