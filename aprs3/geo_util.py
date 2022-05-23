@@ -12,7 +12,7 @@ __copyright__ = (
 __license__ = "Apache License, Version 2.0"  # NOQA pylint: disable=R0801
 
 
-def dec2dm_lat(dec: float) -> str:
+def dec2dm_lat(dec: float) -> bytes:
     """
     Converts DecDeg to APRS Coord format.
 
@@ -36,14 +36,14 @@ def dec2dm_lat(dec: float) -> str:
     abs_deg = abs(deg)
 
     if not deg == abs_deg:
-        suffix = "S"
+        suffix = b"S"
     else:
-        suffix = "N"
+        suffix = b"N"
 
-    return "%02d%05.2f%s" % (abs_deg, dec_min[1], suffix)
+    return b"%02d%05.2f%s" % (abs_deg, dec_min[1], suffix)
 
 
-def dec2dm_lng(dec: float) -> str:
+def dec2dm_lng(dec: float) -> bytes:
     """
     Converts DecDeg to APRS Coord format.
 
@@ -65,14 +65,14 @@ def dec2dm_lng(dec: float) -> str:
     abs_deg = abs(deg)
 
     if not deg == abs_deg:
-        suffix = "W"
+        suffix = b"W"
     else:
-        suffix = "E"
+        suffix = b"E"
 
-    return "%03d%05.2f%s" % (abs_deg, dec_min[1], suffix)
+    return b"%03d%05.2f%s" % (abs_deg, dec_min[1], suffix)
 
 
-def ambiguate(pos: float, ambiguity: int) -> str:
+def ambiguate(pos: bytes, ambiguity: int) -> bytes:
     """
     Adjust ambiguity of position.
 
@@ -88,15 +88,16 @@ def ambiguate(pos: float, ambiguity: int) -> str:
     >>> ambiguate(pos, 3)
     '1234 .  N'
     """
-    num = bytearray(pos, "UTF-8")
-    for i in range(0, ambiguity):
-        if i > 1:
-            # skip the dot
-            i += 1
-        # skip the direction
-        i += 2
-        num[-i] = ord(" ")
-    return num.decode()
+    if not isinstance(pos, bytes):
+        pos = str(pos).encode("ascii")
+    amb = []
+    for b in reversed(pos):
+        if ord(b"0") <= b <= ord(b"9") and ambiguity:
+            amb.append(ord(b" "))
+            ambiguity -= 1
+            continue
+        amb.append(b)
+    return bytes(reversed(amb))
 
 
 def run_doctest():  # pragma: no cover

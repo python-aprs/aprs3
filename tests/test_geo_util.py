@@ -57,13 +57,13 @@ def test_latitude_north():
     test_lat = 37.7418096
     aprs_lat = geo_util.dec2dm_lat(test_lat)
 
-    lat_deg = int(aprs_lat.split(".")[0][:1])
+    lat_deg = int(aprs_lat.split(b".")[0][:1])
     # lat_hsec = aprs_lat.split('.')[1]
 
     assert len(aprs_lat) == 8
     assert lat_deg >= 00
     assert lat_deg <= 90
-    assert aprs_lat.endswith("N")
+    assert aprs_lat.endswith(b"N")
 
 
 def test_latitude_south():
@@ -71,12 +71,12 @@ def test_latitude_south():
     test_lat = -37.7418096
     aprs_lat = geo_util.dec2dm_lat(test_lat)
 
-    lat_deg = int(aprs_lat.split(".")[0][:1])
+    lat_deg = int(aprs_lat.split(b".")[0][:1])
 
     assert len(aprs_lat) == 8
     assert lat_deg >= 00
     assert lat_deg <= 90
-    assert aprs_lat.endswith("S")
+    assert aprs_lat.endswith(b"S")
 
 
 def test_latitude_south_padding_minutes():
@@ -89,12 +89,12 @@ def test_latitude_south_padding_minutes():
     test_lat = -38.01
     aprs_lat = geo_util.dec2dm_lat(test_lat)
 
-    lat_deg = int(aprs_lat.split(".")[0][:1])
+    lat_deg = int(aprs_lat.split(b".")[0][:1])
 
     assert len(aprs_lat) == 8
     assert lat_deg >= 00
     assert lat_deg <= 90
-    assert aprs_lat.endswith("S")
+    assert aprs_lat.endswith(b"S")
 
 
 def test_latitude_south_padding_degrees():
@@ -107,12 +107,12 @@ def test_latitude_south_padding_degrees():
     test_lat = -8.01
     aprs_lat = geo_util.dec2dm_lat(test_lat)
 
-    lat_deg = int(aprs_lat.split(".")[0][:1])
+    lat_deg = int(aprs_lat.split(b".")[0][:1])
 
     assert len(aprs_lat) == 8
     assert lat_deg >= 00
     assert lat_deg <= 90
-    assert aprs_lat.endswith("S")
+    assert aprs_lat.endswith(b"S")
 
 
 def test_longitude_west():
@@ -120,13 +120,13 @@ def test_longitude_west():
     test_lng = -122.38833
     aprs_lng = geo_util.dec2dm_lng(test_lng)
 
-    lng_deg = int(aprs_lng.split(".")[0][:2])
+    lng_deg = int(aprs_lng.split(b".")[0][:2])
     # lng_hsec = aprs_lng.split('.')[1]
 
     assert len(aprs_lng) == 9
     assert lng_deg >= 000
     assert lng_deg <= 180
-    assert aprs_lng.endswith("W")
+    assert aprs_lng.endswith(b"W")
 
 
 def test_longitude_west_padding_minutes():
@@ -139,13 +139,13 @@ def test_longitude_west_padding_minutes():
     test_lng = -122.01
     aprs_lng = geo_util.dec2dm_lng(test_lng)
 
-    lng_deg = int(aprs_lng.split(".")[0][:2])
+    lng_deg = int(aprs_lng.split(b".")[0][:2])
     # lng_hsec = aprs_lng.split('.')[1]
 
     assert len(aprs_lng) == 9
     assert lng_deg >= 000
     assert lng_deg <= 180
-    assert aprs_lng.endswith("W")
+    assert aprs_lng.endswith(b"W")
 
 
 def test_longitude_west_padding_degrees():
@@ -158,13 +158,13 @@ def test_longitude_west_padding_degrees():
     test_lng = -99.01
     aprs_lng = geo_util.dec2dm_lng(test_lng)
 
-    lng_deg = int(aprs_lng.split(".")[0][:2])
+    lng_deg = int(aprs_lng.split(b".")[0][:2])
     # lng_hsec = aprs_lng.split('.')[1]
 
     assert len(aprs_lng) == 9
     assert lng_deg >= 000
     assert lng_deg <= 180
-    assert aprs_lng.endswith("W")
+    assert aprs_lng.endswith(b"W")
 
 
 def test_longitude_east():
@@ -172,10 +172,10 @@ def test_longitude_east():
     test_lng = 122.38833
     aprs_lng = geo_util.dec2dm_lng(test_lng)
 
-    lng_deg = int(aprs_lng.split(".")[0][:2])
+    lng_deg = int(aprs_lng.split(b".")[0][:2])
     # lng_hsec = aprs_lng.split('.')[1]
 
     assert len(aprs_lng) == 9
     assert lng_deg >= 000
     assert lng_deg <= 180
-    assert aprs_lng.endswith("E")
+    assert aprs_lng.endswith(b"E")
