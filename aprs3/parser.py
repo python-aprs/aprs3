@@ -5,6 +5,7 @@ from decimal import Decimal
 
 from .constants import TimestampFormat
 from .decimaldegrees import dm2decimal
+from .geo_util import ambiguate, dec2dm_lat, dec2dm_lng
 
 
 POSITION_UNCOMPRESSED_SIGNATURE = tuple(chr(c) for c in range(ord(b"0"), ord(b"9")))
@@ -36,6 +37,19 @@ def decode_position_uncompressed(data: bytes):
         sym_table_id=sym_table_id,
         long=long,
         symbol_code=symbol_code,
+    )
+
+
+def encode_position_uncompressed(
+    lat, long, sym_table_id, symbol_code, ambiguity=None
+) -> bytes:
+    return b"".join(
+        [
+            ambiguate(dec2dm_lat(lat), ambiguity),
+            sym_table_id,
+            ambiguate(dec2dm_lng(long), ambiguity),
+            symbol_code,
+        ]
     )
 
 
