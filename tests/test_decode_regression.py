@@ -25,7 +25,7 @@ from aprs3.classes import (
     PHG,
     PositionReport,
     RNG,
-    Status,
+    StatusReport,
 )
 from aprs3.constants import TimestampFormat
 
@@ -192,7 +192,7 @@ def fixed_now(monkeypatch):
         ),
         pytest.param(
             "ROSLDG>BEACON,LINCON*,OR2-1,QAO,W7KKE:>Oregon Coast Repeater Group: WX: Rose Lodge, OR: www.ocrg.org:W7GC-5",
-            Status(
+            StatusReport(
                 raw=b">Oregon Coast Repeater Group: WX: Rose Lodge, OR: www.ocrg.org:W7GC-5",
                 data_type=DataType.STATUS,
                 data=b"Oregon Coast Repeater Group: WX: Rose Lodge, OR: www.ocrg.org:W7GC-5",
@@ -204,7 +204,7 @@ def fixed_now(monkeypatch):
         ),
         pytest.param(
             "ROSLDG>BEACON,LINCON*,OR2-1,QAO,W7KKE:>232114zOregon Coast Repeater Group: WX: Rose Lodge, OR: www.ocrg.org:W7GC-5",
-            Status(
+            StatusReport(
                 raw=b">232114zOregon Coast Repeater Group: WX: Rose Lodge, OR: www.ocrg.org:W7GC-5",
                 data_type=DataType.STATUS,
                 data=b"Oregon Coast Repeater Group: WX: Rose Lodge, OR: www.ocrg.org:W7GC-5",

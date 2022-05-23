@@ -428,7 +428,7 @@ class Message(InformationField):
 
 
 @define(frozen=True, slots=True)
-class Status(InformationField):
+class StatusReport(InformationField):
     timestamp: Optional[datetime] = field(default=None)
     status: bytes = field(default=b"")
 
@@ -438,7 +438,7 @@ class Status(InformationField):
     timestamp_format = TimestampFormat.DayHoursMinutesZulu
 
     @classmethod
-    def from_bytes(cls, raw: bytes) -> "Status":
+    def from_bytes(cls, raw: bytes) -> "StatusReport":
         data_type = DataType(raw[0:1])
         if data_type not in cls.__data_type__:
             raise DataTypeError(
