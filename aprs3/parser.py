@@ -2,8 +2,9 @@
 
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
+from typing import Tuple
 
-from .constants import TimestampFormat
+from .constants import TimestampFormat, timestamp_formats_map
 from .decimaldegrees import dm2decimal
 from .geo_util import ambiguate, dec2dm_lat, dec2dm_lng
 
@@ -57,7 +58,7 @@ def decode_timestamp_dhm(data: bytes) -> datetime:
     ts_format = TimestampFormat(data[6:7])
     tzinfo = None if ts_format == TimestampFormat.DayHoursMinutesLocal else timezone.utc
     now = datetime.now(tz=tzinfo)
-    ts = datetime.strptime(data[:6].decode("ascii"), "%d%H%M")
+    ts = datetime.strptime(data[:6].decode("ascii"), timestamp_formats_map[ts_format])
     maybe_ts = ts.replace(year=now.year, month=now.month, tzinfo=tzinfo)
     if maybe_ts > (now + FUTURE_TIMESTAMP_THRESHOLD):
         # can't have a timestamp in the future, so assume it's from last month
@@ -69,7 +70,10 @@ def decode_timestamp_dhm(data: bytes) -> datetime:
 
 def decode_timestamp_hms(data: bytes) -> datetime:
     now = datetime.now(tz=timezone.utc)
-    ts = datetime.strptime(data[:6].decode("ascii"), "%H%M%S")
+    ts = datetime.strptime(
+        data[:6].decode("ascii"),
+        timestamp_formats_map[TimestampFormat.HoursMinutesSecondsZulu],
+    )
     maybe_ts = ts.replace(
         year=now.year, month=now.month, day=now.day, tzinfo=timezone.utc
     )
@@ -81,7 +85,10 @@ def decode_timestamp_hms(data: bytes) -> datetime:
 
 def decode_timestamp_mdhm(data: bytes) -> datetime:
     now = datetime.now(tz=timezone.utc)
-    ts = datetime.strptime(data[:8].decode("ascii"), "%m%d%H%M").replace(
+    ts = datetime.strptime(
+        data[:8].decode("ascii"),
+        timestamp_formats_map[TimestampFormat.MonthDayHoursMinutesZulu],
+    ).replace(
         year=now.year,
         tzinfo=timezone.utc,
     )
@@ -91,15 +98,15 @@ def decode_timestamp_mdhm(data: bytes) -> datetime:
     return ts
 
 
-def decode_timestamp(data: bytes) -> datetime:
+def decode_timestamp(data: bytes) -> Tuple[TimestampFormat, datetime]:
     try:
         ts_format = TimestampFormat(data[6:7])
         if ts_format in [
             TimestampFormat.DayHoursMinutesLocal,
             TimestampFormat.DayHoursMinutesZulu,
         ]:
-            return decode_timestamp_dhm(data)
-        return decode_timestamp_hms(data)
+            return ts_format, decode_timestamp_dhm(data)
+        return ts_format, decode_timestamp_hms(data)
     except ValueError:
         # assume Month Day Hours Minutes
-        return decode_timestamp_mdhm(data)
+        return TimestampFormat.MonthDayHoursMinutesZulu, decode_timestamp_mdhm(data)
