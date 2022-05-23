@@ -7,11 +7,13 @@ new information data types.
 """
 import datetime
 from decimal import Decimal
+from unittest import mock
 
 import pytest
 
 from kiss3.ax25 import Frame
 
+from aprs3 import parser
 from aprs3.classes import (
     CourseSpeed,
     DataType,
@@ -21,8 +23,24 @@ from aprs3.classes import (
     PHG,
     PositionReport,
     RNG,
+    Status,
 )
 from aprs3.constants import TimestampFormat
+
+
+@pytest.fixture(autouse=True)
+def fixed_now(monkeypatch):
+    """Return a static datetime.datetime.now so the test returns consistent results."""
+
+    def new_now(*args, **kwargs):
+        return datetime.datetime(2022, 5, 23, 23, 59, tzinfo=datetime.timezone.utc)
+
+    with mock.patch("aprs3.parser.datetime") as mock_datetime:
+        mock_datetime.now.side_effect = new_now
+        mock_datetime.strptime.side_effect = (
+            lambda *args, **kw: datetime.datetime.strptime(*args, **kw)
+        )
+        yield
 
 
 @pytest.mark.parametrize(
@@ -130,45 +148,72 @@ from aprs3.constants import TimestampFormat
         ),
         pytest.param(
             "SMSGTE>APSMS1,TCPIP,QAS,VE3OTB-12::KF0JGS-7 :@3037755154 I love you 2!{M1383",
-	        Message(
-                raw=b':KF0JGS-7 :@3037755154 I love you 2!{M1383',
+            Message(
+                raw=b":KF0JGS-7 :@3037755154 I love you 2!{M1383",
                 data_type=DataType.MESSAGE,
-                data=b'KF0JGS-7 :@3037755154 I love you 2!{M1383',
-                data_ext=b'',
-                comment=b'',
-                addressee=b'KF0JGS-7',
-                text=b'@3037755154 I love you 2!',
-                number=b'M1383',
+                data=b"KF0JGS-7 :@3037755154 I love you 2!{M1383",
+                data_ext=b"",
+                comment=b"",
+                addressee=b"KF0JGS-7",
+                text=b"@3037755154 I love you 2!",
+                number=b"M1383",
             ),
             id="message, needs ack",
         ),
         pytest.param(
             "KF0JGS-7>APSMS1,TCPIP,QAS,VE3OTB-12::SMSGTE   :ackM1383",
             Message(
-                raw=b':SMSGTE   :ackM1383',
+                raw=b":SMSGTE   :ackM1383",
                 data_type=DataType.MESSAGE,
-                data=b'SMSGTE   :ackM1383',
-                data_ext=b'',
-                comment=b'',
-                addressee=b'SMSGTE',
-                text=b'ackM1383',
+                data=b"SMSGTE   :ackM1383",
+                data_ext=b"",
+                comment=b"",
+                addressee=b"SMSGTE",
+                text=b"ackM1383",
                 number=None,
             ),
             id="message ack",
         ),
         pytest.param(
             "VE7VIC-15>APMI04,QAR,AF7DX-1::BLN1     :Net Mondays 19:00 146.840- T100.0",
-	        Message(
-                raw=b':BLN1     :Net Mondays 19:00 146.840- T100.0',
+            Message(
+                raw=b":BLN1     :Net Mondays 19:00 146.840- T100.0",
                 data_type=DataType.MESSAGE,
-                data=b'BLN1     :Net Mondays 19:00 146.840- T100.0',
-                data_ext=b'',
-                comment=b'',
-                addressee=b'BLN1',
-                text=b'Net Mondays 19:00 146.840- T100.0',
+                data=b"BLN1     :Net Mondays 19:00 146.840- T100.0",
+                data_ext=b"",
+                comment=b"",
+                addressee=b"BLN1",
+                text=b"Net Mondays 19:00 146.840- T100.0",
                 number=None,
             ),
             id="bulletin, no ack",
+        ),
+        pytest.param(
+            "ROSLDG>BEACON,LINCON*,OR2-1,QAO,W7KKE:>Oregon Coast Repeater Group: WX: Rose Lodge, OR: www.ocrg.org:W7GC-5",
+            Status(
+                raw=b">Oregon Coast Repeater Group: WX: Rose Lodge, OR: www.ocrg.org:W7GC-5",
+                data_type=DataType.STATUS,
+                data=b"Oregon Coast Repeater Group: WX: Rose Lodge, OR: www.ocrg.org:W7GC-5",
+                data_ext=b"",
+                comment=b"",
+                status=b"Oregon Coast Repeater Group: WX: Rose Lodge, OR: www.ocrg.org:W7GC-5",
+            ),
+            id="status, no timestamp",
+        ),
+        pytest.param(
+            "ROSLDG>BEACON,LINCON*,OR2-1,QAO,W7KKE:>232114zOregon Coast Repeater Group: WX: Rose Lodge, OR: www.ocrg.org:W7GC-5",
+            Status(
+                raw=b">232114zOregon Coast Repeater Group: WX: Rose Lodge, OR: www.ocrg.org:W7GC-5",
+                data_type=DataType.STATUS,
+                data=b"Oregon Coast Repeater Group: WX: Rose Lodge, OR: www.ocrg.org:W7GC-5",
+                data_ext=b"",
+                comment=b"",
+                timestamp=datetime.datetime(
+                    2022, 5, 23, 21, 14, tzinfo=datetime.timezone.utc
+                ),
+                status=b"Oregon Coast Repeater Group: WX: Rose Lodge, OR: www.ocrg.org:W7GC-5",
+            ),
+            id="status, timestamp",
         ),
     ),
 )

@@ -16,6 +16,7 @@ from .constants import TimestampFormat, timestamp_formats_map
 from .parser import (
     decode_position_uncompressed,
     decode_timestamp,
+    decode_timestamp_dhm,
     encode_position_uncompressed,
 )
 
@@ -407,5 +408,57 @@ class Message(InformationField):
                 DataType.MESSAGE.value,
                 self.text[:67],
                 b"{%s" % self.number if self.number else b"",
+            ]
+        )
+
+
+@define(frozen=True, slots=True)
+class Status(InformationField):
+    timestamp: Optional[datetime] = field(default=None)
+    status: bytes = field(default=b"")
+
+    __data_type__ = [DataType.STATUS]
+
+    # APRS101 p. 80: Note: The timestamp can only be in DHM zulu format.
+    timestamp_format = TimestampFormat.DayHoursMinutesZulu
+
+    @classmethod
+    def from_bytes(cls, raw: bytes) -> "Status":
+        data_type = DataType(raw[0:1])
+        if data_type not in cls.__data_type__:
+            raise DataTypeError(
+                "{!r} cannot be handled by {!r} (expecting {!r})".format(
+                    data_type, cls, cls.__data_type__
+                )
+            )
+        timestamp, data = None, raw[1:]
+        try:
+            timestamp, data = decode_timestamp_dhm(data[:7]), data[7:]
+        except ValueError:
+            pass
+        return cls(
+            raw=raw,
+            data_type=data_type,
+            data=data,
+            timestamp=timestamp,
+            status=data,
+        )
+
+    def __bytes__(self):
+        timestamp = (
+            (
+                self.timestamp.strftime(
+                    timestamp_formats_map[self.timestamp_format],
+                ).encode("ascii")
+                + self.timestamp_format.value
+            )
+            if self.timestamp
+            else b""
+        )
+        return b"".join(
+            [
+                DataType.STATUS.value,
+                timestamp,
+                self.status,
             ]
         )
