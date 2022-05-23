@@ -19,6 +19,7 @@ from .parser import (
     decode_timestamp_dhm,
     encode_position_uncompressed,
 )
+from .util import utcnow_tz
 
 __author__ = "Greg Albrecht W2GMD <oss@undef.net>"  # NOQA pylint: disable=R0801
 __copyright__ = (
@@ -264,13 +265,18 @@ class InformationField:
     def from_bytes(cls, raw: bytes) -> "InformationField":
         data_type = DataType(raw[0:1])
         handler = cls._find_handler(data_type)
-        if handler is None:
+        if handler is None or data_type == DataType.OBJECT:
             x1j_header, found_data_type, data = raw.partition(b"!")
             if len(x1j_header) <= 40:
                 # special case in APRS101
                 return PositionReport.from_bytes(found_data_type + data)
+        if handler is None:
             return cls(
-                raw=raw, data_type=data_type, data=b"", data_ext=b"", comment=raw[1:]
+                raw=raw,
+                data_type=data_type,
+                data=b"",
+                data_ext=b"",
+                comment=raw[1:],
             )
         return handler.from_bytes(raw)
 
@@ -304,8 +310,10 @@ class PositionReport(InformationField):
         if data_type not in cls.__data_type__:
             raise DataTypeError(
                 "{!r} cannot be handled by {!r} (expecting {!r})".format(
-                    data_type, cls, cls.__data_type__
-                )
+                    data_type,
+                    cls,
+                    cls.__data_type__,
+                ),
             )
         timestamp = timestamp_format = None
         if data_type in [
@@ -353,8 +361,11 @@ class PositionReport(InformationField):
             )
         data.append(
             encode_position_uncompressed(
-                self.lat, self.long, self.sym_table_id, self.symbol_code
-            )
+                self.lat,
+                self.long,
+                self.sym_table_id,
+                self.symbol_code,
+            ),
         )
         if self.data_ext:
             data.append(bytes(self.data_ext))
@@ -378,14 +389,18 @@ class Message(InformationField):
         if data_type not in cls.__data_type__:
             raise DataTypeError(
                 "{!r} cannot be handled by {!r} (expecting {!r})".format(
-                    data_type, cls, cls.__data_type__
-                )
+                    data_type,
+                    cls,
+                    cls.__data_type__,
+                ),
             )
         data = raw[1:]
         end_of_addressee = data[9:10]
         if end_of_addressee != DataType.MESSAGE.value:
             raise ValueError(
-                "Expecting {!r} at index 9 of {!r}".format(DataType.MESSAGE.value, data)
+                "Expecting {!r} at index 9 of {!r}".format(
+                    DataType.MESSAGE.value, data
+                ),
             )
         init_kwargs = dict(addressee=data[:9].strip())
         text = data[10:]
@@ -408,7 +423,7 @@ class Message(InformationField):
                 DataType.MESSAGE.value,
                 self.text[:67],
                 b"{%s" % self.number if self.number else b"",
-            ]
+            ],
         )
 
 
@@ -428,8 +443,10 @@ class Status(InformationField):
         if data_type not in cls.__data_type__:
             raise DataTypeError(
                 "{!r} cannot be handled by {!r} (expecting {!r})".format(
-                    data_type, cls, cls.__data_type__
-                )
+                    data_type,
+                    cls,
+                    cls.__data_type__,
+                ),
             )
         timestamp, data = None, raw[1:]
         try:
@@ -460,5 +477,145 @@ class Status(InformationField):
                 DataType.STATUS.value,
                 timestamp,
                 self.status,
-            ]
+            ],
+        )
+
+
+@define(frozen=True, slots=True)
+class ObjectReport(InformationField):
+    name: bytes = field(default=None)
+    killed: bool = field(default=False)
+    timestamp: datetime = field(factory=utcnow_tz)
+    timestamp_format: Optional[TimestampFormat] = field(default=None)
+    lat: float = field(default=0.0)
+    sym_table_id: bytes = field(default=b"/")
+    long: float = field(default=0.0)
+    symbol_code: bytes = field(default=b"-")
+
+    __data_type__ = [DataType.OBJECT]
+
+    @classmethod
+    def from_bytes(cls, raw: bytes) -> "ObjectReport":
+        data_type = DataType(raw[0:1])
+        if data_type not in cls.__data_type__:
+            raise DataTypeError(
+                "{!r} cannot be handled by {!r} (expecting {!r})".format(
+                    data_type,
+                    cls,
+                    cls.__data_type__,
+                ),
+            )
+        name = raw[1:10].strip()
+        killed = raw[10:11] == b"_"
+        timestamp_format, timestamp = decode_timestamp(raw[11:18])
+        data = raw[18:]
+        comment = b""
+        try:
+            position = decode_position_uncompressed(data[:19])
+            data, comment = data[:19], data[19:]
+        except ValueError:
+            # eventually we may try to decode other position types here
+            raise
+        # try to decode extended data
+        data_ext, comment = DataExt.split_parse(comment)
+        return cls(
+            raw=raw,
+            data_type=data_type,
+            data=data,
+            data_ext=data_ext,
+            comment=comment,
+            name=name,
+            killed=killed,
+            timestamp=timestamp,
+            timestamp_format=timestamp_format,
+            **position,
+        )
+
+    def __bytes__(self) -> bytes:
+        return b"".join(
+            [
+                self.data_type.value,
+                self.name.ljust(9),
+                b"_" if self.killed else b"*",
+                (
+                    self.timestamp.strftime(
+                        timestamp_formats_map[self.timestamp_format],
+                    ).encode("ascii")
+                    + self.timestamp_format.value
+                ),
+                encode_position_uncompressed(
+                    self.lat,
+                    self.long,
+                    self.sym_table_id,
+                    self.symbol_code,
+                ),
+                bytes(self.data_ext),
+                self.comment,
+            ],
+        )
+
+
+@define(frozen=True, slots=True)
+class ItemReport(InformationField):
+    name: bytes = field(default=None)
+    killed: bool = field(default=False)
+    lat: float = field(default=0.0)
+    sym_table_id: bytes = field(default=b"/")
+    long: float = field(default=0.0)
+    symbol_code: bytes = field(default=b"-")
+
+    __data_type__ = [DataType.ITEM]
+
+    @classmethod
+    def from_bytes(cls, raw: bytes) -> "ItemReport":
+        data_type = DataType(raw[0:1])
+        if data_type not in cls.__data_type__:
+            raise DataTypeError(
+                "{!r} cannot be handled by {!r} (expecting {!r})".format(
+                    data_type,
+                    cls,
+                    cls.__data_type__,
+                ),
+            )
+        for split in (b"!", b"_"):
+            name, status, data = raw[1:].partition(split)
+            if status:
+                break
+        name = name.strip()
+        killed = status == b"_"
+        comment = b""
+        try:
+            position = decode_position_uncompressed(data[:19])
+            data, comment = data[:19], data[19:]
+        except ValueError:
+            # eventually we may try to decode other position types here
+            raise
+        # try to decode extended data
+        data_ext, comment = DataExt.split_parse(comment)
+        return cls(
+            raw=raw,
+            data_type=data_type,
+            data=data,
+            data_ext=data_ext,
+            comment=comment,
+            name=name,
+            killed=killed,
+            **position,
+        )
+
+    def __bytes__(self) -> bytes:
+        return b"".join(
+            [
+                self.data_type.value,
+                self.name,
+                b"_" if self.killed else b"!",
+                encode_position_uncompressed(
+                    self.lat,
+                    self.long,
+                    self.sym_table_id,
+                    self.symbol_code,
+                ),
+                bytes(self.data_ext),
+                self.comment,
+            ],
         )
