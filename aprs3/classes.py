@@ -12,6 +12,8 @@ from typing import Optional, Tuple, Type, Union
 
 from attrs import define, field, NOTHING
 
+from kiss3.ax25 import Frame
+
 from .constants import TimestampFormat, timestamp_formats_map
 from .parser import (
     decode_position_uncompressed,
@@ -279,6 +281,10 @@ class InformationField:
                 comment=raw[1:],
             )
         return handler.from_bytes(raw)
+
+    @classmethod
+    def from_frame(cls, f: Frame) -> "InformationField":
+        return cls.from_bytes(f.info)
 
     def __bytes__(self) -> bytes:
         return self.raw

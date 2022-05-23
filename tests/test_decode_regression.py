@@ -281,7 +281,7 @@ def fixed_now(monkeypatch):
 )
 def test_decode(packet_text, exp_decoded_iframe):
     f = Frame.from_str(packet_text)
-    iframe = InformationField.from_bytes(f.info)
+    iframe = InformationField.from_frame(f)
     assert iframe == exp_decoded_iframe
     if (
         iframe.data_type == DataType.POSITION_W_O_TIMESTAMP
