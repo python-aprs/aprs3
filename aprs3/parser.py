@@ -2,8 +2,10 @@
 
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
+import math
 from typing import Tuple
 
+from .base91 import from_decimal, to_decimal
 from .constants import TimestampFormat, timestamp_formats_map
 from .decimaldegrees import dm2decimal
 from .geo_util import ambiguate, dec2dm_lat, dec2dm_lng
@@ -42,7 +44,11 @@ def decode_position_uncompressed(data: bytes):
 
 
 def encode_position_uncompressed(
-    lat, long, sym_table_id, symbol_code, ambiguity=None
+    lat,
+    long,
+    sym_table_id,
+    symbol_code,
+    ambiguity=None,
 ) -> bytes:
     return b"".join(
         [
@@ -52,6 +58,109 @@ def encode_position_uncompressed(
             symbol_code,
         ]
     )
+
+
+def decompress_lat(data: str) -> float:
+    return 90 - to_decimal(data) / 380926
+
+
+def compress_lat(data: float) -> bytes:
+    return from_decimal(int(round(380926 * (90 - data))), width=4).encode("ascii")
+
+
+def decompress_long(data: str) -> float:
+    return -180 + to_decimal(data) / 190463
+
+
+def compress_long(data: float) -> bytes:
+    return from_decimal(int(round(190463 * (180 + data))), width=4).encode("ascii")
+
+
+def decode_position_compressed(data: bytes):
+    """
+    :return: dict with keys lat, long, sym_table_id, symbol_code, data_ext
+    """
+    text = data.decode("latin1")
+    if chr(data[0]) in POSITION_UNCOMPRESSED_SIGNATURE:
+        raise ValueError("{!r} is not a compressed position".format(data[:13]))
+    sym_table_id = data[0:1]
+    lat = Decimal(str(decompress_lat(text[1:5])))
+    long = Decimal(str(decompress_long(text[5:9])))
+    symbol_code = data[9:10]
+    c_ext = text[10:12]
+    comp_type = data[12]
+    init_kwargs = {}
+
+    if c_ext[0] == " ":
+        data_ext = b""
+    else:
+        if c_ext[0] == "{":
+            from .classes import RNG
+
+            data_ext = RNG(range=2 * 1.08 ** to_decimal(c_ext[1]))
+        elif ord("!") <= ord(c_ext[0]) <= ord("z"):
+            from .classes import CourseSpeed
+
+            data_ext = CourseSpeed(
+                course=to_decimal(c_ext[0]) * 4, speed=1.08 ** to_decimal(c_ext[1]) - 1
+            )
+
+        if comp_type % 0b11000 == 0b10000:
+            # extract altitude
+            init_kwargs["altitude_ft"] = 1.002 ** to_decimal(c_ext)
+
+    return dict(
+        sym_table_id=sym_table_id,
+        lat=lat,
+        long=long,
+        symbol_code=symbol_code,
+        data_ext=data_ext,
+        **init_kwargs,
+    )
+
+
+def encode_position_compressed(
+    lat,
+    long,
+    sym_table_id,
+    symbol_code,
+    ambiguity=None,
+    data_ext=None,
+    altitude_ft=None,
+) -> bytes:
+    data = [
+        sym_table_id,
+        compress_lat(lat),
+        compress_long(long),
+        symbol_code,
+    ]
+    if data_ext:
+        from .classes import CourseSpeed, RNG
+
+        if isinstance(data_ext, CourseSpeed):
+            data.append(from_decimal(data_ext.course // 4, 1).encode("ascii"))
+            data.append(
+                from_decimal(int(round(math.log(data_ext.speed + 1, 1.08))), 1).encode(
+                    "ascii"
+                )
+            )
+            data.append(b"#")
+        elif isinstance(data_ext, RNG):
+            data.append(b"{")
+            data.append(
+                from_decimal(int(round(math.log(data_ext.range / 2, 1.08))), 1).encode(
+                    "ascii"
+                )
+            )
+            data.append(b"#")
+    elif altitude_ft:
+        data.append(
+            from_decimal(int(round(math.log(altitude_ft, 1.002))), 1).encode("ascii")
+        )
+        data.append(b"#")
+    else:
+        data.append(b"  #")
+    return b"".join(data)
 
 
 def decode_timestamp_dhm(data: bytes) -> datetime:
