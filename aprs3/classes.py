@@ -14,11 +14,13 @@ from attrs import define, field, NOTHING
 
 from kiss3.ax25 import Frame
 
-from .constants import TimestampFormat, timestamp_formats_map
+from .constants import PositionFormat, TimestampFormat, timestamp_formats_map
 from .parser import (
+    decode_position_compressed,
     decode_position_uncompressed,
     decode_timestamp,
     decode_timestamp_dhm,
+    encode_position_compressed,
     encode_position_uncompressed,
 )
 from .util import utcnow_tz
@@ -297,6 +299,9 @@ ALTITUDE_REX = re.compile(rb"/A=(-[0-9]+)")
 class PositionReport(InformationField):
     timestamp: Optional[datetime] = field(default=None)
     timestamp_format: Optional[TimestampFormat] = field(default=None)
+    position_format: Optional[PositionFormat] = field(
+        default=PositionFormat.Uncompressed
+    )
     lat: float = field(default=0.0)
     sym_table_id: bytes = field(default=b"/")
     long: float = field(default=0.0)
@@ -332,24 +337,36 @@ class PositionReport(InformationField):
             data = raw[1:]
         comment = b""
         try:
-            position = decode_position_uncompressed(data[:19])
+            (
+                position_format,
+                position,
+            ) = PositionFormat.Uncompressed, decode_position_uncompressed(data[:19])
             data, comment = data[:19], data[19:]
         except ValueError:
-            # eventually we may try to decode other position types here
-            raise
+            try:
+                (
+                    position_format,
+                    position,
+                ) = PositionFormat.Compressed, decode_position_compressed(data[:13])
+                data, comment = data[:13], data[13:]
+            except ValueError:
+                # eventually we may try to decode other position types here
+                raise
         # try to decode extended data
         data_ext, comment = DataExt.split_parse(comment)
         # try to find the altitude comment
         alt_match = ALTITUDE_REX.search(comment)
+        if alt_match:
+            position["altitude_ft"] = int(alt_match.group(1))
         return cls(
             raw=raw,
             data_type=data_type,
             data=data,
-            data_ext=data_ext,
+            data_ext=data_ext or position.pop("data_ext", b""),
             comment=comment,
             timestamp=timestamp,
             timestamp_format=timestamp_format,
-            altitude_ft=int(alt_match.group(1).decode("ascii")) if alt_match else None,
+            position_format=position_format,
             **position,
         )
 
@@ -365,18 +382,30 @@ class PositionReport(InformationField):
                 ts.strftime(timestamp_formats_map[ts_format]).encode("ascii")
                 + ts_format.value,
             )
-        data.append(
-            encode_position_uncompressed(
-                self.lat,
-                self.long,
-                self.sym_table_id,
-                self.symbol_code,
-            ),
-        )
-        if self.data_ext:
-            data.append(bytes(self.data_ext))
-        if self.altitude_ft and not ALTITUDE_REX.search(self.comment):
-            data.append(b"/A=%06d" % self.altitude_ft)
+        if self.position_format is PositionFormat.Uncompressed:
+            data.append(
+                encode_position_uncompressed(
+                    self.lat,
+                    self.long,
+                    self.sym_table_id,
+                    self.symbol_code,
+                ),
+            )
+            if self.data_ext:
+                data.append(bytes(self.data_ext))
+            if self.altitude_ft and not ALTITUDE_REX.search(self.comment):
+                data.append(b"/A=%06d" % self.altitude_ft)
+        else:
+            data.append(
+                encode_position_compressed(
+                    self.lat,
+                    self.long,
+                    self.sym_table_id,
+                    self.symbol_code,
+                    data_ext=self.data_ext,
+                    altitude_ft=self.altitude_ft,
+                ),
+            )
         data.append(self.comment)
         return b"".join(data)
 

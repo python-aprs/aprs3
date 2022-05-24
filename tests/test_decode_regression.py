@@ -27,7 +27,7 @@ from aprs3.classes import (
     RNG,
     StatusReport,
 )
-from aprs3.constants import TimestampFormat
+from aprs3.constants import PositionFormat, TimestampFormat
 
 
 @pytest.fixture(autouse=True)
@@ -147,6 +147,37 @@ def fixed_now(monkeypatch):
                 symbol_code=b"#",
             ),
             id="position, uncompressed, without timestamp, dfs, comment",
+        ),
+        pytest.param(
+            "KF7HVM>APJYC1,qAR,W7DG-5:=/7.oh/FIK-  # Masen in Longview",
+            PositionReport(
+                raw=b"=/7.oh/FIK-  # Masen in Longview",
+                data_type=DataType.POSITION_W_O_TIMESTAMP_MSG,
+                data=b"/7.oh/FIK-  #",
+                comment=b" Masen in Longview",
+                position_format=PositionFormat.Compressed,
+                sym_table_id=b"/",
+                lat=Decimal("46.17683224563301"),
+                long=Decimal("-122.98066816127016"),
+                symbol_code=b"-",
+            ),
+            id="position, compressed, without timestamp",
+        ),
+        pytest.param(
+            "KF7HVM>APJYC1,qAR,W7DG-5:=/7.oh/FIK-7P# Masen in Longview",
+            PositionReport(
+                raw=b"=/7.oh/FIK-7P# Masen in Longview",
+                data_type=DataType.POSITION_W_O_TIMESTAMP_MSG,
+                data=b"/7.oh/FIK-7P#",
+                data_ext=CourseSpeed(course=88, speed=36.23201216883807),
+                comment=b" Masen in Longview",
+                position_format=PositionFormat.Compressed,
+                sym_table_id=b"/",
+                lat=Decimal("46.17683224563301"),
+                long=Decimal("-122.98066816127016"),
+                symbol_code=b"-",
+            ),
+            id="position, compressed, with cs",
         ),
         pytest.param(
             "SMSGTE>APSMS1,TCPIP,QAS,VE3OTB-12::KF0JGS-7 :@3037755154 I love you 2!{M1383",

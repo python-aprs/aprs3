@@ -48,3 +48,8 @@ timestamp_formats_map = {
     TimestampFormat.HoursMinutesSecondsZulu: "%H%M%S",
     TimestampFormat.MonthDayHoursMinutesZulu: "%m%d%H%M",
 }
+
+
+class PositionFormat(enum.Enum):
+    Uncompressed = 0
+    Compressed = 1
