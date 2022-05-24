@@ -2,9 +2,13 @@
 
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
+import math
+from typing import Tuple
 
-from .constants import TimestampFormat
+from .base91 import from_decimal, to_decimal
+from .constants import TimestampFormat, timestamp_formats_map
 from .decimaldegrees import dm2decimal
+from .geo_util import ambiguate, dec2dm_lat, dec2dm_lng
 
 
 POSITION_UNCOMPRESSED_SIGNATURE = tuple(chr(c) for c in range(ord(b"0"), ord(b"9")))
@@ -39,11 +43,131 @@ def decode_position_uncompressed(data: bytes):
     )
 
 
+def encode_position_uncompressed(
+    lat,
+    long,
+    sym_table_id,
+    symbol_code,
+    ambiguity=None,
+) -> bytes:
+    return b"".join(
+        [
+            ambiguate(dec2dm_lat(lat), ambiguity),
+            sym_table_id,
+            ambiguate(dec2dm_lng(long), ambiguity),
+            symbol_code,
+        ]
+    )
+
+
+def decompress_lat(data: str) -> float:
+    return 90 - to_decimal(data) / 380926
+
+
+def compress_lat(data: float) -> bytes:
+    return from_decimal(int(round(380926 * (90 - data))), width=4).encode("ascii")
+
+
+def decompress_long(data: str) -> float:
+    return -180 + to_decimal(data) / 190463
+
+
+def compress_long(data: float) -> bytes:
+    return from_decimal(int(round(190463 * (180 + data))), width=4).encode("ascii")
+
+
+def decode_position_compressed(data: bytes):
+    """
+    :return: dict with keys lat, long, sym_table_id, symbol_code, data_ext
+    """
+    text = data.decode("latin1")
+    if chr(data[0]) in POSITION_UNCOMPRESSED_SIGNATURE:
+        raise ValueError("{!r} is not a compressed position".format(data[:13]))
+    sym_table_id = data[0:1]
+    lat = Decimal(str(decompress_lat(text[1:5])))
+    long = Decimal(str(decompress_long(text[5:9])))
+    symbol_code = data[9:10]
+    c_ext = text[10:12]
+    comp_type = data[12]
+    init_kwargs = {}
+
+    if c_ext[0] == " ":
+        data_ext = b""
+    else:
+        if c_ext[0] == "{":
+            from .classes import RNG
+
+            data_ext = RNG(range=2 * 1.08 ** to_decimal(c_ext[1]))
+        elif ord("!") <= ord(c_ext[0]) <= ord("z"):
+            from .classes import CourseSpeed
+
+            data_ext = CourseSpeed(
+                course=to_decimal(c_ext[0]) * 4, speed=1.08 ** to_decimal(c_ext[1]) - 1
+            )
+
+        if comp_type % 0b11000 == 0b10000:
+            # extract altitude
+            init_kwargs["altitude_ft"] = 1.002 ** to_decimal(c_ext)
+
+    return dict(
+        sym_table_id=sym_table_id,
+        lat=lat,
+        long=long,
+        symbol_code=symbol_code,
+        data_ext=data_ext,
+        **init_kwargs,
+    )
+
+
+def encode_position_compressed(
+    lat,
+    long,
+    sym_table_id,
+    symbol_code,
+    ambiguity=None,
+    data_ext=None,
+    altitude_ft=None,
+) -> bytes:
+    data = [
+        sym_table_id,
+        compress_lat(lat),
+        compress_long(long),
+        symbol_code,
+    ]
+    if data_ext:
+        from .classes import CourseSpeed, RNG
+
+        if isinstance(data_ext, CourseSpeed):
+            data.append(from_decimal(data_ext.course // 4, 1).encode("ascii"))
+            data.append(
+                from_decimal(int(round(math.log(data_ext.speed + 1, 1.08))), 1).encode(
+                    "ascii"
+                )
+            )
+            data.append(b"#")
+        elif isinstance(data_ext, RNG):
+            data.append(b"{")
+            data.append(
+                from_decimal(int(round(math.log(data_ext.range / 2, 1.08))), 1).encode(
+                    "ascii"
+                )
+            )
+            data.append(b"#")
+    elif altitude_ft:
+        data.append(
+            from_decimal(int(round(math.log(altitude_ft, 1.002))), 1).encode("ascii")
+        )
+        data.append(b"#")
+    else:
+        data.append(b"  #")
+    return b"".join(data)
+
+
 def decode_timestamp_dhm(data: bytes) -> datetime:
     ts_format = TimestampFormat(data[6:7])
     tzinfo = None if ts_format == TimestampFormat.DayHoursMinutesLocal else timezone.utc
     now = datetime.now(tz=tzinfo)
-    ts = datetime.strptime(data[:6].decode("ascii"), "%d%H%M")
+    ts = datetime.strptime(data[:6].decode("ascii"), timestamp_formats_map[ts_format])
     maybe_ts = ts.replace(year=now.year, month=now.month, tzinfo=tzinfo)
     if maybe_ts > (now + FUTURE_TIMESTAMP_THRESHOLD):
         # can't have a timestamp in the future, so assume it's from last month
@@ -55,7 +179,10 @@ def decode_timestamp_dhm(data: bytes) -> datetime:
 
 def decode_timestamp_hms(data: bytes) -> datetime:
     now = datetime.now(tz=timezone.utc)
-    ts = datetime.strptime(data[:6].decode("ascii"), "%H%M%S")
+    ts = datetime.strptime(
+        data[:6].decode("ascii"),
+        timestamp_formats_map[TimestampFormat.HoursMinutesSecondsZulu],
+    )
     maybe_ts = ts.replace(
         year=now.year, month=now.month, day=now.day, tzinfo=timezone.utc
     )
@@ -67,7 +194,10 @@ def decode_timestamp_hms(data: bytes) -> datetime:
 
 def decode_timestamp_mdhm(data: bytes) -> datetime:
     now = datetime.now(tz=timezone.utc)
-    ts = datetime.strptime(data[:8].decode("ascii"), "%m%d%H%M").replace(
+    ts = datetime.strptime(
+        data[:8].decode("ascii"),
+        timestamp_formats_map[TimestampFormat.MonthDayHoursMinutesZulu],
+    ).replace(
         year=now.year,
         tzinfo=timezone.utc,
     )
@@ -77,15 +207,15 @@ def decode_timestamp_mdhm(data: bytes) -> datetime:
     return ts
 
 
-def decode_timestamp(data: bytes) -> datetime:
+def decode_timestamp(data: bytes) -> Tuple[TimestampFormat, datetime]:
     try:
         ts_format = TimestampFormat(data[6:7])
         if ts_format in [
             TimestampFormat.DayHoursMinutesLocal,
             TimestampFormat.DayHoursMinutesZulu,
         ]:
-            return decode_timestamp_dhm(data)
-        return decode_timestamp_hms(data)
+            return ts_format, decode_timestamp_dhm(data)
+        return ts_format, decode_timestamp_hms(data)
     except ValueError:
         # assume Month Day Hours Minutes
-        return decode_timestamp_mdhm(data)
+        return TimestampFormat.MonthDayHoursMinutesZulu, decode_timestamp_mdhm(data)

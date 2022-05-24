@@ -7,20 +7,42 @@ new information data types.
 """
 import datetime
 from decimal import Decimal
+from unittest import mock
 
 import pytest
 
 from kiss3.ax25 import Frame
 
+from aprs3 import parser
 from aprs3.classes import (
     CourseSpeed,
     DataType,
     DFS,
     InformationField,
+    ItemReport,
+    Message,
+    ObjectReport,
     PHG,
     PositionReport,
     RNG,
+    StatusReport,
 )
+from aprs3.constants import PositionFormat, TimestampFormat
+
+
+@pytest.fixture(autouse=True)
+def fixed_now(monkeypatch):
+    """Return a static datetime.datetime.now so the test returns consistent results."""
+
+    def new_now(*args, **kwargs):
+        return datetime.datetime(2022, 5, 23, 23, 59, tzinfo=datetime.timezone.utc)
+
+    with mock.patch("aprs3.parser.datetime") as mock_datetime:
+        mock_datetime.now.side_effect = new_now
+        mock_datetime.strptime.side_effect = (
+            lambda *args, **kw: datetime.datetime.strptime(*args, **kw)
+        )
+        yield
 
 
 @pytest.mark.parametrize(
@@ -86,6 +108,7 @@ from aprs3.classes import (
                 timestamp=datetime.datetime(
                     2022, 5, 20, 23, 50, tzinfo=datetime.timezone.utc
                 ),
+                timestamp_format=TimestampFormat.DayHoursMinutesZulu,
                 lat=Decimal("46.97316666666666666666666667"),
                 sym_table_id=b"/",
                 long=Decimal("-123.1381666666666666666666667"),
@@ -125,9 +148,178 @@ from aprs3.classes import (
             ),
             id="position, uncompressed, without timestamp, dfs, comment",
         ),
+        pytest.param(
+            "KF7HVM>APJYC1,qAR,W7DG-5:=/7.oh/FIK-  # Masen in Longview",
+            PositionReport(
+                raw=b"=/7.oh/FIK-  # Masen in Longview",
+                data_type=DataType.POSITION_W_O_TIMESTAMP_MSG,
+                data=b"/7.oh/FIK-  #",
+                comment=b" Masen in Longview",
+                position_format=PositionFormat.Compressed,
+                sym_table_id=b"/",
+                lat=Decimal("46.17683224563301"),
+                long=Decimal("-122.98066816127016"),
+                symbol_code=b"-",
+            ),
+            id="position, compressed, without timestamp",
+        ),
+        pytest.param(
+            "KF7HVM>APJYC1,qAR,W7DG-5:=/7.oh/FIK-7P# Masen in Longview",
+            PositionReport(
+                raw=b"=/7.oh/FIK-7P# Masen in Longview",
+                data_type=DataType.POSITION_W_O_TIMESTAMP_MSG,
+                data=b"/7.oh/FIK-7P#",
+                data_ext=CourseSpeed(course=88, speed=36.23201216883807),
+                comment=b" Masen in Longview",
+                position_format=PositionFormat.Compressed,
+                sym_table_id=b"/",
+                lat=Decimal("46.17683224563301"),
+                long=Decimal("-122.98066816127016"),
+                symbol_code=b"-",
+            ),
+            id="position, compressed, with cs",
+        ),
+        pytest.param(
+            "SMSGTE>APSMS1,TCPIP,QAS,VE3OTB-12::KF0JGS-7 :@3037755154 I love you 2!{M1383",
+            Message(
+                raw=b":KF0JGS-7 :@3037755154 I love you 2!{M1383",
+                data_type=DataType.MESSAGE,
+                data=b"KF0JGS-7 :@3037755154 I love you 2!{M1383",
+                data_ext=b"",
+                comment=b"",
+                addressee=b"KF0JGS-7",
+                text=b"@3037755154 I love you 2!",
+                number=b"M1383",
+            ),
+            id="message, needs ack",
+        ),
+        pytest.param(
+            "KF0JGS-7>APSMS1,TCPIP,QAS,VE3OTB-12::SMSGTE   :ackM1383",
+            Message(
+                raw=b":SMSGTE   :ackM1383",
+                data_type=DataType.MESSAGE,
+                data=b"SMSGTE   :ackM1383",
+                data_ext=b"",
+                comment=b"",
+                addressee=b"SMSGTE",
+                text=b"ackM1383",
+                number=None,
+            ),
+            id="message ack",
+        ),
+        pytest.param(
+            "VE7VIC-15>APMI04,QAR,AF7DX-1::BLN1     :Net Mondays 19:00 146.840- T100.0",
+            Message(
+                raw=b":BLN1     :Net Mondays 19:00 146.840- T100.0",
+                data_type=DataType.MESSAGE,
+                data=b"BLN1     :Net Mondays 19:00 146.840- T100.0",
+                data_ext=b"",
+                comment=b"",
+                addressee=b"BLN1",
+                text=b"Net Mondays 19:00 146.840- T100.0",
+                number=None,
+            ),
+            id="bulletin, no ack",
+        ),
+        pytest.param(
+            "ROSLDG>BEACON,LINCON*,OR2-1,QAO,W7KKE:>Oregon Coast Repeater Group: WX: Rose Lodge, OR: www.ocrg.org:W7GC-5",
+            StatusReport(
+                raw=b">Oregon Coast Repeater Group: WX: Rose Lodge, OR: www.ocrg.org:W7GC-5",
+                data_type=DataType.STATUS,
+                data=b"Oregon Coast Repeater Group: WX: Rose Lodge, OR: www.ocrg.org:W7GC-5",
+                data_ext=b"",
+                comment=b"",
+                status=b"Oregon Coast Repeater Group: WX: Rose Lodge, OR: www.ocrg.org:W7GC-5",
+            ),
+            id="status, no timestamp",
+        ),
+        pytest.param(
+            "ROSLDG>BEACON,LINCON*,OR2-1,QAO,W7KKE:>232114zOregon Coast Repeater Group: WX: Rose Lodge, OR: www.ocrg.org:W7GC-5",
+            StatusReport(
+                raw=b">232114zOregon Coast Repeater Group: WX: Rose Lodge, OR: www.ocrg.org:W7GC-5",
+                data_type=DataType.STATUS,
+                data=b"Oregon Coast Repeater Group: WX: Rose Lodge, OR: www.ocrg.org:W7GC-5",
+                data_ext=b"",
+                comment=b"",
+                timestamp=datetime.datetime(
+                    2022, 5, 23, 21, 14, tzinfo=datetime.timezone.utc
+                ),
+                status=b"Oregon Coast Repeater Group: WX: Rose Lodge, OR: www.ocrg.org:W7GC-5",
+            ),
+            id="status, timestamp",
+        ),
+        pytest.param(
+            "N7LOL-14>APX219,TCPIP*,QAC,SECOND:;W7ZA     *232209z4657.26N/12348.18WrPmin1,Pmax11,147.160+ T88.5 W7ZA.ORG",
+            ObjectReport(
+                raw=b";W7ZA     *232209z4657.26N/12348.18WrPmin1,Pmax11,147.160+ T88.5 W7ZA.ORG",
+                data_type=DataType.OBJECT,
+                data=b"4657.26N/12348.18Wr",
+                data_ext=b"",
+                comment=b"Pmin1,Pmax11,147.160+ T88.5 W7ZA.ORG",
+                name=b"W7ZA",
+                killed=False,
+                timestamp=datetime.datetime(
+                    2022,
+                    5,
+                    23,
+                    22,
+                    9,
+                    tzinfo=datetime.timezone.utc,
+                ),
+                timestamp_format=TimestampFormat.DayHoursMinutesZulu,
+                lat=Decimal("46.95433333333333333333333333"),
+                sym_table_id=b"/",
+                long=Decimal("-123.803"),
+                symbol_code=b"r",
+            ),
+            id="object1",
+        ),
+        pytest.param(
+            "FOO>APZ069,TCPIP*,QAC,KF7HVM:)AID #2!4903.50N/07201.75WAfirst aid",
+            ItemReport(
+                raw=b")AID #2!4903.50N/07201.75WAfirst aid",
+                data_type=DataType.ITEM,
+                data=b"4903.50N/07201.75WA",
+                data_ext=b"",
+                comment=b"first aid",
+                name=b"AID #2",
+                killed=False,
+                lat=Decimal("49.05833333333333333333333333"),
+                sym_table_id=b"/",
+                long=Decimal("-72.02916666666666666666666667"),
+                symbol_code=b"A",
+            ),
+            id="item, live, comment",
+        ),
+        pytest.param(
+            "FOO>APZ069,TCPIP*,QAC,KF7HVM:)AID #2_4903.50N/07201.75WA042/000first aid",
+            ItemReport(
+                raw=b")AID #2_4903.50N/07201.75WA042/000first aid",
+                data_type=DataType.ITEM,
+                data=b"4903.50N/07201.75WA",
+                data_ext=CourseSpeed(course=42, speed=0),
+                comment=b"first aid",
+                name=b"AID #2",
+                killed=True,
+                lat=Decimal("49.05833333333333333333333333"),
+                sym_table_id=b"/",
+                long=Decimal("-72.02916666666666666666666667"),
+                symbol_code=b"A",
+            ),
+            id="item, killed, course/speed, comment",
+        ),
     ),
 )
 def test_decode(packet_text, exp_decoded_iframe):
     f = Frame.from_str(packet_text)
-    iframe = InformationField.from_bytes(f.info)
+    iframe = InformationField.from_frame(f)
     assert iframe == exp_decoded_iframe
+    if (
+        iframe.data_type == DataType.POSITION_W_O_TIMESTAMP
+        and iframe.data_type.value != f.info[0:1]
+    ):
+        # special case for node prefix before '!' data
+        assert bytes(iframe) == bytes(exp_decoded_iframe)
+    else:
+        # otherwise the re-encoded packet should match the input exactly
+        assert bytes(iframe) == f.info

@@ -39,3 +39,17 @@ class TimestampFormat(enum.Enum):
     DayHoursMinutesLocal = b"/"
     DayHoursMinutesZulu = b"z"
     HoursMinutesSecondsZulu = b"h"
+    MonthDayHoursMinutesZulu = b""
+
+
+timestamp_formats_map = {
+    TimestampFormat.DayHoursMinutesZulu: "%d%H%M",
+    TimestampFormat.DayHoursMinutesLocal: "%d%H%M",
+    TimestampFormat.HoursMinutesSecondsZulu: "%H%M%S",
+    TimestampFormat.MonthDayHoursMinutesZulu: "%m%d%H%M",
+}
+
+
+class PositionFormat(enum.Enum):
+    Uncompressed = 0
+    Compressed = 1
