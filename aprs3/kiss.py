@@ -1,8 +1,11 @@
 """Helpers for attaching TNC via Serial KISS or KISS-over-TCP"""
 import logging
+from typing import Iterable
+
+from attrs import define, field
 
 import kiss3
-from kiss3.kiss import AX25KISSDecode
+import kiss3.util
 
 from .classes import APRSFrame
 
@@ -14,7 +17,10 @@ __license__ = "Apache License, Version 2.0"
 log = logging.getLogger(__name__)
 
 
-class APRSDecode(AX25KISSDecode):
+@define
+class APRSDecode(kiss3.KISSDecode):
+    strip_df_start: bool = field(default=True, converter=lambda v: True)
+
     def decode_frames(self, frame: bytes) -> Iterable[APRSFrame]:
         for kiss_frame in super().decode_frames(frame):
             try:
