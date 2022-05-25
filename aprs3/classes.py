@@ -4,7 +4,7 @@
 """Python APRS Module Class Definitions."""
 import enum
 from functools import lru_cache
-from typing import Optional, Type
+from typing import Any, Optional, Type
 
 import attr
 from attrs import define, field
@@ -94,6 +94,14 @@ class InformationField:
     @classmethod
     def from_frame(cls, f: Frame) -> "InformationField":
         return cls.from_bytes(f.info)
+
+    @classmethod
+    def from_any(cls, obj: Any) -> "InformationField":
+        if isinstance(obj, cls):
+            return obj
+        if isinstance(obj, Frame):
+            return cls.from_frame(obj)
+        return cls.from_bytes(obj)
 
     def __bytes__(self) -> bytes:
         return self.raw
@@ -354,4 +362,4 @@ class ItemReport(InformationField, PositionMixin):
 
 @define(frozen=True, slots=True)
 class APRSFrame(Frame):
-    info: InformationField = field(default=b"", converter=InformationField.from_bytes)
+    info: InformationField = field(default=b"", converter=InformationField.from_any)
