@@ -17,7 +17,9 @@ Python APRS Module.
 from importlib_metadata import version
 
 from . import decimaldegrees, geo_util, position, timestamp
+from .aprsis import APRSISProtocol, create_aprsis_connection, TCP
 from .classes import (
+    APRSFrame,
     DataType,
     DataTypeError,
     InformationField,
@@ -50,18 +52,18 @@ from .position import Position
 from .timestamp import Timestamp
 
 __author__ = "Greg Albrecht W2GMD <oss@undef.net>"
-__copyright__ = (
-    "Copyright 2017 Greg Albrecht and Contributors"
-)
+__copyright__ = "Copyright 2017 Greg Albrecht and Contributors"
 __license__ = "Apache License, Version 2.0"
-__distribution = "aprs3"
-__version__ = version(__distribution)
+__distribution__ = "aprs3"
+__version__ = version(__distribution__)
 __all__ = [
+    "APRSFrame",
     "APRSIS_HTTP_HEADERS",
     "APRSIS_SERVERS",
     "APRSIS_FILTER_PORT",
     "APRSIS_RX_PORT",
     "APRSIS_URL",
+    "APRSISProtocol",
     "AreaObject",
     "CourseSpeed",
     "DataExt",
@@ -82,6 +84,7 @@ __all__ = [
     "PositionReport",
     "RNG",
     "StatusReport",
+    "TCP",
     "timestamp",
     "Timestamp",
     "TimestampFormat",
