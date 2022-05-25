@@ -100,6 +100,22 @@ def ambiguate(pos: bytes, ambiguity: int) -> bytes:
     return bytes(reversed(amb))
 
 
+def deambiguate(pos: bytes) -> int:
+    """
+    Return the ambiguity of the position
+
+    >>> deambiguate(b'12345.67N')
+    0
+    >>> deambiguate(b'12345.6 N')
+    1
+    >>> deambiguate(b'12345.  N')
+    2
+    >>> deambiguate(b'1234 .  N')
+    3
+    """
+    return pos.count(b" ")
+
+
 def run_doctest():  # pragma: no cover
     """Runs doctests for this module."""
     import doctest
