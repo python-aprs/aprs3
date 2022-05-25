@@ -32,7 +32,7 @@ class APRSDecode(kiss3.KISSDecode):
 async def create_tcp_connection(*args, protocol_kwargs=None, **kwargs):
     if protocol_kwargs is None:
         protocol_kwargs = {}
-    protocol_kwargs["decoder"] = APRSDecode
+    protocol_kwargs["decoder"] = protocol_kwargs.pop("decoder", APRSDecode())
     return await kiss3.create_tcp_connection(
         *args, protocol_kwargs=protocol_kwargs, **kwargs
     )
@@ -41,7 +41,7 @@ async def create_tcp_connection(*args, protocol_kwargs=None, **kwargs):
 async def create_serial_connection(*args, protocol_kwargs=None, **kwargs):
     if protocol_kwargs is None:
         protocol_kwargs = {}
-    protocol_kwargs["decoder"] = APRSDecode
+    protocol_kwargs["decoder"] = protocol_kwargs.pop("decoder", APRSDecode())
     return await kiss3.create_serial_connection(
         *args, protocol_kwargs=protocol_kwargs, **kwargs
     )
