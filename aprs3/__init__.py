@@ -48,6 +48,7 @@ from .data_ext import (
     PHG,
     RNG,
 )
+from .kiss import create_serial_connection, create_tcp_connection, SerialKISS, TCPKISS
 from .position import Position
 from .timestamp import Timestamp
 
@@ -66,6 +67,9 @@ __all__ = [
     "APRSISProtocol",
     "AreaObject",
     "CourseSpeed",
+    "create_aprsis_connection",
+    "create_serial_connection",
+    "create_tcp_connection",
     "DataExt",
     "DataType",
     "DataTypeError",
@@ -83,8 +87,10 @@ __all__ = [
     "PositionFormat",
     "PositionReport",
     "RNG",
+    "SerialKISS",
     "StatusReport",
     "TCP",
+    "TCPKISS",
     "timestamp",
     "Timestamp",
     "TimestampFormat",
