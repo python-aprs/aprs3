@@ -169,9 +169,13 @@ See Also
 ========
 
 * `Python kiss3 Module <https://github.com/python-aprs/kiss3>`_ Library for interfacing-to and encoding-for various KISS Interfaces.
+
   * Forked from `ampledata/kiss <https://github.com/ampledata/kiss>`_
+  
 * `Python aprs3 Module <https://github.com/python-aprs/aprs3>`_ Library for sending, receiving and parsing APRS Frames to and from multiple Interfaces
+
   * Forked from `ampledata/aprs <https://github.com/ampledata/aprs>`_
+  
 * `Python APRS Gateway <https://github.com/ampledata/aprsgate>`_ Uses Redis PubSub to run a multi-interface APRS Gateway.
 * `Python APRS Tracker <https://github.com/ampledata/aprstracker>`_ TK.
 * `dirus <https://github.com/ampledata/dirus>`_ Dirus is a daemon for managing a SDR to Dire Wolf interface. Manifests that interface as a KISS TCP port.
