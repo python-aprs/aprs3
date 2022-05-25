@@ -163,7 +163,7 @@ def encode_position_compressed(
 
 @define(frozen=True, slots=True)
 class Position:
-    """Represents an uncompressed position including timestamp and data_ext."""
+    """Represents a position including any data extension."""
 
     position_format: PositionFormat = field(default=PositionFormat.Uncompressed)
     lat: float = field(default=0.0)
