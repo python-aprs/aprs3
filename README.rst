@@ -10,15 +10,19 @@ Supported Data Types
 ====================
 
 * Position (``PositionReport``)
+
   * Compressed
   * Uncompressed
   * w/ Timestamp
   * Data Extension
+  
     * Course / Speed
     * PHG
     * RNG
     * DFS
+    
   * Altitude
+  
 * Object (``ObjectReport``)
 * Item (``ItemReport``)
 * Status (``StatusReport``)
@@ -77,24 +81,29 @@ Synchronous wrappers are also included where that may be more convenient::
 Additionally, this package may be used with real TNCs via Serial KISS or KISS-over-TCP.
 
 * serial:
+
   * sync: ``aprs_serial = aprs3.SerialKISS("/dev/ttyUSB0", 9600)``
   * async: ``transport, protocol = aprs3.create_serial_connection("/dev/ttyUSB0", 9600)``
+  
 * tcp:
+
   * sync: ``aprs_kiss_tcp = aprs3.TCPKISS("localhost", 8001)``
   * async: ``transport, protocol = aprs3.create_tcp_connection("localhost", 8001)``
 
 These objects are used in the same way as the sample shown above.
 
 For versions of the KISS transports which do NOT automatically encode/decode APRS data,
-see [``kiss3``](https://github.com/python-aprs/kiss3).
+see `kiss3 <https://github.com/python-aprs/kiss3>`_.
 
 Versions
 ========
 
-- **8.x.x branch is a large rewrite as ``aprs3``, including async functionality and full packet encoding**.
+- **8.x.x branch is a large rewrite as** ``aprs3``, **including async functionality and full packet encoding**.
 
 Previous versions were released by ``ampledata`` as ``aprs``:
+
 - 7.x.x branch and-on will be Python 3.x ONLY.
+
 - 6.5.x branch will be the last version of this Module that supports Python 2.7.x
 
 
