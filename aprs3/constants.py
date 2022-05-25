@@ -18,12 +18,13 @@ APRSIS_HTTP_HEADERS = {
     "accept": "text/plain",
 }
 
-APRSIS_SERVERS = [b"rotate.aprs.net", b"noam.aprs2.net"]
+APRSIS_SERVERS = ["rotate.aprs.net", "noam.aprs2.net"]
 APRSIS_FILTER_PORT = int(os.environ.get("APRSIS_FILTER_PORT", 14580))
 APRSIS_RX_PORT = int(os.environ.get("APRSIS_RX_PORT", 8080))
-APRSIS_URL = os.environ.get("APRSIS_URL", b"http://srvr.aprs-is.net:8080")
+APRSIS_URL = os.environ.get("APRSIS_URL", "http://srvr.aprs-is.net:8080")
 
-DEFAULT_TOCALL = b"APZ069"
+DEFAULT_MYCALL = "N0CALL"
+DEFAULT_TOCALL = "APZ069"
 
 
 class TimestampFormat(enum.Enum):
