@@ -350,3 +350,8 @@ class ItemReport(InformationField, PositionMixin):
                 self.comment,
             ],
         )
+
+
+@define(frozen=True, slots=True)
+class APRSFrame(Frame):
+    info: InformationField = field(default=b"", converter=InformationField.from_bytes)
