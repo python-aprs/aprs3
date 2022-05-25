@@ -23,13 +23,7 @@ Original source: https://github.com/rossengeorgiev/aprs-python/blob/2b139d18578e
 
 __all__ = ["to_decimal", "from_decimal"]
 from math import log, ceil
-import sys
 from re import findall
-
-if sys.version_info < (3,):
-    _range = xrange
-else:
-    _range = range
 
 
 def to_decimal(text):
@@ -68,7 +62,7 @@ def from_decimal(number, width=1):
     elif number > 0:
         max_n = ceil(log(number) / log(91))
 
-        for n in _range(int(max_n), -1, -1):
+        for n in range(int(max_n), -1, -1):
             quotient, number = divmod(number, 91**n)
             text.append(chr(33 + quotient))
 

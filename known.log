@@ -1,0 +1,519 @@
+KB8BMY-10>APDR16,TCPIP*,QAC,T2FINLAND:=4704.13N/12242.73W[241/055/A=-00053 Mike 
+PositionReport(raw=b'=4704.13N/12242.73W[241/055/A=-00053 Mike ', data_type=<DataType.POSITION_W_O_TIMESTAMP_MSG: b'='>, data=b'4704.13N/12242.73W[241/055/A=-00053 Mike ', data_ext=b'', comment=b'241/055/A=-00053 Mike ', timestamp=None, lat=Decimal('47.06883333333333333333333333'), sym_table_id=b'/', long=Decimal('-122.7121666666666666666666667'), symbol_code=b'[')
+
+K7MXE-2>APRX29,TCPIP*,QAC,T2USANW::K7MXE-2  :PARM.Avg 10m,Avg 10m,RxPkts,IGateDropRx,TxPkts
+Message(raw=b':K7MXE-2  :PARM.Avg 10m,Avg 10m,RxPkts,IGateDropRx,TxPkts', data_type=<DataType.MESSAGE: b':'>, data=b'K7MXE-2  :PARM.Avg 10m,Avg 10m,RxPkts,IGateDropRx,TxPkts', data_ext=b'', comment=b'', addressee=b'K7MXE-2', text=b'PARM.Avg 10m,Avg 10m,RxPkts,IGateDropRx,TxPkts', number=None)
+
+KB8BMY-10>APDR16,TCPIP*,QAC,T2FINLAND:=4704.09N/12243.07W[270/059/A=-00049 Mike 
+PositionReport(raw=b'=4704.09N/12243.07W[270/059/A=-00049 Mike ', data_type=<DataType.POSITION_W_O_TIMESTAMP_MSG: b'='>, data=b'4704.09N/12243.07W[270/059/A=-00049 Mike ', data_ext=b'', comment=b'270/059/A=-00049 Mike ', timestamp=None, lat=Decimal('47.06816666666666666666666667'), sym_table_id=b'/', long=Decimal('-122.7178333333333333333333333'), symbol_code=b'[')
+
+WB7QAZ-10>APMI06,WIDE2-2,QAO,WA7RGO-10:@210235z4516.53N/12237.80W_306/001g006t058r000p000P000h65b10225WB7QAZ Canby, OR
+PositionReport(raw=b'@210235z4516.53N/12237.80W_306/001g006t058r000p000P000h65b10225WB7QAZ Canby, OR', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4516.53N/12237.80W_306/001g006t058r000p000P000h65b10225WB7QAZ Canby, OR', data_ext=b'', comment=b'306/001g006t058r000p000P000h65b10225WB7QAZ Canby, OR', timestamp=datetime.datetime(2022, 4, 21, 2, 35, tzinfo=datetime.timezone.utc), lat=Decimal('45.2755'), sym_table_id=b'/', long=Decimal('-122.63'), symbol_code=b'_')
+
+NICOLI>APRS,QAO,K0INK-5:!4605.21N/12327.31W#PHG2830W2, ORn-N, Fill-in / NA7Q 14.3V 44.2F
+PositionReport(raw=b'!4605.21N/12327.31W#PHG2830W2, ORn-N, Fill-in / NA7Q 14.3V 44.2F', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4605.21N/12327.31W#PHG2830W2, ORn-N, Fill-in / NA7Q 14.3V 44.2F', data_ext=b'', comment=b'PHG2830W2, ORn-N, Fill-in / NA7Q 14.3V 44.2F', timestamp=None, lat=Decimal('46.08683333333333333333333333'), sym_table_id=b'/', long=Decimal('-123.4551666666666666666666667'), symbol_code=b'#')
+
+AA0PB>APRS,TCPIP*,QAC,AMBCWOP-2:@202347z4530.93N/12303.70W_081/001g002t059r000p000P000h52b10209L202AmbientCWOP.com
+PositionReport(raw=b'@202347z4530.93N/12303.70W_081/001g002t059r000p000P000h52b10209L202AmbientCWOP.com', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4530.93N/12303.70W_081/001g002t059r000p000P000h52b10209L202AmbientCWOP.com', data_ext=b'', comment=b'081/001g002t059r000p000P000h52b10209L202AmbientCWOP.com', timestamp=datetime.datetime(2022, 5, 20, 23, 47, tzinfo=datetime.timezone.utc), lat=Decimal('45.5155'), sym_table_id=b'/', long=Decimal('-123.0616666666666666666666667'), symbol_code=b'_')
+
+MEISNR>APN382,QAR,W7DG-5:;EL-1369*111111z!4558.13NF12259.58W MEISSNER LOOKOUT N7QXO-7
+PositionReport(raw=b'!4558.13NF12259.58W MEISSNER LOOKOUT N7QXO-7', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4558.13NF12259.58W MEISSNER LOOKOUT N7QXO-7', data_ext=b'', comment=b'MEISSNER LOOKOUT N7QXO-7', timestamp=None, lat=Decimal('45.96883333333333333333333333'), sym_table_id=b'F', long=Decimal('-122.993'), symbol_code=b' ')
+
+KK7DS>APRX29,WIDE2-2,TCPIP*,QAS,HAPPYV:@202340z4527.58N/12230.99W_314/002g007t056r000p003P000b10222h61.weewx
+PositionReport(raw=b'@202340z4527.58N/12230.99W_314/002g007t056r000p003P000b10222h61.weewx', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4527.58N/12230.99W_314/002g007t056r000p003P000b10222h61.weewx', data_ext=b'', comment=b'314/002g007t056r000p003P000b10222h61.weewx', timestamp=datetime.datetime(2022, 5, 20, 23, 40, tzinfo=datetime.timezone.utc), lat=Decimal('45.45966666666666666666666667'), sym_table_id=b'/', long=Decimal('-122.5165'), symbol_code=b'_')
+
+WA7RGO-10>APDW14,TCPIP*,QAC,T2CAWEST:!4520.36NR12255.03W&East Yamhill County, Oregon
+PositionReport(raw=b'!4520.36NR12255.03W&East Yamhill County, Oregon', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4520.36NR12255.03W&East Yamhill County, Oregon', data_ext=b'', comment=b'East Yamhill County, Oregon', timestamp=None, lat=Decimal('45.33933333333333333333333333'), sym_table_id=b'R', long=Decimal('-122.9171666666666666666666667'), symbol_code=b'&')
+
+MEGLER>APN382,WIDE2-2,QAR,KNAPPA:!4617.16NS12353.83W#_PHG5768/W2,WAn,Chinook WIDE-KB7ADO
+PositionReport(raw=b'!4617.16NS12353.83W#_PHG5768/W2,WAn,Chinook WIDE-KB7ADO', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4617.16NS12353.83W#_PHG5768/W2,WAn,Chinook WIDE-KB7ADO', data_ext=b'', comment=b'_PHG5768/W2,WAn,Chinook WIDE-KB7ADO', timestamp=None, lat=Decimal('46.286'), sym_table_id=b'S', long=Decimal('-123.8971666666666666666666667'), symbol_code=b'#')
+
+KA2RQM>APRS,TCPIP*,QAC,AMBCWOP-2:@202348z4627.22N/12403.24W_273/007g010t056r000p000P000h70b10222L493AmbientCWOP.com
+PositionReport(raw=b'@202348z4627.22N/12403.24W_273/007g010t056r000p000P000h70b10222L493AmbientCWOP.com', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4627.22N/12403.24W_273/007g010t056r000p000P000h70b10222L493AmbientCWOP.com', data_ext=b'', comment=b'273/007g010t056r000p000P000h70b10222L493AmbientCWOP.com', timestamp=datetime.datetime(2022, 5, 20, 23, 48, tzinfo=datetime.timezone.utc), lat=Decimal('46.45366666666666666666666667'), sym_table_id=b'/', long=Decimal('-124.054'), symbol_code=b'_')
+
+KB8BMY-10>APDR16,TCPIP*,QAC,T2FINLAND:=4704.05N/12244.10W[260/016/A=000060 Mike 
+PositionReport(raw=b'=4704.05N/12244.10W[260/016/A=000060 Mike ', data_type=<DataType.POSITION_W_O_TIMESTAMP_MSG: b'='>, data=b'4704.05N/12244.10W[260/016/A=000060 Mike ', data_ext=b'', comment=b'260/016/A=000060 Mike ', timestamp=None, lat=Decimal('47.0675'), sym_table_id=b'/', long=Decimal('-122.735'), symbol_code=b'[')
+
+HELENS>APRS,WIDE1-1,WIDE2-1,TCPIP*,QAS,MTHOOD:@201600/4618.03N/12216.00W_003/000g000t047h84r000 www.nwac.us N7QME
+PositionReport(raw=b'@201600/4618.03N/12216.00W_003/000g000t047h84r000 www.nwac.us N7QME', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4618.03N/12216.00W_003/000g000t047h84r000 www.nwac.us N7QME', data_ext=b'', comment=b'003/000g000t047h84r000 www.nwac.us N7QME', timestamp=datetime.datetime(2022, 5, 20, 16, 0), lat=Decimal('46.3005'), sym_table_id=b'/', long=Decimal('-122.2666666666666666666666667'), symbol_code=b'_')
+
+W7ALK-13>W7ALK-13,TCPIP*,QAC,T2USANW:@202349z4636.43N/12139.39W_195/002g010t054r000p000P000h64b00000WX3in1 Mini / PB2100 Wx
+PositionReport(raw=b'@202349z4636.43N/12139.39W_195/002g010t054r000p000P000h64b00000WX3in1 Mini / PB2100 Wx', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4636.43N/12139.39W_195/002g010t054r000p000P000h64b00000WX3in1 Mini / PB2100 Wx', data_ext=b'', comment=b'195/002g010t054r000p000P000h64b00000WX3in1 Mini / PB2100 Wx', timestamp=datetime.datetime(2022, 5, 20, 23, 49, tzinfo=datetime.timezone.utc), lat=Decimal('46.60716666666666666666666667'), sym_table_id=b'/', long=Decimal('-121.6565'), symbol_code=b'_')
+
+W7PFR-1>APN391,QAR,W7EEE:!4650.37NS12215.50W#PHG2770 W2,SSn-N,Eatonville/Pack Forest W7PFR 
+PositionReport(raw=b'!4650.37NS12215.50W#PHG2770 W2,SSn-N,Eatonville/Pack Forest W7PFR ', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4650.37NS12215.50W#PHG2770 W2,SSn-N,Eatonville/Pack Forest W7PFR ', data_ext=b'', comment=b'PHG2770 W2,SSn-N,Eatonville/Pack Forest W7PFR ', timestamp=None, lat=Decimal('46.8395'), sym_table_id=b'S', long=Decimal('-122.2583333333333333333333333'), symbol_code=b'#')
+
+K0INK-5>APDW15,TCPIP*,QAC,T2CAEAST:!4521.27NI12259.36W&PHG0060/Location - Mountain Top Rd, Yamill County, OR
+PositionReport(raw=b'!4521.27NI12259.36W&PHG0060/Location - Mountain Top Rd, Yamill County, OR', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4521.27NI12259.36W&PHG0060/Location - Mountain Top Rd, Yamill County, OR', data_ext=b'', comment=b'PHG0060/Location - Mountain Top Rd, Yamill County, OR', timestamp=None, lat=Decimal('45.3545'), sym_table_id=b'I', long=Decimal('-122.9893333333333333333333333'), symbol_code=b'&')
+
+W7PLC>APRS,TCPIP*,QAC,AMBCWOP-2:@202349z4702.08N/12255.24W_094/001g002t064r000p000P000h48b10205L509AmbientCWOP.com
+PositionReport(raw=b'@202349z4702.08N/12255.24W_094/001g002t064r000p000P000h48b10205L509AmbientCWOP.com', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4702.08N/12255.24W_094/001g002t064r000p000P000h48b10205L509AmbientCWOP.com', data_ext=b'', comment=b'094/001g002t064r000p000P000h48b10205L509AmbientCWOP.com', timestamp=datetime.datetime(2022, 5, 20, 23, 49, tzinfo=datetime.timezone.utc), lat=Decimal('47.03466666666666666666666667'), sym_table_id=b'/', long=Decimal('-122.9206666666666666666666667'), symbol_code=b'_')
+
+BEAVRT>APRX29,TCPIP*,QAS,BEAVRT:!4526.74N/12250.03W#Beaverton fill in digi and iGate - N7QME
+PositionReport(raw=b'!4526.74N/12250.03W#Beaverton fill in digi and iGate - N7QME', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4526.74N/12250.03W#Beaverton fill in digi and iGate - N7QME', data_ext=b'', comment=b'Beaverton fill in digi and iGate - N7QME', timestamp=None, lat=Decimal('45.44566666666666666666666667'), sym_table_id=b'/', long=Decimal('-122.8338333333333333333333333'), symbol_code=b'#')
+
+K7NDG>APRS,TCPIP*,QAC,AMBCWOP-2:@202349z4659.08N/12336.08W_271/003g006t059r000p000P000h65b10268L250AmbientCWOP.com
+PositionReport(raw=b'@202349z4659.08N/12336.08W_271/003g006t059r000p000P000h65b10268L250AmbientCWOP.com', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4659.08N/12336.08W_271/003g006t059r000p000P000h65b10268L250AmbientCWOP.com', data_ext=b'', comment=b'271/003g006t059r000p000P000h65b10268L250AmbientCWOP.com', timestamp=datetime.datetime(2022, 5, 20, 23, 49, tzinfo=datetime.timezone.utc), lat=Decimal('46.98466666666666666666666667'), sym_table_id=b'/', long=Decimal('-123.6013333333333333333333333'), symbol_code=b'_')
+
+KB8BMY-10>APDR16,TCPIP*,QAC,T2FINLAND:=4703.91N/12245.08W[260/042/A=000145 Mike 
+PositionReport(raw=b'=4703.91N/12245.08W[260/042/A=000145 Mike ', data_type=<DataType.POSITION_W_O_TIMESTAMP_MSG: b'='>, data=b'4703.91N/12245.08W[260/042/A=000145 Mike ', data_ext=b'', comment=b'260/042/A=000145 Mike ', timestamp=None, lat=Decimal('47.06516666666666666666666667'), sym_table_id=b'/', long=Decimal('-122.7513333333333333333333333'), symbol_code=b'[')
+
+MEISNR>APN382,QAR,W7DG-5:;EL-1369*111111z!4558.13NF12259.58W MEISSNER LOOKOUT N7QXO-7
+PositionReport(raw=b'!4558.13NF12259.58W MEISSNER LOOKOUT N7QXO-7', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4558.13NF12259.58W MEISSNER LOOKOUT N7QXO-7', data_ext=b'', comment=b'MEISSNER LOOKOUT N7QXO-7', timestamp=None, lat=Decimal('45.96883333333333333333333333'), sym_table_id=b'F', long=Decimal('-122.993'), symbol_code=b' ')
+
+KD6VPH>APRSWX,QAR,VCAPK:@202349z4658.42N/12258.40W_252/002g003t065r000p000P000h48b10211l030Davis WX Station- Olympia, WA
+PositionReport(raw=b'@202349z4658.42N/12258.40W_252/002g003t065r000p000P000h48b10211l030Davis WX Station- Olympia, WA', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4658.42N/12258.40W_252/002g003t065r000p000P000h48b10211l030Davis WX Station- Olympia, WA', data_ext=b'', comment=b'252/002g003t065r000p000P000h48b10211l030Davis WX Station- Olympia, WA', timestamp=datetime.datetime(2022, 5, 20, 23, 49, tzinfo=datetime.timezone.utc), lat=Decimal('46.97366666666666666666666667'), sym_table_id=b'/', long=Decimal('-122.9733333333333333333333333'), symbol_code=b'_')
+
+N3EG>APRS,TCPIP*,QAC,T2USANW:@202350z4609.10N/12258.80W_273/002g008t060r000p000P000h66b10235wDVPv1.9.1.7
+PositionReport(raw=b'@202350z4609.10N/12258.80W_273/002g008t060r000p000P000h66b10235wDVPv1.9.1.7', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4609.10N/12258.80W_273/002g008t060r000p000P000h66b10235wDVPv1.9.1.7', data_ext=b'', comment=b'273/002g008t060r000p000P000h66b10235wDVPv1.9.1.7', timestamp=datetime.datetime(2022, 5, 20, 23, 50, tzinfo=datetime.timezone.utc), lat=Decimal('46.15166666666666666666666667'), sym_table_id=b'/', long=Decimal('-122.98'), symbol_code=b'_')
+
+KC6RZW-10>KC6RZW-10,QAR,HAPPYV:!4524.31N/12235.05W_.../...g...t...r...p...P...h..b.....TU2k
+PositionReport(raw=b'!4524.31N/12235.05W_.../...g...t...r...p...P...h..b.....TU2k', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4524.31N/12235.05W_.../...g...t...r...p...P...h..b.....TU2k', data_ext=b'', comment=b'.../...g...t...r...p...P...h..b.....TU2k', timestamp=None, lat=Decimal('45.40516666666666666666666667'), sym_table_id=b'/', long=Decimal('-122.5841666666666666666666667'), symbol_code=b'_')
+
+N7QME-2>APRS,N7QME-3*,WIDE1-1,IGATE,QAR,KG7ZZA-10::N7QME    :temps g 66.8 v 61.9 o 69.7. e 57.7  f 36.0 b 55.8 w 65.3 h .62.1  Stale 5 
+Message(raw=b':N7QME    :temps g 66.8 v 61.9 o 69.7. e 57.7  f 36.0 b 55.8 w 65.3 h .62.1  Stale 5 ', data_type=<DataType.MESSAGE: b':'>, data=b'N7QME    :temps g 66.8 v 61.9 o 69.7. e 57.7  f 36.0 b 55.8 w 65.3 h .62.1  Stale 5 ', data_ext=b'', comment=b'', addressee=b'N7QME', text=b'temps g 66.8 v 61.9 o 69.7. e 57.7  f 36.0 b 55.8 w 65.3 h .62.1  Stale 5 ', number=None)
+
+N7BTW-7>APAT81,WIDE1-1,WIDE2-1,QAR,NPLNS:!4532.42N/12258.41W[186/000/A=000131 N7BTW HT
+PositionReport(raw=b'!4532.42N/12258.41W[186/000/A=000131 N7BTW HT', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4532.42N/12258.41W[186/000/A=000131 N7BTW HT', data_ext=b'', comment=b'186/000/A=000131 N7BTW HT', timestamp=None, lat=Decimal('45.54033333333333333333333333'), sym_table_id=b'/', long=Decimal('-122.9735'), symbol_code=b'[')
+
+WINHTC>BEACON,QAR,KD7EEK-12:!4558.24NW12259.96W#PHG0000 WINLINK HTC 144.920[D[D[D[D[D[D[D[D[D[C DIGI 144.920
+PositionReport(raw=b'!4558.24NW12259.96W#PHG0000 WINLINK HTC 144.920\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[C DIGI 144.920', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4558.24NW12259.96W#PHG0000 WINLINK HTC 144.920\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[C DIGI 144.920', data_ext=b'', comment=b'PHG0000 WINLINK HTC 144.920\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[C DIGI 144.920', timestamp=None, lat=Decimal('45.97066666666666666666666667'), sym_table_id=b'W', long=Decimal('-122.9993333333333333333333333'), symbol_code=b'#')
+
+WINHTC>GPS,QAR,KG7ZZA-10:!4558.24NW12259.96W#PHG0000 WINLINK HTC DIGI 144.920
+PositionReport(raw=b'!4558.24NW12259.96W#PHG0000 WINLINK HTC DIGI 144.920', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4558.24NW12259.96W#PHG0000 WINLINK HTC DIGI 144.920', data_ext=b'', comment=b'PHG0000 WINLINK HTC DIGI 144.920', timestamp=None, lat=Decimal('45.97066666666666666666666667'), sym_table_id=b'W', long=Decimal('-122.9993333333333333333333333'), symbol_code=b'#')
+
+W6UDF>APRS,TCPIP*,QAC,FIRST:@202350z4612.01N/12321.75W_151/002g005t055r000p000P000b10208h74L326.weewx-4.5.1-WeatherFlowUDP
+PositionReport(raw=b'@202350z4612.01N/12321.75W_151/002g005t055r000p000P000b10208h74L326.weewx-4.5.1-WeatherFlowUDP', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4612.01N/12321.75W_151/002g005t055r000p000P000b10208h74L326.weewx-4.5.1-WeatherFlowUDP', data_ext=b'', comment=b'151/002g005t055r000p000P000b10208h74L326.weewx-4.5.1-WeatherFlowUDP', timestamp=datetime.datetime(2022, 5, 20, 23, 50, tzinfo=datetime.timezone.utc), lat=Decimal('46.20016666666666666666666667'), sym_table_id=b'/', long=Decimal('-123.3625'), symbol_code=b'_')
+
+WW7CH-15>APRS,TCPIP*,QAC,T2USANW:@202350z4651.96N/12216.36W_000/002g006t056r000p000P000b10214h63.weewx-4.7.0-Vantage
+PositionReport(raw=b'@202350z4651.96N/12216.36W_000/002g006t056r000p000P000b10214h63.weewx-4.7.0-Vantage', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4651.96N/12216.36W_000/002g006t056r000p000P000b10214h63.weewx-4.7.0-Vantage', data_ext=b'', comment=b'000/002g006t056r000p000P000b10214h63.weewx-4.7.0-Vantage', timestamp=datetime.datetime(2022, 5, 20, 23, 50, tzinfo=datetime.timezone.utc), lat=Decimal('46.866'), sym_table_id=b'/', long=Decimal('-122.2726666666666666666666667'), symbol_code=b'_')
+
+KB8BMY-10>APDR16,TCPIP*,QAC,T2FINLAND:=4703.86N/12245.76W[277/035/A=000134 Mike 
+PositionReport(raw=b'=4703.86N/12245.76W[277/035/A=000134 Mike ', data_type=<DataType.POSITION_W_O_TIMESTAMP_MSG: b'='>, data=b'4703.86N/12245.76W[277/035/A=000134 Mike ', data_ext=b'', comment=b'277/035/A=000134 Mike ', timestamp=None, lat=Decimal('47.06433333333333333333333333'), sym_table_id=b'/', long=Decimal('-122.7626666666666666666666667'), symbol_code=b'[')
+
+WA7IB>APRS,TCPIP*,QAC,T2SWEDEN:@202350z4511.87N/12312.57W_230/000g004t060r000p000P000h57b10234.DsVP
+PositionReport(raw=b'@202350z4511.87N/12312.57W_230/000g004t060r000p000P000h57b10234.DsVP', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4511.87N/12312.57W_230/000g004t060r000p000P000h57b10234.DsVP', data_ext=b'', comment=b'230/000g004t060r000p000P000h57b10234.DsVP', timestamp=datetime.datetime(2022, 5, 20, 23, 50, tzinfo=datetime.timezone.utc), lat=Decimal('45.19783333333333333333333333'), sym_table_id=b'/', long=Decimal('-123.2095'), symbol_code=b'_')
+
+UCAPK>APMI06,TCPIP*,QAS,K7CPR:@202350z4658.39N/12308.29W-WX3in1Plus2.0 U=13.9V
+PositionReport(raw=b'@202350z4658.39N/12308.29W-WX3in1Plus2.0 U=13.9V', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4658.39N/12308.29W-WX3in1Plus2.0 U=13.9V', data_ext=b'', comment=b'WX3in1Plus2.0 U=13.9V', timestamp=datetime.datetime(2022, 5, 20, 23, 50, tzinfo=datetime.timezone.utc), lat=Decimal('46.97316666666666666666666667'), sym_table_id=b'/', long=Decimal('-123.1381666666666666666666667'), symbol_code=b'-')
+
+N7DRD-4>APWW11,TCPIP*,QAC,T2NUERNBG:@235037h4629.30NI12402.74W&PHG8100APRS-IS for Win32
+PositionReport(raw=b'@235037h4629.30NI12402.74W&PHG8100APRS-IS for Win32', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4629.30NI12402.74W&PHG8100APRS-IS for Win32', data_ext=b'', comment=b'PHG8100APRS-IS for Win32', timestamp=datetime.datetime(2022, 5, 20, 23, 50, 37, tzinfo=datetime.timezone.utc), lat=Decimal('46.48833333333333333333333333'), sym_table_id=b'I', long=Decimal('-124.0456666666666666666666667'), symbol_code=b'&')
+
+KB8BMY-10>APDR16,TCPIP*,QAC,T2FINLAND:=4703.88N/12245.92W[303/019/A=000159 Mike 
+PositionReport(raw=b'=4703.88N/12245.92W[303/019/A=000159 Mike ', data_type=<DataType.POSITION_W_O_TIMESTAMP_MSG: b'='>, data=b'4703.88N/12245.92W[303/019/A=000159 Mike ', data_ext=b'', comment=b'303/019/A=000159 Mike ', timestamp=None, lat=Decimal('47.06466666666666666666666667'), sym_table_id=b'/', long=Decimal('-122.7653333333333333333333333'), symbol_code=b'[')
+
+N3EG>APW285,TCPIP*,QAC,T2LUBLIN:@200851z4609.08N/12258.81W-000/000/ -285-<630>
+PositionReport(raw=b'@200851z4609.08N/12258.81W-000/000/ -285-<630>', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4609.08N/12258.81W-000/000/ -285-<630>', data_ext=b'', comment=b'000/000/ -285-<630>', timestamp=datetime.datetime(2022, 5, 20, 8, 51, tzinfo=datetime.timezone.utc), lat=Decimal('46.15133333333333333333333333'), sym_table_id=b'/', long=Decimal('-122.9801666666666666666666667'), symbol_code=b'-')
+
+UCAPK>K7CPR-2,TCPIP*,QAS,K7CPR::UCAPK    :PARM.Vin,Rx1h,DgS1h,Eff1h,A5,B1,B2,B3,B4,B5,B6,B7,B8
+Message(raw=b':UCAPK    :PARM.Vin,Rx1h,DgS1h,Eff1h,A5,B1,B2,B3,B4,B5,B6,B7,B8', data_type=<DataType.MESSAGE: b':'>, data=b'UCAPK    :PARM.Vin,Rx1h,DgS1h,Eff1h,A5,B1,B2,B3,B4,B5,B6,B7,B8', data_ext=b'', comment=b'', addressee=b'UCAPK', text=b'PARM.Vin,Rx1h,DgS1h,Eff1h,A5,B1,B2,B3,B4,B5,B6,B7,B8', number=None)
+
+UCAPK>K7CPR-2,TCPIP*,QAS,K7CPR::UCAPK    :UNIT.Volt,Pkt,Pcnt,Pcnt,None,None,None,None,None,None,Non,Non,Non
+Message(raw=b':UCAPK    :UNIT.Volt,Pkt,Pcnt,Pcnt,None,None,None,None,None,None,Non,Non,Non', data_type=<DataType.MESSAGE: b':'>, data=b'UCAPK    :UNIT.Volt,Pkt,Pcnt,Pcnt,None,None,None,None,None,None,Non,Non,Non', data_ext=b'', comment=b'', addressee=b'UCAPK', text=b'UNIT.Volt,Pkt,Pcnt,Pcnt,None,None,None,None,None,None,Non,Non,Non', number=None)
+
+UCAPK>K7CPR-2,TCPIP*,QAS,K7CPR::UCAPK    :EQNS.0,0.075,0,0,10,0,0,0.001,0,0,1,0,0,0,0
+Message(raw=b':UCAPK    :EQNS.0,0.075,0,0,10,0,0,0.001,0,0,1,0,0,0,0', data_type=<DataType.MESSAGE: b':'>, data=b'UCAPK    :EQNS.0,0.075,0,0,10,0,0,0.001,0,0,1,0,0,0,0', data_ext=b'', comment=b'', addressee=b'UCAPK', text=b'EQNS.0,0.075,0,0,10,0,0,0.001,0,0,1,0,0,0,0', number=None)
+
+UCAPK>K7CPR-2,TCPIP*,QAS,K7CPR::UCAPK    :BITS.11111111,VCAPK Telemetry
+Message(raw=b':UCAPK    :BITS.11111111,VCAPK Telemetry', data_type=<DataType.MESSAGE: b':'>, data=b'UCAPK    :BITS.11111111,VCAPK Telemetry', data_ext=b'', comment=b'', addressee=b'UCAPK', text=b'BITS.11111111,VCAPK Telemetry', number=None)
+
+KB8BMY-10>APDR16,TCPIP*,QAC,T2FINLAND:=4704.02N/12246.08W[336/013/A=000144 Mike 
+PositionReport(raw=b'=4704.02N/12246.08W[336/013/A=000144 Mike ', data_type=<DataType.POSITION_W_O_TIMESTAMP_MSG: b'='>, data=b'4704.02N/12246.08W[336/013/A=000144 Mike ', data_ext=b'', comment=b'336/013/A=000144 Mike ', timestamp=None, lat=Decimal('47.067'), sym_table_id=b'/', long=Decimal('-122.768'), symbol_code=b'[')
+
+N7MYA-10>APDR16,TCPIP*,QAC,T2UK:=4629.53N/12402.34W$/A=-00071 https://aprsdroid.org/
+PositionReport(raw=b'=4629.53N/12402.34W$/A=-00071 https://aprsdroid.org/', data_type=<DataType.POSITION_W_O_TIMESTAMP_MSG: b'='>, data=b'4629.53N/12402.34W$/A=-00071 https://aprsdroid.org/', data_ext=b'', comment=b'/A=-00071 https://aprsdroid.org/', timestamp=None, lat=Decimal('46.49216666666666666666666667'), sym_table_id=b'/', long=Decimal('-124.039'), symbol_code=b'$')
+
+KB8BMY-10>APDR16,TCPIP*,QAC,T2FINLAND:=4704.08N/12246.16W[314/026/A=000142 Mike 
+PositionReport(raw=b'=4704.08N/12246.16W[314/026/A=000142 Mike ', data_type=<DataType.POSITION_W_O_TIMESTAMP_MSG: b'='>, data=b'4704.08N/12246.16W[314/026/A=000142 Mike ', data_ext=b'', comment=b'314/026/A=000142 Mike ', timestamp=None, lat=Decimal('47.068'), sym_table_id=b'/', long=Decimal('-122.7693333333333333333333333'), symbol_code=b'[')
+
+W5KAV-9>APBPQ1,TCPIP*,QAC,T2EDM:!4649.36N/12304.87WBRochester,WA,W5KAV-5,145.050,145.630,7.1004,APRS IGATE,VARA FM 145.050,HH 4571
+PositionReport(raw=b'!4649.36N/12304.87WBRochester,WA,W5KAV-5,145.050,145.630,7.1004,APRS IGATE,VARA FM 145.050,HH 4571', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4649.36N/12304.87WBRochester,WA,W5KAV-5,145.050,145.630,7.1004,APRS IGATE,VARA FM 145.050,HH 4571', data_ext=b'', comment=b'Rochester,WA,W5KAV-5,145.050,145.630,7.1004,APRS IGATE,VARA FM 145.050,HH 4571', timestamp=None, lat=Decimal('46.82266666666666666666666667'), sym_table_id=b'/', long=Decimal('-123.0811666666666666666666667'), symbol_code=b'B')
+
+W7EES-10>APBPQ1,TCPIP*,QAC,T2USANW:!4532.00N/12258.00WBw7ees-1.ddns.net Hillsboro
+PositionReport(raw=b'!4532.00N/12258.00WBw7ees-1.ddns.net Hillsboro', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4532.00N/12258.00WBw7ees-1.ddns.net Hillsboro', data_ext=b'', comment=b'w7ees-1.ddns.net Hillsboro', timestamp=None, lat=Decimal('45.53333333333333333333333333'), sym_table_id=b'/', long=Decimal('-122.9666666666666666666666667'), symbol_code=b'B')
+
+KI7JYE>APRS,TCPIP*,QAC,AMBCWOP-2:@202351z4518.74N/12256.49W_291/005g006t061r000p000P000h50b10216L414AmbientCWOP.com
+PositionReport(raw=b'@202351z4518.74N/12256.49W_291/005g006t061r000p000P000h50b10216L414AmbientCWOP.com', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4518.74N/12256.49W_291/005g006t061r000p000P000h50b10216L414AmbientCWOP.com', data_ext=b'', comment=b'291/005g006t061r000p000P000h50b10216L414AmbientCWOP.com', timestamp=datetime.datetime(2022, 5, 20, 23, 51, tzinfo=datetime.timezone.utc), lat=Decimal('45.31233333333333333333333333'), sym_table_id=b'/', long=Decimal('-122.9415'), symbol_code=b'_')
+
+MINERL>APK102,WIDE2-1,145090,QAR,K7MXE-2:!4643.13NS12211.39W#PHG7124/Mineral/Ashford - W7PFR-2 9600 APRS @ 145.090
+PositionReport(raw=b'!4643.13NS12211.39W#PHG7124/Mineral/Ashford - W7PFR-2 9600 APRS @ 145.090', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4643.13NS12211.39W#PHG7124/Mineral/Ashford - W7PFR-2 9600 APRS @ 145.090', data_ext=b'', comment=b'PHG7124/Mineral/Ashford - W7PFR-2 9600 APRS @ 145.090', timestamp=None, lat=Decimal('46.71883333333333333333333333'), sym_table_id=b'S', long=Decimal('-122.1898333333333333333333333'), symbol_code=b'#')
+
+KB8BMY-10>APDR16,TCPIP*,QAC,T2FINLAND:=4704.14N/12246.24W[346/012/A=000146 Mike 
+PositionReport(raw=b'=4704.14N/12246.24W[346/012/A=000146 Mike ', data_type=<DataType.POSITION_W_O_TIMESTAMP_MSG: b'='>, data=b'4704.14N/12246.24W[346/012/A=000146 Mike ', data_ext=b'', comment=b'346/012/A=000146 Mike ', timestamp=None, lat=Decimal('47.069'), sym_table_id=b'/', long=Decimal('-122.7706666666666666666666667'), symbol_code=b'[')
+
+KJ7DLV>APOSW,TCPIP*,QAC,T2LUBLIN:@202352z4545.72N/12239.28WD/A=000000KJ7DLV SharkRF openSPOT2
+PositionReport(raw=b'@202352z4545.72N/12239.28WD/A=000000KJ7DLV SharkRF openSPOT2', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4545.72N/12239.28WD/A=000000KJ7DLV SharkRF openSPOT2', data_ext=b'', comment=b'/A=000000KJ7DLV SharkRF openSPOT2', timestamp=datetime.datetime(2022, 5, 20, 23, 52, tzinfo=datetime.timezone.utc), lat=Decimal('45.762'), sym_table_id=b'/', long=Decimal('-122.6546666666666666666666667'), symbol_code=b'D')
+
+KC6RZW-10>KC6RZW-10,QAR,HAPPYV:!4524.31N/12235.05W_.../...g...t...r...p...P...h..b.....TU2k
+PositionReport(raw=b'!4524.31N/12235.05W_.../...g...t...r...p...P...h..b.....TU2k', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4524.31N/12235.05W_.../...g...t...r...p...P...h..b.....TU2k', data_ext=b'', comment=b'.../...g...t...r...p...P...h..b.....TU2k', timestamp=None, lat=Decimal('45.40516666666666666666666667'), sym_table_id=b'/', long=Decimal('-122.5841666666666666666666667'), symbol_code=b'_')
+
+KB8BMY-10>APDR16,TCPIP*,QAC,T2FINLAND:=4704.21N/12246.33W[325/032/A=000146 Mike 
+PositionReport(raw=b'=4704.21N/12246.33W[325/032/A=000146 Mike ', data_type=<DataType.POSITION_W_O_TIMESTAMP_MSG: b'='>, data=b'4704.21N/12246.33W[325/032/A=000146 Mike ', data_ext=b'', comment=b'325/032/A=000146 Mike ', timestamp=None, lat=Decimal('47.07016666666666666666666667'), sym_table_id=b'/', long=Decimal('-122.7721666666666666666666667'), symbol_code=b'[')
+
+PACKWD>APN383,QAR,W7ALK-13:!4636.15NS12138.20W#PHG7560 W2,WAn-N, Packwood KD7ISZ & WW7CH
+PositionReport(raw=b'!4636.15NS12138.20W#PHG7560 W2,WAn-N, Packwood KD7ISZ & WW7CH', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4636.15NS12138.20W#PHG7560 W2,WAn-N, Packwood KD7ISZ & WW7CH', data_ext=b'', comment=b'PHG7560 W2,WAn-N, Packwood KD7ISZ & WW7CH', timestamp=None, lat=Decimal('46.6025'), sym_table_id=b'S', long=Decimal('-121.6366666666666666666666667'), symbol_code=b'#')
+
+N70FW>APX210,WIDE2-2,QAR,KG7ZZA-10:@202352z4543.48N/12239.78W_317/000g004t063r000P000p000h10b10210
+PositionReport(raw=b'@202352z4543.48N/12239.78W_317/000g004t063r000P000p000h10b10210', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4543.48N/12239.78W_317/000g004t063r000P000p000h10b10210', data_ext=b'', comment=b'317/000g004t063r000P000p000h10b10210', timestamp=datetime.datetime(2022, 5, 20, 23, 52, tzinfo=datetime.timezone.utc), lat=Decimal('45.72466666666666666666666667'), sym_table_id=b'/', long=Decimal('-122.663'), symbol_code=b'_')
+
+N7LOL-7>APMI0A,WIDE1-1,WIDE2-1,QAR,W7AUW:/202352z4656.72N/12350.83W>APRS Voyager U=12.4V.
+PositionReport(raw=b'/202352z4656.72N/12350.83W>APRS Voyager U=12.4V.', data_type=<DataType.POSITION_W_TIMESTAMP_NO_MSG: b'/'>, data=b'4656.72N/12350.83W>APRS Voyager U=12.4V.', data_ext=b'', comment=b'APRS Voyager U=12.4V.', timestamp=datetime.datetime(2022, 5, 20, 23, 52, tzinfo=datetime.timezone.utc), lat=Decimal('46.94533333333333333333333333'), sym_table_id=b'/', long=Decimal('-123.8471666666666666666666667'), symbol_code=b'>')
+
+AA0PB>APRS,TCPIP*,QAC,AMBCWOP-2:@202352z4530.93N/12303.70W_065/001g003t058r000p000P000h54b10209L434AmbientCWOP.com
+PositionReport(raw=b'@202352z4530.93N/12303.70W_065/001g003t058r000p000P000h54b10209L434AmbientCWOP.com', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4530.93N/12303.70W_065/001g003t058r000p000P000h54b10209L434AmbientCWOP.com', data_ext=b'', comment=b'065/001g003t058r000p000P000h54b10209L434AmbientCWOP.com', timestamp=datetime.datetime(2022, 5, 20, 23, 52, tzinfo=datetime.timezone.utc), lat=Decimal('45.5155'), sym_table_id=b'/', long=Decimal('-123.0616666666666666666666667'), symbol_code=b'_')
+
+KA2RQM>APRS,TCPIP*,QAC,AMBCWOP-2:@202353z4627.22N/12403.24W_273/004g010t055r000p000P000h71b10226L485AmbientCWOP.com
+PositionReport(raw=b'@202353z4627.22N/12403.24W_273/004g010t055r000p000P000h71b10226L485AmbientCWOP.com', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4627.22N/12403.24W_273/004g010t055r000p000P000h71b10226L485AmbientCWOP.com', data_ext=b'', comment=b'273/004g010t055r000p000P000h71b10226L485AmbientCWOP.com', timestamp=datetime.datetime(2022, 5, 20, 23, 53, tzinfo=datetime.timezone.utc), lat=Decimal('46.45366666666666666666666667'), sym_table_id=b'/', long=Decimal('-124.054'), symbol_code=b'_')
+
+W7DG-5>APDW17,QAS,N3EG:!4610.97NL12257.50W#PHG7140http://www.w7dg.org Local-only contact kf7hvm@0x26.net
+PositionReport(raw=b'!4610.97NL12257.50W#PHG7140http://www.w7dg.org Local-only contact kf7hvm@0x26.net', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4610.97NL12257.50W#PHG7140http://www.w7dg.org Local-only contact kf7hvm@0x26.net', data_ext=b'', comment=b'PHG7140http://www.w7dg.org Local-only contact kf7hvm@0x26.net', timestamp=None, lat=Decimal('46.18283333333333333333333333'), sym_table_id=b'L', long=Decimal('-122.9583333333333333333333333'), symbol_code=b'#')
+
+SHERWD>APRX29,WIDE2-1,QAR,NPLNS:!4522.71NI12251.02W#APRX29 Pi Zero/TNC Pi Sherwood @N7TRY
+PositionReport(raw=b'!4522.71NI12251.02W#APRX29 Pi Zero/TNC Pi Sherwood @N7TRY', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4522.71NI12251.02W#APRX29 Pi Zero/TNC Pi Sherwood @N7TRY', data_ext=b'', comment=b'APRX29 Pi Zero/TNC Pi Sherwood @N7TRY', timestamp=None, lat=Decimal('45.3785'), sym_table_id=b'I', long=Decimal('-122.8503333333333333333333333'), symbol_code=b'#')
+
+KB8BMY-10>APDR16,TCPIP*,QAC,T2FINLAND:=4704.79N/12246.83W[345/030/A=000150 Mike 
+PositionReport(raw=b'=4704.79N/12246.83W[345/030/A=000150 Mike ', data_type=<DataType.POSITION_W_O_TIMESTAMP_MSG: b'='>, data=b'4704.79N/12246.83W[345/030/A=000150 Mike ', data_ext=b'', comment=b'345/030/A=000150 Mike ', timestamp=None, lat=Decimal('47.07983333333333333333333333'), sym_table_id=b'/', long=Decimal('-122.7805'), symbol_code=b'[')
+
+N7QME-2>APRS,WIDE1-1,IGATE,TCPIP*,QAS,N7QME-3::N7QME    :temps g 66.9. v 61.9 o 69.4. e 57.7  f 36.0 b 55.8 w 65.4 h .61.9  Stale 5 
+Message(raw=b':N7QME    :temps g 66.9. v 61.9 o 69.4. e 57.7  f 36.0 b 55.8 w 65.4 h .61.9  Stale 5 ', data_type=<DataType.MESSAGE: b':'>, data=b'N7QME    :temps g 66.9. v 61.9 o 69.4. e 57.7  f 36.0 b 55.8 w 65.4 h .61.9  Stale 5 ', data_ext=b'', comment=b'', addressee=b'N7QME', text=b'temps g 66.9. v 61.9 o 69.4. e 57.7  f 36.0 b 55.8 w 65.4 h .61.9  Stale 5 ', number=None)
+
+KB8BMY-10>APDR16,TCPIP*,QAC,T2FINLAND:=4704.98N/12246.84W[018/012/A=000188 Mike 
+PositionReport(raw=b'=4704.98N/12246.84W[018/012/A=000188 Mike ', data_type=<DataType.POSITION_W_O_TIMESTAMP_MSG: b'='>, data=b'4704.98N/12246.84W[018/012/A=000188 Mike ', data_ext=b'', comment=b'018/012/A=000188 Mike ', timestamp=None, lat=Decimal('47.083'), sym_table_id=b'/', long=Decimal('-122.7806666666666666666666667'), symbol_code=b'[')
+
+W6PRN-3>APRS,TCPIP*,QAC,T2STRAS:=4531.34N/12244.83WrPHG7460/AllStar Node 48083  443.200
+PositionReport(raw=b'=4531.34N/12244.83WrPHG7460/AllStar Node 48083  443.200', data_type=<DataType.POSITION_W_O_TIMESTAMP_MSG: b'='>, data=b'4531.34N/12244.83WrPHG7460/AllStar Node 48083  443.200', data_ext=b'', comment=b'PHG7460/AllStar Node 48083  443.200', timestamp=None, lat=Decimal('45.52233333333333333333333333'), sym_table_id=b'/', long=Decimal('-122.7471666666666666666666667'), symbol_code=b'r')
+
+N7QME-2>APRS,N7QME-3*,WIDE1-1,IGATE,QAR,KG7ZZA-10::N7QME    :system phv 13.32 bv 13.32 bc 3.80 bp 50.6 tp  1122 rt  -111 SOC 88.3
+Message(raw=b':N7QME    :system phv 13.32 bv 13.32 bc 3.80 bp 50.6 tp  1122 rt  -111 SOC 88.3', data_type=<DataType.MESSAGE: b':'>, data=b'N7QME    :system phv 13.32 bv 13.32 bc 3.80 bp 50.6 tp  1122 rt  -111 SOC 88.3', data_ext=b'', comment=b'', addressee=b'N7QME', text=b'system phv 13.32 bv 13.32 bc 3.80 bp 50.6 tp  1122 rt  -111 SOC 88.3', number=None)
+
+KB8BMY-10>APDR16,TCPIP*,QAC,T2FINLAND:=4705.06N/12246.84W[000/030/A=000197 Mike 
+PositionReport(raw=b'=4705.06N/12246.84W[000/030/A=000197 Mike ', data_type=<DataType.POSITION_W_O_TIMESTAMP_MSG: b'='>, data=b'4705.06N/12246.84W[000/030/A=000197 Mike ', data_ext=b'', comment=b'000/030/A=000197 Mike ', timestamp=None, lat=Decimal('47.08433333333333333333333333'), sym_table_id=b'/', long=Decimal('-122.7806666666666666666666667'), symbol_code=b'[')
+
+W7ALK-13>W7ALK-13,TCPIP*,QAC,T2USANW:@202354z4636.43N/12139.39W_172/001g007t054r000p000P000h64b00000WX3in1 Mini / PB2100 Wx
+PositionReport(raw=b'@202354z4636.43N/12139.39W_172/001g007t054r000p000P000h64b00000WX3in1 Mini / PB2100 Wx', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4636.43N/12139.39W_172/001g007t054r000p000P000h64b00000WX3in1 Mini / PB2100 Wx', data_ext=b'', comment=b'172/001g007t054r000p000P000h64b00000WX3in1 Mini / PB2100 Wx', timestamp=datetime.datetime(2022, 5, 20, 23, 54, tzinfo=datetime.timezone.utc), lat=Decimal('46.60716666666666666666666667'), sym_table_id=b'/', long=Decimal('-121.6565'), symbol_code=b'_')
+
+W7ALK-13>APMI04,TCPIP*,QAC,T2USANW:@202354z4636.43N/12139.39W-WX3in1Mini U=12.7V.
+PositionReport(raw=b'@202354z4636.43N/12139.39W-WX3in1Mini U=12.7V.', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4636.43N/12139.39W-WX3in1Mini U=12.7V.', data_ext=b'', comment=b'WX3in1Mini U=12.7V.', timestamp=datetime.datetime(2022, 5, 20, 23, 54, tzinfo=datetime.timezone.utc), lat=Decimal('46.60716666666666666666666667'), sym_table_id=b'/', long=Decimal('-121.6565'), symbol_code=b'-')
+
+PACKWD>APN383,QAR,W7ALK-13:!4636.15NS12138.20W#PHG7560 W2,WAn-N, Packwood KD7ISZ & WW7CH
+PositionReport(raw=b'!4636.15NS12138.20W#PHG7560 W2,WAn-N, Packwood KD7ISZ & WW7CH', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4636.15NS12138.20W#PHG7560 W2,WAn-N, Packwood KD7ISZ & WW7CH', data_ext=b'', comment=b'PHG7560 W2,WAn-N, Packwood KD7ISZ & WW7CH', timestamp=None, lat=Decimal('46.6025'), sym_table_id=b'S', long=Decimal('-121.6366666666666666666666667'), symbol_code=b'#')
+
+W7PLC>APRS,TCPIP*,QAC,AMBCWOP-2:@202354z4702.08N/12255.24W_339/002g002t064r000p000P000h45b10202L472AmbientCWOP.com
+PositionReport(raw=b'@202354z4702.08N/12255.24W_339/002g002t064r000p000P000h45b10202L472AmbientCWOP.com', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4702.08N/12255.24W_339/002g002t064r000p000P000h45b10202L472AmbientCWOP.com', data_ext=b'', comment=b'339/002g002t064r000p000P000h45b10202L472AmbientCWOP.com', timestamp=datetime.datetime(2022, 5, 20, 23, 54, tzinfo=datetime.timezone.utc), lat=Decimal('47.03466666666666666666666667'), sym_table_id=b'/', long=Decimal('-122.9206666666666666666666667'), symbol_code=b'_')
+
+K7NDG>APRS,TCPIP*,QAC,AMBCWOP-2:@202354z4659.08N/12336.08W_249/005g005t060r000p000P000h63b10266L755AmbientCWOP.com
+PositionReport(raw=b'@202354z4659.08N/12336.08W_249/005g005t060r000p000P000h63b10266L755AmbientCWOP.com', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4659.08N/12336.08W_249/005g005t060r000p000P000h63b10266L755AmbientCWOP.com', data_ext=b'', comment=b'249/005g005t060r000p000P000h63b10266L755AmbientCWOP.com', timestamp=datetime.datetime(2022, 5, 20, 23, 54, tzinfo=datetime.timezone.utc), lat=Decimal('46.98466666666666666666666667'), sym_table_id=b'/', long=Decimal('-123.6013333333333333333333333'), symbol_code=b'_')
+
+VCAPK>APMI06,TCPIP*,QAS,K7CPR:@202354z4658.39N/12308.29W-WX3in1Plus2.0 K7CPR
+PositionReport(raw=b'@202354z4658.39N/12308.29W-WX3in1Plus2.0 K7CPR', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4658.39N/12308.29W-WX3in1Plus2.0 K7CPR', data_ext=b'', comment=b'WX3in1Plus2.0 K7CPR', timestamp=datetime.datetime(2022, 5, 20, 23, 54, tzinfo=datetime.timezone.utc), lat=Decimal('46.97316666666666666666666667'), sym_table_id=b'/', long=Decimal('-123.1381666666666666666666667'), symbol_code=b'-')
+
+KB8BMY-10>APDR16,TCPIP*,QAC,T2FINLAND:=4705.42N/12246.84W[027/012/A=000202 Mike 
+PositionReport(raw=b'=4705.42N/12246.84W[027/012/A=000202 Mike ', data_type=<DataType.POSITION_W_O_TIMESTAMP_MSG: b'='>, data=b'4705.42N/12246.84W[027/012/A=000202 Mike ', data_ext=b'', comment=b'027/012/A=000202 Mike ', timestamp=None, lat=Decimal('47.09033333333333333333333333'), sym_table_id=b'/', long=Decimal('-122.7806666666666666666666667'), symbol_code=b'[')
+
+RHODY>APN383,QAR,MTHOOD:!4519.67NS12154.64W#PHG21606/W1,ORn, 147.040MHz T100 +060 www.arrg.org K7RPT
+PositionReport(raw=b'!4519.67NS12154.64W#PHG21606/W1,ORn, 147.040MHz T100 +060 www.arrg.org K7RPT', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4519.67NS12154.64W#PHG21606/W1,ORn, 147.040MHz T100 +060 www.arrg.org K7RPT', data_ext=b'', comment=b'PHG21606/W1,ORn, 147.040MHz T100 +060 www.arrg.org K7RPT', timestamp=None, lat=Decimal('45.32783333333333333333333333'), sym_table_id=b'S', long=Decimal('-121.9106666666666666666666667'), symbol_code=b'#')
+
+KB8BMY-10>APDR16,TCPIP*,QAC,T2FINLAND:=4705.52N/12246.84W[359/030/A=000196 Mike 
+PositionReport(raw=b'=4705.52N/12246.84W[359/030/A=000196 Mike ', data_type=<DataType.POSITION_W_O_TIMESTAMP_MSG: b'='>, data=b'4705.52N/12246.84W[359/030/A=000196 Mike ', data_ext=b'', comment=b'359/030/A=000196 Mike ', timestamp=None, lat=Decimal('47.092'), sym_table_id=b'/', long=Decimal('-122.7806666666666666666666667'), symbol_code=b'[')
+
+N3EG>APRS,TCPIP*,QAC,T2USANW:@202355z4609.10N/12258.80W_293/003g008t060r000p000P000h66b10235wDVPv1.9.1.7
+PositionReport(raw=b'@202355z4609.10N/12258.80W_293/003g008t060r000p000P000h66b10235wDVPv1.9.1.7', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4609.10N/12258.80W_293/003g008t060r000p000P000h66b10235wDVPv1.9.1.7', data_ext=b'', comment=b'293/003g008t060r000p000P000h66b10235wDVPv1.9.1.7', timestamp=datetime.datetime(2022, 5, 20, 23, 55, tzinfo=datetime.timezone.utc), lat=Decimal('46.15166666666666666666666667'), sym_table_id=b'/', long=Decimal('-122.98'), symbol_code=b'_')
+
+N7BTW-13>APRS,TCPIP*,QAC,T2USANW:@202355z4532.42N/12258.40W_325/001g002t059r000p001P000b10234h70.weewx-4.7.0-MQTTSubscribeDriver
+PositionReport(raw=b'@202355z4532.42N/12258.40W_325/001g002t059r000p001P000b10234h70.weewx-4.7.0-MQTTSubscribeDriver', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4532.42N/12258.40W_325/001g002t059r000p001P000b10234h70.weewx-4.7.0-MQTTSubscribeDriver', data_ext=b'', comment=b'325/001g002t059r000p001P000b10234h70.weewx-4.7.0-MQTTSubscribeDriver', timestamp=datetime.datetime(2022, 5, 20, 23, 55, tzinfo=datetime.timezone.utc), lat=Decimal('45.54033333333333333333333333'), sym_table_id=b'/', long=Decimal('-122.9733333333333333333333333'), symbol_code=b'_')
+
+WW7CH-15>APRS,TCPIP*,QAC,T2USANW:@202355z4651.96N/12216.36W_000/002g006t057r000p000P000b10214h63.weewx-4.7.0-Vantage
+PositionReport(raw=b'@202355z4651.96N/12216.36W_000/002g006t057r000p000P000b10214h63.weewx-4.7.0-Vantage', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4651.96N/12216.36W_000/002g006t057r000p000P000b10214h63.weewx-4.7.0-Vantage', data_ext=b'', comment=b'000/002g006t057r000p000P000b10214h63.weewx-4.7.0-Vantage', timestamp=datetime.datetime(2022, 5, 20, 23, 55, tzinfo=datetime.timezone.utc), lat=Decimal('46.866'), sym_table_id=b'/', long=Decimal('-122.2726666666666666666666667'), symbol_code=b'_')
+
+WA7IB>APRS,TCPIP*,QAC,T2SWEDEN:@202355z4511.87N/12312.57W_143/001g004t060r000p000P000h56b10234.DsVP
+PositionReport(raw=b'@202355z4511.87N/12312.57W_143/001g004t060r000p000P000h56b10234.DsVP', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4511.87N/12312.57W_143/001g004t060r000p000P000h56b10234.DsVP', data_ext=b'', comment=b'143/001g004t060r000p000P000h56b10234.DsVP', timestamp=datetime.datetime(2022, 5, 20, 23, 55, tzinfo=datetime.timezone.utc), lat=Decimal('45.19783333333333333333333333'), sym_table_id=b'/', long=Decimal('-123.2095'), symbol_code=b'_')
+
+N7LOL-15>APFII0,QAC,APRSFI:@235530h4656.72N/12350.83W$143/000147.16+ 88.5!w:#!
+PositionReport(raw=b'@235530h4656.72N/12350.83W$143/000147.16+ 88.5!w:#!', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4656.72N/12350.83W$143/000147.16+ 88.5!w:#!', data_ext=b'', comment=b'143/000147.16+ 88.5!w:#!', timestamp=datetime.datetime(2022, 5, 20, 23, 55, 30, tzinfo=datetime.timezone.utc), lat=Decimal('46.94533333333333333333333333'), sym_table_id=b'/', long=Decimal('-123.8471666666666666666666667'), symbol_code=b'$')
+
+NPLNS>NJ7I-1,WIDE1-1,QAR,KD7EEK-10:@202355z4538.08N/12300.00W#North Plains Digi/iGate/WX 9W HAAT:645Ft by NJ7I
+PositionReport(raw=b'@202355z4538.08N/12300.00W#North Plains Digi/iGate/WX 9W HAAT:645Ft by NJ7I', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4538.08N/12300.00W#North Plains Digi/iGate/WX 9W HAAT:645Ft by NJ7I', data_ext=b'', comment=b'North Plains Digi/iGate/WX 9W HAAT:645Ft by NJ7I', timestamp=datetime.datetime(2022, 5, 20, 23, 55, tzinfo=datetime.timezone.utc), lat=Decimal('45.63466666666666666666666667'), sym_table_id=b'/', long=Decimal('-123'), symbol_code=b'#')
+
+W6PRN>APRS,TCPIP*,QAC,T2STRAS:=4611.05N/12257.62WrPHG5630/AllStar Node 45373  443.525
+PositionReport(raw=b'=4611.05N/12257.62WrPHG5630/AllStar Node 45373  443.525', data_type=<DataType.POSITION_W_O_TIMESTAMP_MSG: b'='>, data=b'4611.05N/12257.62WrPHG5630/AllStar Node 45373  443.525', data_ext=b'', comment=b'PHG5630/AllStar Node 45373  443.525', timestamp=None, lat=Decimal('46.18416666666666666666666667'), sym_table_id=b'/', long=Decimal('-122.9603333333333333333333333'), symbol_code=b'r')
+
+BALDPK>APRX29,TCPIP*,QAS,BALDPK:!4524.27NI12302.73W#Bald Peak Digi+iGate @ K7ZS
+PositionReport(raw=b'!4524.27NI12302.73W#Bald Peak Digi+iGate @ K7ZS', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4524.27NI12302.73W#Bald Peak Digi+iGate @ K7ZS', data_ext=b'', comment=b'Bald Peak Digi+iGate @ K7ZS', timestamp=None, lat=Decimal('45.4045'), sym_table_id=b'I', long=Decimal('-123.0455'), symbol_code=b'#')
+
+KB8BMY-10>APDR16,TCPIP*,QAC,T2FINLAND:=4705.84N/12246.84W[049/010/A=000188 Mike 
+PositionReport(raw=b'=4705.84N/12246.84W[049/010/A=000188 Mike ', data_type=<DataType.POSITION_W_O_TIMESTAMP_MSG: b'='>, data=b'4705.84N/12246.84W[049/010/A=000188 Mike ', data_ext=b'', comment=b'049/010/A=000188 Mike ', timestamp=None, lat=Decimal('47.09733333333333333333333333'), sym_table_id=b'/', long=Decimal('-122.7806666666666666666666667'), symbol_code=b'[')
+
+KJ7ZPM-7>APMI0A,WIDE1-1,WIDE2-1,QAR,W7AUW:/202355z4656.71N/ -12350.83W>APRS Voyager U=13.2V.
+PositionReport(raw=b'/202355z4656.71N/ -12350.83W>APRS Voyager U=13.2V.', data_type=<DataType.POSITION_W_TIMESTAMP_NO_MSG: b'/'>, data=b'4656.71N/ -12350.83W>APRS Voyager U=13.2V.', data_ext=b'', comment=b'W>APRS Voyager U=13.2V.', timestamp=datetime.datetime(2022, 5, 20, 23, 55, tzinfo=datetime.timezone.utc), lat=Decimal('46.94516666666666666666666667'), sym_table_id=b'/', long=Decimal('-40.16666666666666666666666667'), symbol_code=b'3')
+
+KB8BMY-10>APDR16,TCPIP*,QAC,T2FINLAND:=4705.82N/12246.80W[179/011/A=000183 Mike 
+PositionReport(raw=b'=4705.82N/12246.80W[179/011/A=000183 Mike ', data_type=<DataType.POSITION_W_O_TIMESTAMP_MSG: b'='>, data=b'4705.82N/12246.80W[179/011/A=000183 Mike ', data_ext=b'', comment=b'179/011/A=000183 Mike ', timestamp=None, lat=Decimal('47.097'), sym_table_id=b'/', long=Decimal('-122.78'), symbol_code=b'[')
+
+BEAVRT>APRX29,TCPIP*,QAS,BEAVRT::BEAVRT   :PARM.Avg 10m,Avg 10m,RxPkts,IGateDropRx,TxPkts
+Message(raw=b':BEAVRT   :PARM.Avg 10m,Avg 10m,RxPkts,IGateDropRx,TxPkts', data_type=<DataType.MESSAGE: b':'>, data=b'BEAVRT   :PARM.Avg 10m,Avg 10m,RxPkts,IGateDropRx,TxPkts', data_ext=b'', comment=b'', addressee=b'BEAVRT', text=b'PARM.Avg 10m,Avg 10m,RxPkts,IGateDropRx,TxPkts', number=None)
+
+KK7DS>APRX29,WIDE2-2,TCPIP*,QAS,HAPPYV:@202350z4527.58N/12230.99W_275/003g007t056r000p003P000b10220h58.weewx
+PositionReport(raw=b'@202350z4527.58N/12230.99W_275/003g007t056r000p003P000b10220h58.weewx', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4527.58N/12230.99W_275/003g007t056r000p003P000b10220h58.weewx', data_ext=b'', comment=b'275/003g007t056r000p003P000b10220h58.weewx', timestamp=datetime.datetime(2022, 5, 20, 23, 50, tzinfo=datetime.timezone.utc), lat=Decimal('45.45966666666666666666666667'), sym_table_id=b'/', long=Decimal('-122.5165'), symbol_code=b'_')
+
+NPLNS>NJ7I-1,TCPIP*,QAC,T2OREGON::NPLNS    :PARM.Rx1H,Rg1h,Eff1h,EffTot,A5,D1,D2,D3,D4,D5,D6,D7,D8
+Message(raw=b':NPLNS    :PARM.Rx1H,Rg1h,Eff1h,EffTot,A5,D1,D2,D3,D4,D5,D6,D7,D8', data_type=<DataType.MESSAGE: b':'>, data=b'NPLNS    :PARM.Rx1H,Rg1h,Eff1h,EffTot,A5,D1,D2,D3,D4,D5,D6,D7,D8', data_ext=b'', comment=b'', addressee=b'NPLNS', text=b'PARM.Rx1H,Rg1h,Eff1h,EffTot,A5,D1,D2,D3,D4,D5,D6,D7,D8', number=None)
+
+NPLNS>NJ7I-1,TCPIP*,QAC,T2OREGON::NPLNS    :UNIT.Pkt,Pkt,Pct,Pct,None,NA,NA,NA,NA,NA,NA,NA,NA
+Message(raw=b':NPLNS    :UNIT.Pkt,Pkt,Pct,Pct,None,NA,NA,NA,NA,NA,NA,NA,NA', data_type=<DataType.MESSAGE: b':'>, data=b'NPLNS    :UNIT.Pkt,Pkt,Pct,Pct,None,NA,NA,NA,NA,NA,NA,NA,NA', data_ext=b'', comment=b'', addressee=b'NPLNS', text=b'UNIT.Pkt,Pkt,Pct,Pct,None,NA,NA,NA,NA,NA,NA,NA,NA', number=None)
+
+NPLNS>NJ7I-1,TCPIP*,QAC,T2OREGON::NPLNS    :EQNS.0,10,0,0,10,0,0,1,0,0,1,0,0,0,0
+Message(raw=b':NPLNS    :EQNS.0,10,0,0,10,0,0,1,0,0,1,0,0,0,0', data_type=<DataType.MESSAGE: b':'>, data=b'NPLNS    :EQNS.0,10,0,0,10,0,0,1,0,0,1,0,0,0,0', data_ext=b'', comment=b'', addressee=b'NPLNS', text=b'EQNS.0,10,0,0,10,0,0,1,0,0,1,0,0,0,0', number=None)
+
+NPLNS>NJ7I-1,TCPIP*,QAC,T2OREGON::NPLNS    :BITS.11111111,NJ7I Telemetry
+Message(raw=b':NPLNS    :BITS.11111111,NJ7I Telemetry', data_type=<DataType.MESSAGE: b':'>, data=b'NPLNS    :BITS.11111111,NJ7I Telemetry', data_ext=b'', comment=b'', addressee=b'NPLNS', text=b'BITS.11111111,NJ7I Telemetry', number=None)
+
+KB8BMY-10>APDR16,TCPIP*,QAC,T2FINLAND:=4705.75N/12246.79W[121/006/A=000198 Mike 
+PositionReport(raw=b'=4705.75N/12246.79W[121/006/A=000198 Mike ', data_type=<DataType.POSITION_W_O_TIMESTAMP_MSG: b'='>, data=b'4705.75N/12246.79W[121/006/A=000198 Mike ', data_ext=b'', comment=b'121/006/A=000198 Mike ', timestamp=None, lat=Decimal('47.09583333333333333333333333'), sym_table_id=b'/', long=Decimal('-122.7798333333333333333333333'), symbol_code=b'[')
+
+PACKWD>APN383,QAR,W7ALK-13:!4636.15NS12138.20W#PHG7560 W2,WAn-N, Packwood KD7ISZ & WW7CH
+PositionReport(raw=b'!4636.15NS12138.20W#PHG7560 W2,WAn-N, Packwood KD7ISZ & WW7CH', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4636.15NS12138.20W#PHG7560 W2,WAn-N, Packwood KD7ISZ & WW7CH', data_ext=b'', comment=b'PHG7560 W2,WAn-N, Packwood KD7ISZ & WW7CH', timestamp=None, lat=Decimal('46.6025'), sym_table_id=b'S', long=Decimal('-121.6366666666666666666666667'), symbol_code=b'#')
+
+N7MYA-10>APDR16,TCPIP*,QAC,T2UK:=4629.53N/12402.34W$063/000/A=-00072 https://aprsdroid.org/
+PositionReport(raw=b'=4629.53N/12402.34W$063/000/A=-00072 https://aprsdroid.org/', data_type=<DataType.POSITION_W_O_TIMESTAMP_MSG: b'='>, data=b'4629.53N/12402.34W$063/000/A=-00072 https://aprsdroid.org/', data_ext=b'', comment=b'063/000/A=-00072 https://aprsdroid.org/', timestamp=None, lat=Decimal('46.49216666666666666666666667'), sym_table_id=b'/', long=Decimal('-124.039'), symbol_code=b'$')
+
+MARBLE>APMI06,REDMT,WIDE2*,QAO,WA7RGO-10:!4606.52NF12205.73W#K7TME Semper Fi
+PositionReport(raw=b'!4606.52NF12205.73W#K7TME Semper Fi', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4606.52NF12205.73W#K7TME Semper Fi', data_ext=b'', comment=b'K7TME Semper Fi', timestamp=None, lat=Decimal('46.10866666666666666666666667'), sym_table_id=b'F', long=Decimal('-122.0955'), symbol_code=b'#')
+
+KI7JYE>APRS,TCPIP*,QAC,AMBCWOP-2:@202356z4518.74N/12256.49W_309/001g002t060r000p000P000h54b10216L206AmbientCWOP.com
+PositionReport(raw=b'@202356z4518.74N/12256.49W_309/001g002t060r000p000P000h54b10216L206AmbientCWOP.com', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4518.74N/12256.49W_309/001g002t060r000p000P000h54b10216L206AmbientCWOP.com', data_ext=b'', comment=b'309/001g002t060r000p000P000h54b10216L206AmbientCWOP.com', timestamp=datetime.datetime(2022, 5, 20, 23, 56, tzinfo=datetime.timezone.utc), lat=Decimal('45.31233333333333333333333333'), sym_table_id=b'/', long=Decimal('-122.9415'), symbol_code=b'_')
+
+MINERL>APK102,WIDE2-1,145090,QAR,K7MXE-2:!4643.13NS12211.39W#PHG7124/Mineral/Ashford - W7PFR-2 9600 APRS @ 145.090
+PositionReport(raw=b'!4643.13NS12211.39W#PHG7124/Mineral/Ashford - W7PFR-2 9600 APRS @ 145.090', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4643.13NS12211.39W#PHG7124/Mineral/Ashford - W7PFR-2 9600 APRS @ 145.090', data_ext=b'', comment=b'PHG7124/Mineral/Ashford - W7PFR-2 9600 APRS @ 145.090', timestamp=None, lat=Decimal('46.71883333333333333333333333'), sym_table_id=b'S', long=Decimal('-122.1898333333333333333333333'), symbol_code=b'#')
+
+W5KAV-9>APBPQ1,TCPIP*,QAC,T2EDM:!4649.36N/12304.87WBRochester,WA,W5KAV-5,145.050,145.630,7.1004,APRS IGATE,VARA FM 145.050,HH 4571
+PositionReport(raw=b'!4649.36N/12304.87WBRochester,WA,W5KAV-5,145.050,145.630,7.1004,APRS IGATE,VARA FM 145.050,HH 4571', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4649.36N/12304.87WBRochester,WA,W5KAV-5,145.050,145.630,7.1004,APRS IGATE,VARA FM 145.050,HH 4571', data_ext=b'', comment=b'Rochester,WA,W5KAV-5,145.050,145.630,7.1004,APRS IGATE,VARA FM 145.050,HH 4571', timestamp=None, lat=Decimal('46.82266666666666666666666667'), sym_table_id=b'/', long=Decimal('-123.0811666666666666666666667'), symbol_code=b'B')
+
+KD7EEK-12>APRX29,TCPIP*,QAS,KD7EEK-10:!4542.90NT12230.80W&OPERA - CSB 770A - 43.3*C - 0.04LA - 45.1 ms - up 27 days, 17:33,
+PositionReport(raw=b'!4542.90NT12230.80W&OPERA - CSB 770A - 43.3*C - 0.04LA - 45.1 ms - up 27 days, 17:33,', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4542.90NT12230.80W&OPERA - CSB 770A - 43.3*C - 0.04LA - 45.1 ms - up 27 days, 17:33,', data_ext=b'', comment=b'OPERA - CSB 770A - 43.3*C - 0.04LA - 45.1 ms - up 27 days, 17:33,', timestamp=None, lat=Decimal('45.715'), sym_table_id=b'T', long=Decimal('-122.5133333333333333333333333'), symbol_code=b'&')
+
+SADDLE>APN383,QAR,KG7ZZA-10:!4533.45NS12323.09Wr147.320MHz C100 +060= R99m Net7:30PM K7RPT www.arrg.org
+PositionReport(raw=b'!4533.45NS12323.09Wr147.320MHz C100 +060= R99m Net7:30PM K7RPT www.arrg.org', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4533.45NS12323.09Wr147.320MHz C100 +060= R99m Net7:30PM K7RPT www.arrg.org', data_ext=b'', comment=b'147.320MHz C100 +060= R99m Net7:30PM K7RPT www.arrg.org', timestamp=None, lat=Decimal('45.5575'), sym_table_id=b'S', long=Decimal('-123.3848333333333333333333333'), symbol_code=b'r')
+
+WB7QAZ-10>APMI06,WIDE2-2,QAR,BALDPK:@210245z4516.53N/12237.80W_067/000g004t058r000p000P000h64b10224WB7QAZ Canby, OR
+PositionReport(raw=b'@210245z4516.53N/12237.80W_067/000g004t058r000p000P000h64b10224WB7QAZ Canby, OR', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4516.53N/12237.80W_067/000g004t058r000p000P000h64b10224WB7QAZ Canby, OR', data_ext=b'', comment=b'067/000g004t058r000p000P000h64b10224WB7QAZ Canby, OR', timestamp=datetime.datetime(2022, 4, 21, 2, 45, tzinfo=datetime.timezone.utc), lat=Decimal('45.2755'), sym_table_id=b'/', long=Decimal('-122.63'), symbol_code=b'_')
+
+NICOLI>APRS,QAR,W7DG-5:!4605.21N/12327.31W#PHG2830W2, ORn-N, Fill-in / NA7Q 14.0V 44.2F
+PositionReport(raw=b'!4605.21N/12327.31W#PHG2830W2, ORn-N, Fill-in / NA7Q 14.0V 44.2F', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4605.21N/12327.31W#PHG2830W2, ORn-N, Fill-in / NA7Q 14.0V 44.2F', data_ext=b'', comment=b'PHG2830W2, ORn-N, Fill-in / NA7Q 14.0V 44.2F', timestamp=None, lat=Decimal('46.08683333333333333333333333'), sym_table_id=b'/', long=Decimal('-123.4551666666666666666666667'), symbol_code=b'#')
+
+MEISNR>APN382,QAR,W7DG-5:;EL-1369*111111z!4558.13NF12259.58W MEISSNER LOOKOUT N7QXO-7
+PositionReport(raw=b'!4558.13NF12259.58W MEISSNER LOOKOUT N7QXO-7', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4558.13NF12259.58W MEISSNER LOOKOUT N7QXO-7', data_ext=b'', comment=b'MEISSNER LOOKOUT N7QXO-7', timestamp=None, lat=Decimal('45.96883333333333333333333333'), sym_table_id=b'F', long=Decimal('-122.993'), symbol_code=b' ')
+
+AA0PB>APRS,TCPIP*,QAC,AMBCWOP-2:@202357z4530.93N/12303.70W_078/003g003t059r000p000P000h52b10208L272AmbientCWOP.com
+PositionReport(raw=b'@202357z4530.93N/12303.70W_078/003g003t059r000p000P000h52b10208L272AmbientCWOP.com', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4530.93N/12303.70W_078/003g003t059r000p000P000h52b10208L272AmbientCWOP.com', data_ext=b'', comment=b'078/003g003t059r000p000P000h52b10208L272AmbientCWOP.com', timestamp=datetime.datetime(2022, 5, 20, 23, 57, tzinfo=datetime.timezone.utc), lat=Decimal('45.5155'), sym_table_id=b'/', long=Decimal('-123.0616666666666666666666667'), symbol_code=b'_')
+
+KB8BMY-10>APDR16,TCPIP*,QAC,T2FINLAND:=4705.76N/12246.72W[294/002/A=000193 Mike 
+PositionReport(raw=b'=4705.76N/12246.72W[294/002/A=000193 Mike ', data_type=<DataType.POSITION_W_O_TIMESTAMP_MSG: b'='>, data=b'4705.76N/12246.72W[294/002/A=000193 Mike ', data_ext=b'', comment=b'294/002/A=000193 Mike ', timestamp=None, lat=Decimal('47.096'), sym_table_id=b'/', long=Decimal('-122.7786666666666666666666667'), symbol_code=b'[')
+
+KF7SHY-14>APRS,TCPIP*,QAU,T2UKRAINE:!4629.32N/12210.37W_234/005g009t048r000p000P000h69b10214DOGWX7.9
+PositionReport(raw=b'!4629.32N/12210.37W_234/005g009t048r000p000P000h69b10214DOGWX7.9', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4629.32N/12210.37W_234/005g009t048r000p000P000h69b10214DOGWX7.9', data_ext=b'', comment=b'234/005g009t048r000p000P000h69b10214DOGWX7.9', timestamp=None, lat=Decimal('46.48866666666666666666666667'), sym_table_id=b'/', long=Decimal('-122.1728333333333333333333333'), symbol_code=b'_')
+
+KD7BBJ-9>APAT81,WIDE2-1,QAR,W7DG-5:!4616.65N/12254.01Wk014/000/A=000062Call My Cell 360-442-6340
+PositionReport(raw=b'!4616.65N/12254.01Wk014/000/A=000062Call My Cell 360-442-6340', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4616.65N/12254.01Wk014/000/A=000062Call My Cell 360-442-6340', data_ext=b'', comment=b'014/000/A=000062Call My Cell 360-442-6340', timestamp=None, lat=Decimal('46.2775'), sym_table_id=b'/', long=Decimal('-122.9001666666666666666666667'), symbol_code=b'k')
+
+PACKWD>APN383,WIDE2-2,QAR,W7ALK-13:!4636.15NS12138.20W#PHG7560 W2,WAn-N, Packwood KD7ISZ & WW7CH
+PositionReport(raw=b'!4636.15NS12138.20W#PHG7560 W2,WAn-N, Packwood KD7ISZ & WW7CH', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4636.15NS12138.20W#PHG7560 W2,WAn-N, Packwood KD7ISZ & WW7CH', data_ext=b'', comment=b'PHG7560 W2,WAn-N, Packwood KD7ISZ & WW7CH', timestamp=None, lat=Decimal('46.6025'), sym_table_id=b'S', long=Decimal('-121.6366666666666666666666667'), symbol_code=b'#')
+
+KA2RQM>APRS,TCPIP*,QAC,AMBCWOP-2:@202358z4627.22N/12403.24W_309/004g010t055r000p000P000h70b10220L474AmbientCWOP.com
+PositionReport(raw=b'@202358z4627.22N/12403.24W_309/004g010t055r000p000P000h70b10220L474AmbientCWOP.com', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4627.22N/12403.24W_309/004g010t055r000p000P000h70b10220L474AmbientCWOP.com', data_ext=b'', comment=b'309/004g010t055r000p000P000h70b10220L474AmbientCWOP.com', timestamp=datetime.datetime(2022, 5, 20, 23, 58, tzinfo=datetime.timezone.utc), lat=Decimal('46.45366666666666666666666667'), sym_table_id=b'/', long=Decimal('-124.054'), symbol_code=b'_')
+
+K7MXE-2>APRX29,TCPIP*,QAC,T2USANW:!4647.86NI12214.02W&Alder WA APRS 145.090/9600
+PositionReport(raw=b'!4647.86NI12214.02W&Alder WA APRS 145.090/9600', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4647.86NI12214.02W&Alder WA APRS 145.090/9600', data_ext=b'', comment=b'Alder WA APRS 145.090/9600', timestamp=None, lat=Decimal('46.79766666666666666666666667'), sym_table_id=b'I', long=Decimal('-122.2336666666666666666666667'), symbol_code=b'&')
+
+KC6RZW-10>KC6RZW-10,QAR,HAPPYV:!4524.31N/12235.05W_.../...g...t...r...p...P...h..b.....TU2k
+PositionReport(raw=b'!4524.31N/12235.05W_.../...g...t...r...p...P...h..b.....TU2k', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4524.31N/12235.05W_.../...g...t...r...p...P...h..b.....TU2k', data_ext=b'', comment=b'.../...g...t...r...p...P...h..b.....TU2k', timestamp=None, lat=Decimal('45.40516666666666666666666667'), sym_table_id=b'/', long=Decimal('-122.5841666666666666666666667'), symbol_code=b'_')
+
+W7ALK-13>W7ALK-13,TCPIP*,QAC,T2USANW:@202359z4636.43N/12139.39W_239/009g009t055r000p000P000h63b00000WX3in1 Mini / PB2100 Wx
+PositionReport(raw=b'@202359z4636.43N/12139.39W_239/009g009t055r000p000P000h63b00000WX3in1 Mini / PB2100 Wx', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4636.43N/12139.39W_239/009g009t055r000p000P000h63b00000WX3in1 Mini / PB2100 Wx', data_ext=b'', comment=b'239/009g009t055r000p000P000h63b00000WX3in1 Mini / PB2100 Wx', timestamp=datetime.datetime(2022, 5, 20, 23, 59, tzinfo=datetime.timezone.utc), lat=Decimal('46.60716666666666666666666667'), sym_table_id=b'/', long=Decimal('-121.6565'), symbol_code=b'_')
+
+KD7BBJ-9>APAT81,KD7BBJ,WIDE2*,QAR,W7DG-5:!4616.65N/12254.01Wk199/000/A=000062Call My Cell 360-442-6340
+PositionReport(raw=b'!4616.65N/12254.01Wk199/000/A=000062Call My Cell 360-442-6340', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4616.65N/12254.01Wk199/000/A=000062Call My Cell 360-442-6340', data_ext=b'', comment=b'199/000/A=000062Call My Cell 360-442-6340', timestamp=None, lat=Decimal('46.2775'), sym_table_id=b'/', long=Decimal('-122.9001666666666666666666667'), symbol_code=b'k')
+
+W7PLC>APRS,TCPIP*,QAC,AMBCWOP-2:@202359z4702.08N/12255.24W_043/003g006t063r000p000P000h47b10204L453AmbientCWOP.com
+PositionReport(raw=b'@202359z4702.08N/12255.24W_043/003g006t063r000p000P000h47b10204L453AmbientCWOP.com', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4702.08N/12255.24W_043/003g006t063r000p000P000h47b10204L453AmbientCWOP.com', data_ext=b'', comment=b'043/003g006t063r000p000P000h47b10204L453AmbientCWOP.com', timestamp=datetime.datetime(2022, 5, 20, 23, 59, tzinfo=datetime.timezone.utc), lat=Decimal('47.03466666666666666666666667'), sym_table_id=b'/', long=Decimal('-122.9206666666666666666666667'), symbol_code=b'_')
+
+K7NDG>APRS,TCPIP*,QAC,AMBCWOP-2:@202359z4659.08N/12336.08W_262/006g010t062r000p000P000h62b10264L287AmbientCWOP.com
+PositionReport(raw=b'@202359z4659.08N/12336.08W_262/006g010t062r000p000P000h62b10264L287AmbientCWOP.com', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4659.08N/12336.08W_262/006g010t062r000p000P000h62b10264L287AmbientCWOP.com', data_ext=b'', comment=b'262/006g010t062r000p000P000h62b10264L287AmbientCWOP.com', timestamp=datetime.datetime(2022, 5, 20, 23, 59, tzinfo=datetime.timezone.utc), lat=Decimal('46.98466666666666666666666667'), sym_table_id=b'/', long=Decimal('-123.6013333333333333333333333'), symbol_code=b'_')
+
+N3EG>APRS,TCPIP*,QAC,T2USANW:@210000z4609.10N/12258.80W_319/004g009t061r000p000P000h64b10234wDVPv1.9.1.7
+PositionReport(raw=b'@210000z4609.10N/12258.80W_319/004g009t061r000p000P000h64b10234wDVPv1.9.1.7', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4609.10N/12258.80W_319/004g009t061r000p000P000h64b10234wDVPv1.9.1.7', data_ext=b'', comment=b'319/004g009t061r000p000P000h64b10234wDVPv1.9.1.7', timestamp=datetime.datetime(2022, 5, 21, 0, 0, tzinfo=datetime.timezone.utc), lat=Decimal('46.15166666666666666666666667'), sym_table_id=b'/', long=Decimal('-122.98'), symbol_code=b'_')
+
+WINHTC>BEACON,QAR,KG7ZZA-10:!4558.24NW12259.96W#PHG0000 WINLINK HTC 144.920[D[D[D[D[D[D[D[D[D[C DIGI 144.920
+PositionReport(raw=b'!4558.24NW12259.96W#PHG0000 WINLINK HTC 144.920\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[C DIGI 144.920', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4558.24NW12259.96W#PHG0000 WINLINK HTC 144.920\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[C DIGI 144.920', data_ext=b'', comment=b'PHG0000 WINLINK HTC 144.920\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[C DIGI 144.920', timestamp=None, lat=Decimal('45.97066666666666666666666667'), sym_table_id=b'W', long=Decimal('-122.9993333333333333333333333'), symbol_code=b'#')
+
+WINHTC>GPS,QAR,W7DG-5:!4558.24NW12259.96W#PHG0000 WINLINK HTC DIGI 144.920
+PositionReport(raw=b'!4558.24NW12259.96W#PHG0000 WINLINK HTC DIGI 144.920', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4558.24NW12259.96W#PHG0000 WINLINK HTC DIGI 144.920', data_ext=b'', comment=b'PHG0000 WINLINK HTC DIGI 144.920', timestamp=None, lat=Decimal('45.97066666666666666666666667'), sym_table_id=b'W', long=Decimal('-122.9993333333333333333333333'), symbol_code=b'#')
+
+W6UDF>APRS,TCPIP*,QAC,FIFTH:@210000z4612.01N/12321.75W_256/003g008t056r000p000P000b10207h74L268.weewx-4.5.1-WeatherFlowUDP
+PositionReport(raw=b'@210000z4612.01N/12321.75W_256/003g008t056r000p000P000b10207h74L268.weewx-4.5.1-WeatherFlowUDP', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4612.01N/12321.75W_256/003g008t056r000p000P000b10207h74L268.weewx-4.5.1-WeatherFlowUDP', data_ext=b'', comment=b'256/003g008t056r000p000P000b10207h74L268.weewx-4.5.1-WeatherFlowUDP', timestamp=datetime.datetime(2022, 5, 21, 0, 0, tzinfo=datetime.timezone.utc), lat=Decimal('46.20016666666666666666666667'), sym_table_id=b'/', long=Decimal('-123.3625'), symbol_code=b'_')
+
+WW7CH-15>APRS,TCPIP*,QAC,T2USANW:@210000z4651.96N/12216.36W_090/001g005t057r000p000P000b10214h59.weewx-4.7.0-Vantage
+PositionReport(raw=b'@210000z4651.96N/12216.36W_090/001g005t057r000p000P000b10214h59.weewx-4.7.0-Vantage', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4651.96N/12216.36W_090/001g005t057r000p000P000b10214h59.weewx-4.7.0-Vantage', data_ext=b'', comment=b'090/001g005t057r000p000P000b10214h59.weewx-4.7.0-Vantage', timestamp=datetime.datetime(2022, 5, 21, 0, 0, tzinfo=datetime.timezone.utc), lat=Decimal('46.866'), sym_table_id=b'/', long=Decimal('-122.2726666666666666666666667'), symbol_code=b'_')
+
+UCAPK>APMI06,TCPIP*,QAS,K7CPR:@210000z4658.39N/12308.29W-WX3in1Plus2.0 U=13.9V
+PositionReport(raw=b'@210000z4658.39N/12308.29W-WX3in1Plus2.0 U=13.9V', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4658.39N/12308.29W-WX3in1Plus2.0 U=13.9V', data_ext=b'', comment=b'WX3in1Plus2.0 U=13.9V', timestamp=datetime.datetime(2022, 5, 21, 0, 0, tzinfo=datetime.timezone.utc), lat=Decimal('46.97316666666666666666666667'), sym_table_id=b'/', long=Decimal('-123.1381666666666666666666667'), symbol_code=b'-')
+
+WA7IB>APRS,TCPIP*,QAC,T2UKRAINE:@210000z4511.87N/12312.57W_249/002g006t060r000p000P000h57b10233.DsVP
+PositionReport(raw=b'@210000z4511.87N/12312.57W_249/002g006t060r000p000P000h57b10233.DsVP', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4511.87N/12312.57W_249/002g006t060r000p000P000h57b10233.DsVP', data_ext=b'', comment=b'249/002g006t060r000p000P000h57b10233.DsVP', timestamp=datetime.datetime(2022, 5, 21, 0, 0, tzinfo=datetime.timezone.utc), lat=Decimal('45.19783333333333333333333333'), sym_table_id=b'/', long=Decimal('-123.2095'), symbol_code=b'_')
+
+KC6RZW-10>KC6RZW-10,QAR,HAPPYV:!4524.31N/12235.05W_.../...g...t...r...p...P...h..b.....TU2k
+PositionReport(raw=b'!4524.31N/12235.05W_.../...g...t...r...p...P...h..b.....TU2k', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4524.31N/12235.05W_.../...g...t...r...p...P...h..b.....TU2k', data_ext=b'', comment=b'.../...g...t...r...p...P...h..b.....TU2k', timestamp=None, lat=Decimal('45.40516666666666666666666667'), sym_table_id=b'/', long=Decimal('-122.5841666666666666666666667'), symbol_code=b'_')
+
+MEISNR>APN382,WIDE2-2,QAR,KG7ZZA-10:!4558.13NF12259.58W#PHG1369 W2,WA2-2, MEISSNER LOOKOUT N7QXO-7
+PositionReport(raw=b'!4558.13NF12259.58W#PHG1369 W2,WA2-2, MEISSNER LOOKOUT N7QXO-7', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4558.13NF12259.58W#PHG1369 W2,WA2-2, MEISSNER LOOKOUT N7QXO-7', data_ext=b'', comment=b'PHG1369 W2,WA2-2, MEISSNER LOOKOUT N7QXO-7', timestamp=None, lat=Decimal('45.96883333333333333333333333'), sym_table_id=b'F', long=Decimal('-122.993'), symbol_code=b'#')
+
+MEARES>APN390,HEBOWX,OR2*,QAR,MKSRDG:!4527.96N112355.23W_PHG5760/W1 Cape Meares, OR W7HH-2
+PositionReport(raw=b'!4527.96N112355.23W_PHG5760/W1 Cape Meares, OR W7HH-2', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4527.96N112355.23W_PHG5760/W1 Cape Meares, OR W7HH-2', data_ext=b'', comment=b'PHG5760/W1 Cape Meares, OR W7HH-2', timestamp=None, lat=Decimal('45.466'), sym_table_id=b'1', long=Decimal('-123.9205'), symbol_code=b'_')
+
+HEBOWX>APN390,QAR,NH6Z-1:!4512.89NS12345.29W_PHG6830/W2,ORn, MT HEBO OR WX W7GC-4
+PositionReport(raw=b'!4512.89NS12345.29W_PHG6830/W2,ORn, MT HEBO OR WX W7GC-4', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4512.89NS12345.29W_PHG6830/W2,ORn, MT HEBO OR WX W7GC-4', data_ext=b'', comment=b'PHG6830/W2,ORn, MT HEBO OR WX W7GC-4', timestamp=None, lat=Decimal('45.21483333333333333333333333'), sym_table_id=b'S', long=Decimal('-123.7548333333333333333333333'), symbol_code=b'_')
+
+KI7JYE>APRS,TCPIP*,QAC,AMBCWOP-2:@210001z4518.74N/12256.49W_323/001g002t060r000p000P000h54b10216L173AmbientCWOP.com
+PositionReport(raw=b'@210001z4518.74N/12256.49W_323/001g002t060r000p000P000h54b10216L173AmbientCWOP.com', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4518.74N/12256.49W_323/001g002t060r000p000P000h54b10216L173AmbientCWOP.com', data_ext=b'', comment=b'323/001g002t060r000p000P000h54b10216L173AmbientCWOP.com', timestamp=datetime.datetime(2022, 5, 21, 0, 1, tzinfo=datetime.timezone.utc), lat=Decimal('45.31233333333333333333333333'), sym_table_id=b'/', long=Decimal('-122.9415'), symbol_code=b'_')
+
+MINERL>APK102,WIDE2-1,145090,QAR,K7MXE-2:!4643.13NS12211.39W#PHG7124/Mineral/Ashford - W7PFR-2 9600 APRS @ 145.090
+PositionReport(raw=b'!4643.13NS12211.39W#PHG7124/Mineral/Ashford - W7PFR-2 9600 APRS @ 145.090', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4643.13NS12211.39W#PHG7124/Mineral/Ashford - W7PFR-2 9600 APRS @ 145.090', data_ext=b'', comment=b'PHG7124/Mineral/Ashford - W7PFR-2 9600 APRS @ 145.090', timestamp=None, lat=Decimal('46.71883333333333333333333333'), sym_table_id=b'S', long=Decimal('-122.1898333333333333333333333'), symbol_code=b'#')
+
+KJ7DLV>APOSW,TCPIP*,QAC,T2LUBLIN:@210002z4545.72N/12239.28WD/A=000000KJ7DLV SharkRF openSPOT2
+PositionReport(raw=b'@210002z4545.72N/12239.28WD/A=000000KJ7DLV SharkRF openSPOT2', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4545.72N/12239.28WD/A=000000KJ7DLV SharkRF openSPOT2', data_ext=b'', comment=b'/A=000000KJ7DLV SharkRF openSPOT2', timestamp=datetime.datetime(2022, 5, 21, 0, 2, tzinfo=datetime.timezone.utc), lat=Decimal('45.762'), sym_table_id=b'/', long=Decimal('-122.6546666666666666666666667'), symbol_code=b'D')
+
+PACKWD>APN383,QAR,W7ALK-13:!4636.15NS12138.20W#PHG7560 W2,WAn-N, Packwood KD7ISZ & WW7CH
+PositionReport(raw=b'!4636.15NS12138.20W#PHG7560 W2,WAn-N, Packwood KD7ISZ & WW7CH', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4636.15NS12138.20W#PHG7560 W2,WAn-N, Packwood KD7ISZ & WW7CH', data_ext=b'', comment=b'PHG7560 W2,WAn-N, Packwood KD7ISZ & WW7CH', timestamp=None, lat=Decimal('46.6025'), sym_table_id=b'S', long=Decimal('-121.6366666666666666666666667'), symbol_code=b'#')
+
+W5KAV-9>APBPQ1,TCPIP*,QAC,T2EDM:!4649.36N/12304.87WBRochester,WA,W5KAV-5,145.050,145.630,7.1004,APRS IGATE,VARA FM 145.050,HH 4571
+PositionReport(raw=b'!4649.36N/12304.87WBRochester,WA,W5KAV-5,145.050,145.630,7.1004,APRS IGATE,VARA FM 145.050,HH 4571', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4649.36N/12304.87WBRochester,WA,W5KAV-5,145.050,145.630,7.1004,APRS IGATE,VARA FM 145.050,HH 4571', data_ext=b'', comment=b'Rochester,WA,W5KAV-5,145.050,145.630,7.1004,APRS IGATE,VARA FM 145.050,HH 4571', timestamp=None, lat=Decimal('46.82266666666666666666666667'), sym_table_id=b'/', long=Decimal('-123.0811666666666666666666667'), symbol_code=b'B')
+
+AA0PB>APRS,TCPIP*,QAC,AMBCWOP-2:@210002z4530.93N/12303.70W_047/002g003t058r000p000P000h53b10207L191AmbientCWOP.com
+PositionReport(raw=b'@210002z4530.93N/12303.70W_047/002g003t058r000p000P000h53b10207L191AmbientCWOP.com', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4530.93N/12303.70W_047/002g003t058r000p000P000h53b10207L191AmbientCWOP.com', data_ext=b'', comment=b'047/002g003t058r000p000P000h53b10207L191AmbientCWOP.com', timestamp=datetime.datetime(2022, 5, 21, 0, 2, tzinfo=datetime.timezone.utc), lat=Decimal('45.5155'), sym_table_id=b'/', long=Decimal('-123.0616666666666666666666667'), symbol_code=b'_')
+
+SHERWD>APRX29,TCPIP*,QAC,T2USANW:!4522.71NI12251.02W#APRX29 Pi Zero/TNC Pi Sherwood @N7TRY
+PositionReport(raw=b'!4522.71NI12251.02W#APRX29 Pi Zero/TNC Pi Sherwood @N7TRY', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4522.71NI12251.02W#APRX29 Pi Zero/TNC Pi Sherwood @N7TRY', data_ext=b'', comment=b'APRX29 Pi Zero/TNC Pi Sherwood @N7TRY', timestamp=None, lat=Decimal('45.3785'), sym_table_id=b'I', long=Decimal('-122.8503333333333333333333333'), symbol_code=b'#')
+
+WA7RGO-10>APDW14,TCPIP*,QAC,T2CAWEST:!4520.36NR12255.03W&East Yamhill County, Oregon
+PositionReport(raw=b'!4520.36NR12255.03W&East Yamhill County, Oregon', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4520.36NR12255.03W&East Yamhill County, Oregon', data_ext=b'', comment=b'East Yamhill County, Oregon', timestamp=None, lat=Decimal('45.33933333333333333333333333'), sym_table_id=b'R', long=Decimal('-122.9171666666666666666666667'), symbol_code=b'&')
+
+KA2RQM>APRS,TCPIP*,QAC,AMBCWOP-2:@210003z4627.22N/12403.24W_309/008g010t056r000p000P000h70b10222L464AmbientCWOP.com
+PositionReport(raw=b'@210003z4627.22N/12403.24W_309/008g010t056r000p000P000h70b10222L464AmbientCWOP.com', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4627.22N/12403.24W_309/008g010t056r000p000P000h70b10222L464AmbientCWOP.com', data_ext=b'', comment=b'309/008g010t056r000p000P000h70b10222L464AmbientCWOP.com', timestamp=datetime.datetime(2022, 5, 21, 0, 3, tzinfo=datetime.timezone.utc), lat=Decimal('46.45366666666666666666666667'), sym_table_id=b'/', long=Decimal('-124.054'), symbol_code=b'_')
+
+K0INK-5>APDW15,TCPIP*,QAC,T2CAEAST:!4521.27NI12259.36W&PHG0060/K0INK Repeater 442.55 PL114.8
+PositionReport(raw=b'!4521.27NI12259.36W&PHG0060/K0INK Repeater 442.55 PL114.8', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4521.27NI12259.36W&PHG0060/K0INK Repeater 442.55 PL114.8', data_ext=b'', comment=b'PHG0060/K0INK Repeater 442.55 PL114.8', timestamp=None, lat=Decimal('45.3545'), sym_table_id=b'I', long=Decimal('-122.9893333333333333333333333'), symbol_code=b'&')
+
+N7LOL-14>APX219,TCPIP*,QAC,SECOND:=4656.01N/12343.89Wx
+PositionReport(raw=b'=4656.01N/12343.89Wx', data_type=<DataType.POSITION_W_O_TIMESTAMP_MSG: b'='>, data=b'4656.01N/12343.89Wx', data_ext=b'', comment=b'', timestamp=None, lat=Decimal('46.9335'), sym_table_id=b'/', long=Decimal('-123.7315'), symbol_code=b'x')
+
+W6PRN-3>APRS,TCPIP*,QAC,T2STRAS:=4531.34N/12244.83WrPHG7460/AllStar Node 48083  443.200
+PositionReport(raw=b'=4531.34N/12244.83WrPHG7460/AllStar Node 48083  443.200', data_type=<DataType.POSITION_W_O_TIMESTAMP_MSG: b'='>, data=b'4531.34N/12244.83WrPHG7460/AllStar Node 48083  443.200', data_ext=b'', comment=b'PHG7460/AllStar Node 48083  443.200', timestamp=None, lat=Decimal('45.52233333333333333333333333'), sym_table_id=b'/', long=Decimal('-122.7471666666666666666666667'), symbol_code=b'r')
+
+MEISNR>BEACON,QAR,KG7ZZA-10:!4558.13NF12259.58W;Meissner Lookout 1369'Elev.
+PositionReport(raw=b"!4558.13NF12259.58W;Meissner Lookout 1369'Elev.", data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b"4558.13NF12259.58W;Meissner Lookout 1369'Elev.", data_ext=b'', comment=b"Meissner Lookout 1369'Elev.", timestamp=None, lat=Decimal('45.96883333333333333333333333'), sym_table_id=b'F', long=Decimal('-122.993'), symbol_code=b';')
+
+W7ALK-13>W7ALK-13,TCPIP*,QAC,T2USANW:@210004z4636.43N/12139.39W_236/008g011t056r000p000P000h62b00000WX3in1 Mini / PB2100 Wx
+PositionReport(raw=b'@210004z4636.43N/12139.39W_236/008g011t056r000p000P000h62b00000WX3in1 Mini / PB2100 Wx', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4636.43N/12139.39W_236/008g011t056r000p000P000h62b00000WX3in1 Mini / PB2100 Wx', data_ext=b'', comment=b'236/008g011t056r000p000P000h62b00000WX3in1 Mini / PB2100 Wx', timestamp=datetime.datetime(2022, 5, 21, 0, 4, tzinfo=datetime.timezone.utc), lat=Decimal('46.60716666666666666666666667'), sym_table_id=b'/', long=Decimal('-121.6565'), symbol_code=b'_')
+
+KD7BBJ-9>APAT81,KD7BBJ,WIDE2*,QAR,W7DG-5:!4616.79N/12255.18Wk102/015/A=000003Call My Cell 360-442-6340
+PositionReport(raw=b'!4616.79N/12255.18Wk102/015/A=000003Call My Cell 360-442-6340', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4616.79N/12255.18Wk102/015/A=000003Call My Cell 360-442-6340', data_ext=b'', comment=b'102/015/A=000003Call My Cell 360-442-6340', timestamp=None, lat=Decimal('46.27983333333333333333333333'), sym_table_id=b'/', long=Decimal('-122.9196666666666666666666667'), symbol_code=b'k')
+
+PACKWD>APN383,QAR,W7ALK-13:!4636.15NS12138.20W#PHG7560 W2,WAn-N, Packwood KD7ISZ & WW7CH
+PositionReport(raw=b'!4636.15NS12138.20W#PHG7560 W2,WAn-N, Packwood KD7ISZ & WW7CH', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4636.15NS12138.20W#PHG7560 W2,WAn-N, Packwood KD7ISZ & WW7CH', data_ext=b'', comment=b'PHG7560 W2,WAn-N, Packwood KD7ISZ & WW7CH', timestamp=None, lat=Decimal('46.6025'), sym_table_id=b'S', long=Decimal('-121.6366666666666666666666667'), symbol_code=b'#')
+
+W7PLC>APRS,TCPIP*,QAC,AMBCWOP-2:@210004z4702.08N/12255.24W_139/001g002t064r000p000P000h49b10204L456AmbientCWOP.com
+PositionReport(raw=b'@210004z4702.08N/12255.24W_139/001g002t064r000p000P000h49b10204L456AmbientCWOP.com', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4702.08N/12255.24W_139/001g002t064r000p000P000h49b10204L456AmbientCWOP.com', data_ext=b'', comment=b'139/001g002t064r000p000P000h49b10204L456AmbientCWOP.com', timestamp=datetime.datetime(2022, 5, 21, 0, 4, tzinfo=datetime.timezone.utc), lat=Decimal('47.03466666666666666666666667'), sym_table_id=b'/', long=Decimal('-122.9206666666666666666666667'), symbol_code=b'_')
+
+K7NDG>APRS,TCPIP*,QAC,AMBCWOP-2:@210004z4659.08N/12336.08W_233/002g014t060r000p000P000h63b10264L210AmbientCWOP.com
+PositionReport(raw=b'@210004z4659.08N/12336.08W_233/002g014t060r000p000P000h63b10264L210AmbientCWOP.com', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4659.08N/12336.08W_233/002g014t060r000p000P000h63b10264L210AmbientCWOP.com', data_ext=b'', comment=b'233/002g014t060r000p000P000h63b10264L210AmbientCWOP.com', timestamp=datetime.datetime(2022, 5, 21, 0, 4, tzinfo=datetime.timezone.utc), lat=Decimal('46.98466666666666666666666667'), sym_table_id=b'/', long=Decimal('-123.6013333333333333333333333'), symbol_code=b'_')
+
+VCAPK>APMI06,TCPIP*,QAS,K7CPR:@210004z4658.39N/12308.29W-WX3in1Plus2.0 K7CPR
+PositionReport(raw=b'@210004z4658.39N/12308.29W-WX3in1Plus2.0 K7CPR', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4658.39N/12308.29W-WX3in1Plus2.0 K7CPR', data_ext=b'', comment=b'WX3in1Plus2.0 K7CPR', timestamp=datetime.datetime(2022, 5, 21, 0, 4, tzinfo=datetime.timezone.utc), lat=Decimal('46.97316666666666666666666667'), sym_table_id=b'/', long=Decimal('-123.1381666666666666666666667'), symbol_code=b'-')
+
+KK7DS>APRX29,WIDE2-2,TCPIP*,QAS,HAPPYV:@210000z4527.58N/12230.99W_311/003g008t057r000p003P000b10220h57.weewx
+PositionReport(raw=b'@210000z4527.58N/12230.99W_311/003g008t057r000p003P000b10220h57.weewx', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4527.58N/12230.99W_311/003g008t057r000p003P000b10220h57.weewx', data_ext=b'', comment=b'311/003g008t057r000p003P000b10220h57.weewx', timestamp=datetime.datetime(2022, 5, 21, 0, 0, tzinfo=datetime.timezone.utc), lat=Decimal('45.45966666666666666666666667'), sym_table_id=b'/', long=Decimal('-122.5165'), symbol_code=b'_')
+
+N7TNG-10>APBPQ1,TCPIP*,QAC,SECOND:!4538.30N/12240.80WBVANCVR Node 1k2 145.77 n7tng@arrl.net
+PositionReport(raw=b'!4538.30N/12240.80WBVANCVR Node 1k2 145.77 n7tng@arrl.net', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4538.30N/12240.80WBVANCVR Node 1k2 145.77 n7tng@arrl.net', data_ext=b'', comment=b'VANCVR Node 1k2 145.77 n7tng@arrl.net', timestamp=None, lat=Decimal('45.63833333333333333333333333'), sym_table_id=b'/', long=Decimal('-122.68'), symbol_code=b'B')
+
+RHODY>APN383,WIDE2-1,QAR,MTHOOD:!4519.67NS12154.64W#PHG21606/W1,ORn, 147.040MHz T100 +060 www.arrg.org K7RPT
+PositionReport(raw=b'!4519.67NS12154.64W#PHG21606/W1,ORn, 147.040MHz T100 +060 www.arrg.org K7RPT', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4519.67NS12154.64W#PHG21606/W1,ORn, 147.040MHz T100 +060 www.arrg.org K7RPT', data_ext=b'', comment=b'PHG21606/W1,ORn, 147.040MHz T100 +060 www.arrg.org K7RPT', timestamp=None, lat=Decimal('45.32783333333333333333333333'), sym_table_id=b'S', long=Decimal('-121.9106666666666666666666667'), symbol_code=b'#')
+
+KD6VPH>APRSWX,QAR,VCAPK:@210004z4658.42N/12258.40W_303/002g005t066r000p000P000h46b10209L954Davis WX Station- Olympia, WA
+PositionReport(raw=b'@210004z4658.42N/12258.40W_303/002g005t066r000p000P000h46b10209L954Davis WX Station- Olympia, WA', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4658.42N/12258.40W_303/002g005t066r000p000P000h46b10209L954Davis WX Station- Olympia, WA', data_ext=b'', comment=b'303/002g005t066r000p000P000h46b10209L954Davis WX Station- Olympia, WA', timestamp=datetime.datetime(2022, 5, 21, 0, 4, tzinfo=datetime.timezone.utc), lat=Decimal('46.97366666666666666666666667'), sym_table_id=b'/', long=Decimal('-122.9733333333333333333333333'), symbol_code=b'_')
+
+N3EG>APRS,TCPIP*,QAC,T2USANW:@210005z4609.10N/12258.80W_310/004g010t062r000p000P000h66b10232wDVPv1.9.1.7
+PositionReport(raw=b'@210005z4609.10N/12258.80W_310/004g010t062r000p000P000h66b10232wDVPv1.9.1.7', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4609.10N/12258.80W_310/004g010t062r000p000P000h66b10232wDVPv1.9.1.7', data_ext=b'', comment=b'310/004g010t062r000p000P000h66b10232wDVPv1.9.1.7', timestamp=datetime.datetime(2022, 5, 21, 0, 5, tzinfo=datetime.timezone.utc), lat=Decimal('46.15166666666666666666666667'), sym_table_id=b'/', long=Decimal('-122.98'), symbol_code=b'_')
+
+BALDPK>APRX29,TCPIP*,QAS,BALDPK:!4524.27NI12302.73W#Bald Peak Digi+iGate @ K7ZS
+PositionReport(raw=b'!4524.27NI12302.73W#Bald Peak Digi+iGate @ K7ZS', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4524.27NI12302.73W#Bald Peak Digi+iGate @ K7ZS', data_ext=b'', comment=b'Bald Peak Digi+iGate @ K7ZS', timestamp=None, lat=Decimal('45.4045'), sym_table_id=b'I', long=Decimal('-123.0455'), symbol_code=b'#')
+
+WW7CH-15>APRS,TCPIP*,QAC,T2USANW:@210005z4651.96N/12216.36W_338/003g008t056r000p000P000b10214h59.weewx-4.7.0-Vantage
+PositionReport(raw=b'@210005z4651.96N/12216.36W_338/003g008t056r000p000P000b10214h59.weewx-4.7.0-Vantage', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4651.96N/12216.36W_338/003g008t056r000p000P000b10214h59.weewx-4.7.0-Vantage', data_ext=b'', comment=b'338/003g008t056r000p000P000b10214h59.weewx-4.7.0-Vantage', timestamp=datetime.datetime(2022, 5, 21, 0, 5, tzinfo=datetime.timezone.utc), lat=Decimal('46.866'), sym_table_id=b'/', long=Decimal('-122.2726666666666666666666667'), symbol_code=b'_')
+
+N7BTW-13>APRS,TCPIP*,QAC,T2USANW:@210005z4532.42N/12258.40W_001/002g003t062r000p001P000b10233h65.weewx-4.7.0-MQTTSubscribeDriver
+PositionReport(raw=b'@210005z4532.42N/12258.40W_001/002g003t062r000p001P000b10233h65.weewx-4.7.0-MQTTSubscribeDriver', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4532.42N/12258.40W_001/002g003t062r000p001P000b10233h65.weewx-4.7.0-MQTTSubscribeDriver', data_ext=b'', comment=b'001/002g003t062r000p001P000b10233h65.weewx-4.7.0-MQTTSubscribeDriver', timestamp=datetime.datetime(2022, 5, 21, 0, 5, tzinfo=datetime.timezone.utc), lat=Decimal('45.54033333333333333333333333'), sym_table_id=b'/', long=Decimal('-122.9733333333333333333333333'), symbol_code=b'_')
+
+KG7ZZA-10>APDW17,QAO,WA7RGO-10:!4541.32NT12241.21W&
+PositionReport(raw=b'!4541.32NT12241.21W&', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4541.32NT12241.21W&', data_ext=b'', comment=b'', timestamp=None, lat=Decimal('45.68866666666666666666666667'), sym_table_id=b'T', long=Decimal('-122.6868333333333333333333333'), symbol_code=b'&')
+
+WA7IB>APRS,TCPIP*,QAC,T2UKRAINE:@210005z4511.87N/12312.57W_200/001g006t059r000p000P000h57b10233.DsVP
+PositionReport(raw=b'@210005z4511.87N/12312.57W_200/001g006t059r000p000P000h57b10233.DsVP', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4511.87N/12312.57W_200/001g006t059r000p000P000h57b10233.DsVP', data_ext=b'', comment=b'200/001g006t059r000p000P000h57b10233.DsVP', timestamp=datetime.datetime(2022, 5, 21, 0, 5, tzinfo=datetime.timezone.utc), lat=Decimal('45.19783333333333333333333333'), sym_table_id=b'/', long=Decimal('-123.2095'), symbol_code=b'_')
+
+NPLNS>NJ7I-1,WIDE1-1,QAR,BALDPK:@210005z4538.08N/12300.00W#North Plains Digi/iGate/WX 9W HAAT:645Ft by NJ7I
+PositionReport(raw=b'@210005z4538.08N/12300.00W#North Plains Digi/iGate/WX 9W HAAT:645Ft by NJ7I', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4538.08N/12300.00W#North Plains Digi/iGate/WX 9W HAAT:645Ft by NJ7I', data_ext=b'', comment=b'North Plains Digi/iGate/WX 9W HAAT:645Ft by NJ7I', timestamp=datetime.datetime(2022, 5, 21, 0, 5, tzinfo=datetime.timezone.utc), lat=Decimal('45.63466666666666666666666667'), sym_table_id=b'/', long=Decimal('-123'), symbol_code=b'#')
+
+W6PRN>APRS,TCPIP*,QAC,T2STRAS:=4611.05N/12257.62WrPHG5630/AllStar Node 45373  443.525
+PositionReport(raw=b'=4611.05N/12257.62WrPHG5630/AllStar Node 45373  443.525', data_type=<DataType.POSITION_W_O_TIMESTAMP_MSG: b'='>, data=b'4611.05N/12257.62WrPHG5630/AllStar Node 45373  443.525', data_ext=b'', comment=b'PHG5630/AllStar Node 45373  443.525', timestamp=None, lat=Decimal('46.18416666666666666666666667'), sym_table_id=b'/', long=Decimal('-122.9603333333333333333333333'), symbol_code=b'r')
+
+NPLNS>NJ7I-1,TCPIP*,QAC,T2OREGON::NPLNS    :PARM.Rx1H,Rg1h,Eff1h,EffTot,A5,D1,D2,D3,D4,D5,D6,D7,D8
+Message(raw=b':NPLNS    :PARM.Rx1H,Rg1h,Eff1h,EffTot,A5,D1,D2,D3,D4,D5,D6,D7,D8', data_type=<DataType.MESSAGE: b':'>, data=b'NPLNS    :PARM.Rx1H,Rg1h,Eff1h,EffTot,A5,D1,D2,D3,D4,D5,D6,D7,D8', data_ext=b'', comment=b'', addressee=b'NPLNS', text=b'PARM.Rx1H,Rg1h,Eff1h,EffTot,A5,D1,D2,D3,D4,D5,D6,D7,D8', number=None)
+
+NPLNS>NJ7I-1,TCPIP*,QAC,T2OREGON::NPLNS    :UNIT.Pkt,Pkt,Pct,Pct,None,NA,NA,NA,NA,NA,NA,NA,NA
+Message(raw=b':NPLNS    :UNIT.Pkt,Pkt,Pct,Pct,None,NA,NA,NA,NA,NA,NA,NA,NA', data_type=<DataType.MESSAGE: b':'>, data=b'NPLNS    :UNIT.Pkt,Pkt,Pct,Pct,None,NA,NA,NA,NA,NA,NA,NA,NA', data_ext=b'', comment=b'', addressee=b'NPLNS', text=b'UNIT.Pkt,Pkt,Pct,Pct,None,NA,NA,NA,NA,NA,NA,NA,NA', number=None)
+
+NPLNS>NJ7I-1,TCPIP*,QAC,T2OREGON::NPLNS    :EQNS.0,10,0,0,10,0,0,1,0,0,1,0,0,0,0
+Message(raw=b':NPLNS    :EQNS.0,10,0,0,10,0,0,1,0,0,1,0,0,0,0', data_type=<DataType.MESSAGE: b':'>, data=b'NPLNS    :EQNS.0,10,0,0,10,0,0,1,0,0,1,0,0,0,0', data_ext=b'', comment=b'', addressee=b'NPLNS', text=b'EQNS.0,10,0,0,10,0,0,1,0,0,1,0,0,0,0', number=None)
+
+NPLNS>NJ7I-1,TCPIP*,QAC,T2OREGON::NPLNS    :BITS.11111111,NJ7I Telemetry
+Message(raw=b':NPLNS    :BITS.11111111,NJ7I Telemetry', data_type=<DataType.MESSAGE: b':'>, data=b'NPLNS    :BITS.11111111,NJ7I Telemetry', data_ext=b'', comment=b'', addressee=b'NPLNS', text=b'BITS.11111111,NJ7I Telemetry', number=None)
+
+PACKWD>APN383,QAR,W7ALK-13:!4636.15NS12138.20W#PHG7560 W2,WAn-N, Packwood KD7ISZ & WW7CH
+PositionReport(raw=b'!4636.15NS12138.20W#PHG7560 W2,WAn-N, Packwood KD7ISZ & WW7CH', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4636.15NS12138.20W#PHG7560 W2,WAn-N, Packwood KD7ISZ & WW7CH', data_ext=b'', comment=b'PHG7560 W2,WAn-N, Packwood KD7ISZ & WW7CH', timestamp=None, lat=Decimal('46.6025'), sym_table_id=b'S', long=Decimal('-121.6366666666666666666666667'), symbol_code=b'#')
+
+AG7WI-2>APDW14,QAR,AG7WI-2:!4658.76NT12220.62W&  Graham, WA - IGate
+PositionReport(raw=b'!4658.76NT12220.62W&  Graham, WA - IGate', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4658.76NT12220.62W&  Graham, WA - IGate', data_ext=b'', comment=b'  Graham, WA - IGate', timestamp=None, lat=Decimal('46.97933333333333333333333333'), sym_table_id=b'T', long=Decimal('-122.3436666666666666666666667'), symbol_code=b'&')
+
+BEAVRT>APRX29,TCPIP*,QAS,BEAVRT:!4526.74N/12250.03W#Beaverton fill in digi and iGate - N7QME
+PositionReport(raw=b'!4526.74N/12250.03W#Beaverton fill in digi and iGate - N7QME', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4526.74N/12250.03W#Beaverton fill in digi and iGate - N7QME', data_ext=b'', comment=b'Beaverton fill in digi and iGate - N7QME', timestamp=None, lat=Decimal('45.44566666666666666666666667'), sym_table_id=b'/', long=Decimal('-122.8338333333333333333333333'), symbol_code=b'#')
+
+KE7YYD>APRS,WIDE1-1,QAR,VCAPK:=4706.59N/12233.43Wh Madigan ARC KE7YYD
+PositionReport(raw=b'=4706.59N/12233.43Wh Madigan ARC KE7YYD', data_type=<DataType.POSITION_W_O_TIMESTAMP_MSG: b'='>, data=b'4706.59N/12233.43Wh Madigan ARC KE7YYD', data_ext=b'', comment=b' Madigan ARC KE7YYD', timestamp=None, lat=Decimal('47.10983333333333333333333333'), sym_table_id=b'/', long=Decimal('-122.5571666666666666666666667'), symbol_code=b'h')
+
+MARBLE>APMI06,TCPIP*,QAC,T2DENMARK:!4606.52NF12205.73W#K7TME Semper Fi
+PositionReport(raw=b'!4606.52NF12205.73W#K7TME Semper Fi', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4606.52NF12205.73W#K7TME Semper Fi', data_ext=b'', comment=b'K7TME Semper Fi', timestamp=None, lat=Decimal('46.10866666666666666666666667'), sym_table_id=b'F', long=Decimal('-122.0955'), symbol_code=b'#')
+
+KI7JYE>APRS,TCPIP*,QAC,AMBCWOP-2:@210006z4518.74N/12256.49W_047/005g006t060r000p000P000h55b10215L186AmbientCWOP.com
+PositionReport(raw=b'@210006z4518.74N/12256.49W_047/005g006t060r000p000P000h55b10215L186AmbientCWOP.com', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4518.74N/12256.49W_047/005g006t060r000p000P000h55b10215L186AmbientCWOP.com', data_ext=b'', comment=b'047/005g006t060r000p000P000h55b10215L186AmbientCWOP.com', timestamp=datetime.datetime(2022, 5, 21, 0, 6, tzinfo=datetime.timezone.utc), lat=Decimal('45.31233333333333333333333333'), sym_table_id=b'/', long=Decimal('-122.9415'), symbol_code=b'_')
+
+MINERL>APK102,PACK*,WIDE2*,145090,QAR,K7MXE-2:!4643.13NS12211.39W#PHG7124/Mineral/Ashford - W7PFR-2 9600 APRS @ 145.090
+PositionReport(raw=b'!4643.13NS12211.39W#PHG7124/Mineral/Ashford - W7PFR-2 9600 APRS @ 145.090', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4643.13NS12211.39W#PHG7124/Mineral/Ashford - W7PFR-2 9600 APRS @ 145.090', data_ext=b'', comment=b'PHG7124/Mineral/Ashford - W7PFR-2 9600 APRS @ 145.090', timestamp=None, lat=Decimal('46.71883333333333333333333333'), sym_table_id=b'S', long=Decimal('-122.1898333333333333333333333'), symbol_code=b'#')
+
+KD7BBJ>APJYC1,WIDE1-1,WIDE2-1,QAR,W7DG-5:=4616.66N\12254.02W',/W2 KD7BBJ 
+PositionReport(raw=b"=4616.66N\\12254.02W',/W2 KD7BBJ ", data_type=<DataType.POSITION_W_O_TIMESTAMP_MSG: b'='>, data=b"4616.66N\\12254.02W',/W2 KD7BBJ ", data_ext=b'', comment=b',/W2 KD7BBJ ', timestamp=None, lat=Decimal('46.27766666666666666666666667'), sym_table_id=b'\\', long=Decimal('-122.9003333333333333333333333'), symbol_code=b"'")
+
+KJ7RD>APU25N,QAR,KG7ZZA-10:=4536.00N/12218.00W- {UIV32}
+PositionReport(raw=b'=4536.00N/12218.00W- {UIV32}', data_type=<DataType.POSITION_W_O_TIMESTAMP_MSG: b'='>, data=b'4536.00N/12218.00W- {UIV32}', data_ext=b'', comment=b' {UIV32}', timestamp=None, lat=Decimal('45.6'), sym_table_id=b'/', long=Decimal('-122.3'), symbol_code=b'-')
+
+N70FW>APX210,WIDE2-2,QAR,KG7ZZA-10:@210007z4543.48N/12239.78W_299/004g007t062r000P000p000h10b10209
+PositionReport(raw=b'@210007z4543.48N/12239.78W_299/004g007t062r000P000p000h10b10209', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4543.48N/12239.78W_299/004g007t062r000P000p000h10b10209', data_ext=b'', comment=b'299/004g007t062r000P000p000h10b10209', timestamp=datetime.datetime(2022, 5, 21, 0, 7, tzinfo=datetime.timezone.utc), lat=Decimal('45.72466666666666666666666667'), sym_table_id=b'/', long=Decimal('-122.663'), symbol_code=b'_')
+
+WB7QAZ-10>APMI06,WIDE2-2,QAR,BALDPK:@210255z4516.53N/12237.80W_279/000g002t058r000p000P000h64b10224WB7QAZ Canby, OR
+PositionReport(raw=b'@210255z4516.53N/12237.80W_279/000g002t058r000p000P000h64b10224WB7QAZ Canby, OR', data_type=<DataType.POSITION_W_TIMESTAMP_MSG: b'@'>, data=b'4516.53N/12237.80W_279/000g002t058r000p000P000h64b10224WB7QAZ Canby, OR', data_ext=b'', comment=b'279/000g002t058r000p000P000h64b10224WB7QAZ Canby, OR', timestamp=datetime.datetime(2022, 4, 21, 2, 55, tzinfo=datetime.timezone.utc), lat=Decimal('45.2755'), sym_table_id=b'/', long=Decimal('-122.63'), symbol_code=b'_')
+
+KD7BBJ-9>APAT81,KD7BBJ,WIDE2*,QAR,W7DG-5:!4616.83N/12254.79Wk113/000/A=000013Call My Cell 360-442-6340
+PositionReport(raw=b'!4616.83N/12254.79Wk113/000/A=000013Call My Cell 360-442-6340', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4616.83N/12254.79Wk113/000/A=000013Call My Cell 360-442-6340', data_ext=b'', comment=b'113/000/A=000013Call My Cell 360-442-6340', timestamp=None, lat=Decimal('46.2805'), sym_table_id=b'/', long=Decimal('-122.9131666666666666666666667'), symbol_code=b'k')
+
+NICOLI>APRS,QAR,W7DG-5:!4605.21N/12327.31W#PHG2830W2, ORn-N, Fill-in / NA7Q 14.3V 44.4F
+PositionReport(raw=b'!4605.21N/12327.31W#PHG2830W2, ORn-N, Fill-in / NA7Q 14.3V 44.4F', data_type=<DataType.POSITION_W_O_TIMESTAMP: b'!'>, data=b'4605.21N/12327.31W#PHG2830W2, ORn-N, Fill-in / NA7Q 14.3V 44.4F', data_ext=b'', comment=b'PHG2830W2, ORn-N, Fill-in / NA7Q 14.3V 44.4F', timestamp=None, lat=Decimal('46.08683333333333333333333333'), sym_table_id=b'/', long=Decimal('-123.4551666666666666666666667'), symbol_code=b'#')
+
