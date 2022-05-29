@@ -24,7 +24,7 @@ class APRSDecode(kiss3.KISSDecode):
     def decode_frames(self, frame: bytes) -> Iterable[APRSFrame]:
         for kiss_frame in super().decode_frames(frame):
             try:
-                yield from APRSFrame.from_bytes(kiss_frame)
+                yield APRSFrame.from_bytes(kiss_frame)
             except Exception:
                 log.debug("Ignore frame AX.25 decode error %r", frame, exc_info=True)
 
