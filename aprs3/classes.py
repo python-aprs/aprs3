@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 """Python APRS Module Class Definitions."""
 import enum
 from functools import lru_cache
@@ -9,7 +6,7 @@ from typing import Any, Optional, Type
 import attr
 from attrs import define, field
 
-from kiss3.ax25 import Frame
+from ax253 import Frame
 
 from .constants import TimestampFormat
 from .position import Position, PositionMixin

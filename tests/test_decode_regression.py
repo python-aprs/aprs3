@@ -11,7 +11,7 @@ from unittest import mock
 
 import pytest
 
-from kiss3.ax25 import Frame
+from ax253 import Frame
 
 from aprs3.classes import (
     DataType,

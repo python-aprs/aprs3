@@ -4,21 +4,15 @@ import functools
 import logging
 from typing import (
     Any,
-    Callable,
     Dict,
     Iterable,
-    List,
     Optional,
     Tuple,
-    Type,
-    Union,
 )
 
 from attrs import define, field
 
-from kiss3 import AbstractKISS, TNC2Protocol
-from kiss3.tnc2 import TNC2Decode
-from kiss3.util import FrameDecodeProtocol, GenericDecoder
+from ax253 import FrameDecodeProtocol, GenericDecoder, SyncFrameDecode, TNC2Decode, TNC2Protocol
 
 from .classes import APRSFrame
 from .constants import APRSIS_SERVERS, APRSIS_FILTER_PORT, DEFAULT_MYCALL
@@ -47,7 +41,7 @@ class APRSDecode(TNC2Decode):
 class APRSISProtocol(TNC2Protocol):
     """Protocol for logging into APRS-IS servers (TNC2)."""
 
-    decoder: GenericDecoder = field(factory=APRSDecode)
+    decoder: APRSDecode = field(factory=APRSDecode)
 
     def login(self, user: str, passcode: str, command: str):
         # avoid circular import
@@ -120,7 +114,7 @@ async def create_aprsis_connection(
     return transport, protocol
 
 
-class TCP(AbstractKISS):
+class TCP(SyncFrameDecode[APRSFrame]):
     """APRSIS-over-TCP."""
 
     def __init__(self, *args, **kwargs) -> None:
