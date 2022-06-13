@@ -1,0 +1,30 @@
+# aprs TODO
+
+The following features are possible or on the roadmap, but not yet being implemented.
+
+# Decode/Encode
+
+## Position Reports
+
+### Position ambiguity
+
+### DF reports
+
+The report contains the DF symbol (i.e. the Symbol Table ID is / and the Symbol Code is \).
+I don't really see these being used much on the air, so the implementation is deferred.
+
+### Maidenhead grid beacon (obsolete)
+
+### Raw NMEA sentence (find external parser)
+
+### Compressed position
+
+### Mic-E encoded
+
+### Weather Reports
+
+## Telemetry Data
+
+## Station Capability / Query
+
+## User-defined packets
