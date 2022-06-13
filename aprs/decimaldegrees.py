@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 """
 PyDecimalDegrees - geographic coordinates conversion utility.
 
@@ -47,16 +44,15 @@ To run doctest units just execut this module script as follows
 $ python decimaldegrees.py [-v]
 
 """
-
 import decimal as libdecimal
 
 from decimal import Decimal as D
 
-__revision__ = '$Revision: 1.1 $'
+__revision__ = "$Revision: 1.1 $"
 
 
 def decimal2dms(decimal_degrees):
-    """ Converts a floating point number of degrees to the equivalent
+    """Converts a floating point number of degrees to the equivalent
     number of degrees, minutes, and seconds, which are returned
     as a 3-element tuple of decimals. If 'decimal_degrees' is negative,
     only degrees (1st element of returned tuple) will be negative,
@@ -73,10 +69,10 @@ def decimal2dms(decimal_degrees):
 
     degrees = D(int(decimal_degrees))
     decimal_minutes = libdecimal.getcontext().multiply(
-        (D(str(decimal_degrees)) - degrees).copy_abs(), D(60))
+        (D(str(decimal_degrees)) - degrees).copy_abs(), D(60)
+    )
     minutes = D(int(decimal_minutes))
-    seconds = libdecimal.getcontext().multiply(
-        (decimal_minutes - minutes), D(60))
+    seconds = libdecimal.getcontext().multiply((decimal_minutes - minutes), D(60))
     return (degrees, minutes, seconds)
 
 
@@ -100,13 +96,14 @@ def decimal2dm(decimal_degrees):
     degrees = D(int(decimal_degrees))
 
     minutes = libdecimal.getcontext().multiply(
-        (D(str(decimal_degrees)) - degrees).copy_abs(), D(60))
+        (D(str(decimal_degrees)) - degrees).copy_abs(), D(60)
+    )
 
     return (degrees, minutes)
 
 
 def dms2decimal(degrees, minutes, seconds):
-    """ Converts degrees, minutes, and seconds to the equivalent
+    """Converts degrees, minutes, and seconds to the equivalent
     number of decimal degrees. If parameter 'degrees' is negative,
     then returned decimal-degrees will also be negative.
 
@@ -134,7 +131,7 @@ def dms2decimal(degrees, minutes, seconds):
 
 
 def dm2decimal(degrees, minutes):
-    """ Converts degrees and minutes to the equivalent number of decimal
+    """Converts degrees and minutes to the equivalent number of decimal
     degrees. If parameter 'degrees' is negative, then returned decimal-degrees
     will also be negative.
 
@@ -151,9 +148,10 @@ def dm2decimal(degrees, minutes):
 
 def run_doctest():  # pragma: no cover
     """Runs doctests for this module."""
-    import doctest
+    import doctest  # pylint: disable=import-outside-toplevel
+
     return doctest.testmod()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run_doctest()  # pragma: no cover

@@ -1,16 +1,12 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 """Python APRS Module Geo Utility Function Definitions."""
+from . import decimaldegrees
 
-import aprs.decimaldegrees
-
-__author__ = 'Greg Albrecht W2GMD <oss@undef.net>'  # NOQA pylint: disable=R0801
-__copyright__ = 'Copyright 2017 Greg Albrecht and Contributors'  # NOQA pylint: disable=R0801
-__license__ = 'Apache License, Version 2.0'  # NOQA pylint: disable=R0801
+__author__ = "Greg Albrecht W2GMD <oss@undef.net>"
+__copyright__ = "Copyright 2017 Greg Albrecht and Contributors"
+__license__ = "Apache License, Version 2.0"
 
 
-def dec2dm_lat(dec: float) -> str:
+def dec2dm_lat(dec: float) -> bytes:
     """
     Converts DecDeg to APRS Coord format.
 
@@ -28,20 +24,20 @@ def dec2dm_lat(dec: float) -> str:
         >>> aprs_lat
         '0800.60S'
     """
-    dec_min = aprs.decimaldegrees.decimal2dm(dec)
+    dec_min = decimaldegrees.decimal2dm(dec)
 
     deg = dec_min[0]
     abs_deg = abs(deg)
 
     if not deg == abs_deg:
-        suffix = 'S'
+        suffix = b"S"
     else:
-        suffix = 'N'
+        suffix = b"N"
 
-    return "%02d%05.2f%s" % (abs_deg, dec_min[1], suffix)
+    return b"%02d%05.2f%s" % (abs_deg, dec_min[1], suffix)
 
 
-def dec2dm_lng(dec: float) -> str:
+def dec2dm_lng(dec: float) -> bytes:
     """
     Converts DecDeg to APRS Coord format.
 
@@ -57,20 +53,20 @@ def dec2dm_lng(dec: float) -> str:
         >>> aprs_lng
         '09900.60W'
     """
-    dec_min = aprs.decimaldegrees.decimal2dm(dec)
+    dec_min = decimaldegrees.decimal2dm(dec)
 
     deg = dec_min[0]
     abs_deg = abs(deg)
 
     if not deg == abs_deg:
-        suffix = 'W'
+        suffix = b"W"
     else:
-        suffix = 'E'
+        suffix = b"E"
 
-    return "%03d%05.2f%s" % (abs_deg, dec_min[1], suffix)
+    return b"%03d%05.2f%s" % (abs_deg, dec_min[1], suffix)
 
 
-def ambiguate(pos: float, ambiguity: int) -> str:
+def ambiguate(pos: bytes, ambiguity: int) -> bytes:
     """
     Adjust ambiguity of position.
 
@@ -86,22 +82,40 @@ def ambiguate(pos: float, ambiguity: int) -> str:
     >>> ambiguate(pos, 3)
     '1234 .  N'
     """
-    num = bytearray(pos, 'UTF-8')
-    for i in range(0, ambiguity):
-        if i > 1:
-            # skip the dot
-            i += 1
-        # skip the direction
-        i += 2
-        num[-i] = ord(' ')
-    return num.decode()
+    if not isinstance(pos, bytes):
+        pos = str(pos).encode("ascii")
+    amb = []
+    for b in reversed(pos):
+        if ord(b"0") <= b <= ord(b"9") and ambiguity:
+            amb.append(ord(b" "))
+            ambiguity -= 1
+            continue
+        amb.append(b)
+    return bytes(reversed(amb))
+
+
+def deambiguate(pos: bytes) -> int:
+    """
+    Return the ambiguity of the position
+
+    >>> deambiguate(b'12345.67N')
+    0
+    >>> deambiguate(b'12345.6 N')
+    1
+    >>> deambiguate(b'12345.  N')
+    2
+    >>> deambiguate(b'1234 .  N')
+    3
+    """
+    return pos.count(b" ")
 
 
 def run_doctest():  # pragma: no cover
     """Runs doctests for this module."""
-    import doctest
+    import doctest  # pylint: disable=import-outside-toplevel
+
     return doctest.testmod()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run_doctest()  # pragma: no cover
