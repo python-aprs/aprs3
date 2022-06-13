@@ -193,7 +193,7 @@ Source
 Github: https://github.com/python-aprs/aprs3
 
 Authors
-======
+=======
 Greg Albrecht W2GMD oss@undef.net
 
 http://ampledata.org/
