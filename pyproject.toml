@@ -7,7 +7,7 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "aprs"
+name = "aprs3"
 description = "Python module for encoding and decoding APRS data."
 authors = [
     {name = "Masen Furer KF7HVM", email = "kf7hvm@0x26.net"},
@@ -32,6 +32,6 @@ keywords=[
 dynamic = ["version"]
 
 [project.urls]
-Homepage = "https://github.com/ampledata/aprs"
+Homepage = "https://github.com/python-aprs/aprs3"
 
 [tool.setuptools_scm]

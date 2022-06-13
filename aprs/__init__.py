@@ -49,7 +49,7 @@ from .timestamp import Timestamp
 __author__ = "Greg Albrecht W2GMD <oss@undef.net>"
 __copyright__ = "Copyright 2017 Greg Albrecht and Contributors"
 __license__ = "Apache License, Version 2.0"
-__distribution__ = "aprs"
+__distribution__ = "aprs3"
 __version__ = version(__distribution__)
 __all__ = [
     "APRSFrame",

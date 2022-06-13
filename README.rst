@@ -1,7 +1,10 @@
-aprs - Python APRS Module
+aprs3 - Python APRS Module
 **************************
 
-aprs is a module for encoding and decoding APRS data for use with AX.25 or APRS-IS.
+.. image:: https://github.com/python-aprs/aprs3/actions/workflows/pytest.yml/badge.svg
+    :target: https://github.com/python-aprs/aprs3/actions
+
+aprs3 is a module for encoding and decoding APRS data for use with AX.25 or APRS-IS.
 
 Supported Data Types
 ====================
@@ -105,7 +108,7 @@ Previous versions were released by ``ampledata`` as ``aprs``:
 
 Installation
 ============
-Install from pypi using pip: ``pip install aprs``
+Install from pypi using pip: ``pip install aprs3``
 
 
 Usage Examples
@@ -187,7 +190,7 @@ Similar Projects
 
 Source
 ======
-Github: https://github.com/ampledata/aprs
+Github: https://github.com/python-aprs/aprs3
 
 Authors
 ======
