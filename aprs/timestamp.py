@@ -1,6 +1,6 @@
 """Represent various timestamp formats"""
 
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime, timedelta, tzinfo
 
 from attrs import define, field
 
@@ -20,46 +20,75 @@ def utcnow_tz():
     return datetime.now(tz=UTC)
 
 
+def _now(tz: tzinfo | None) -> datetime:
+    """The reference time used to fill in the fields a timestamp leaves out."""
+    return datetime.now(tz=tz)
+
+
+def _fields(data: bytes, count: int) -> list[int]:
+    """Split ``count`` 2-digit decimal fields off the front of ``data``."""
+    digits = data[: count * 2]
+    if len(digits) != count * 2 or not digits.isdigit():
+        raise ValueError(f"Expecting {count * 2} ASCII digits, got {data!r}")
+    return [int(digits[i : i + 2]) for i in range(0, count * 2, 2)]
+
+
+def _months_back(year: int, month: int, n: int) -> tuple[int, int]:
+    index = year * 12 + (month - 1) - n
+    return index // 12, index % 12 + 1
+
+
 def decode_timestamp_dhm(data: bytes) -> datetime:
+    """
+    Day/hours/minutes, in the current month unless that would be in the future.
+
+    The most recent month in which the day exists is used, so "31" received on
+    the 1st of a 30-day month refers to the 31st two months ago, not an error.
+    """
     ts_format = TimestampFormat(data[6:7])
-    tzinfo = None if ts_format == TimestampFormat.DayHoursMinutesLocal else UTC
-    now = datetime.now(tz=tzinfo)
-    ts = datetime.strptime(data[:6].decode("ascii"), timestamp_formats_map[ts_format])
-    maybe_ts = ts.replace(year=now.year, month=now.month, tzinfo=tzinfo)
-    if maybe_ts > (now + FUTURE_TIMESTAMP_THRESHOLD):
-        # can't have a timestamp in the future, so assume it's from last month
-        if maybe_ts.month == 1:
-            return maybe_ts.replace(year=maybe_ts.year - 1, month=12)
-        return maybe_ts.replace(month=maybe_ts.month - 1)
-    return maybe_ts
+    tz = None if ts_format == TimestampFormat.DayHoursMinutesLocal else UTC
+    day, hour, minute = _fields(data, 3)
+    if not 1 <= day <= 31:
+        raise ValueError(f"Day out of range in {data!r}")
+    now = _now(tz)
+    for n in range(13):
+        year, month = _months_back(now.year, now.month, n)
+        try:
+            ts = datetime(year, month, day, hour, minute, tzinfo=tz)
+        except ValueError:
+            if hour > 23 or minute > 59:
+                raise
+            continue  # day doesn't exist in that month
+        if ts <= now + FUTURE_TIMESTAMP_THRESHOLD:
+            return ts
+    raise ValueError(f"Cannot place {data!r} in the past year")  # pragma: no cover
 
 
 def decode_timestamp_hms(data: bytes) -> datetime:
-    now = utcnow_tz()
-    ts = datetime.strptime(
-        data[:6].decode("ascii"),
-        timestamp_formats_map[TimestampFormat.HoursMinutesSecondsZulu],
-    )
-    maybe_ts = ts.replace(year=now.year, month=now.month, day=now.day, tzinfo=UTC)
-    if maybe_ts > (now + FUTURE_TIMESTAMP_THRESHOLD):
+    """Hours/minutes/seconds zulu, today unless that would be in the future."""
+    hour, minute, second = _fields(data, 3)
+    now = _now(UTC)
+    ts = datetime(now.year, now.month, now.day, hour, minute, second, tzinfo=UTC)
+    if ts > (now + FUTURE_TIMESTAMP_THRESHOLD):
         # can't have a timestamp (too far) in the future, so assume it's from yesterday
-        return maybe_ts - timedelta(days=1)
-    return maybe_ts
+        return ts - timedelta(days=1)
+    return ts
 
 
 def decode_timestamp_mdhm(data: bytes) -> datetime:
-    now = utcnow_tz()
-    ts = datetime.strptime(
-        data[:8].decode("ascii"),
-        timestamp_formats_map[TimestampFormat.MonthDayHoursMinutesZulu],
-    ).replace(
-        year=now.year,
-        tzinfo=UTC,
-    )
-    if ts > (now + FUTURE_TIMESTAMP_THRESHOLD):
-        # can't have a timestamp in the future, so assume it's from last year
-        return ts.replace(year=ts.year - 1)
-    return ts
+    """Month/day/hours/minutes zulu, this year unless that would be in the future."""
+    month, day, hour, minute = _fields(data, 4)
+    now = _now(UTC)
+    for year in (now.year, now.year - 1, now.year - 2, now.year - 3, now.year - 4):
+        try:
+            ts = datetime(year, month, day, hour, minute, tzinfo=UTC)
+        except ValueError:
+            if (month, day) != (2, 29):
+                raise
+            continue  # Feb 29 outside a leap year
+        if ts <= now + FUTURE_TIMESTAMP_THRESHOLD:
+            return ts
+    raise ValueError(f"Cannot place {data!r} in the past")  # pragma: no cover
 
 
 @define(frozen=True, slots=True)
@@ -71,19 +100,22 @@ class Timestamp:
 
     @classmethod
     def from_bytes(cls, raw: bytes) -> "Timestamp":
-        try:
-            ts_format = TimestampFormat(raw[6:7])
-            if ts_format in [
-                TimestampFormat.DayHoursMinutesLocal,
-                TimestampFormat.DayHoursMinutesZulu,
-            ]:
-                return cls(ts_format, decode_timestamp_dhm(raw))
-            return cls(ts_format, decode_timestamp_hms(raw))
-        except ValueError:
-            # assume Month Day Hours Minutes
+        """
+        Decode a 7-byte DHM/HMS timestamp or an 8-digit MDHM timestamp.
+
+        Raises ValueError if ``raw`` does not start with a valid timestamp.
+        """
+        indicator = raw[6:7]
+        if indicator.isdigit():
             return cls(
                 TimestampFormat.MonthDayHoursMinutesZulu, decode_timestamp_mdhm(raw)
             )
+        ts_format = TimestampFormat(indicator)
+        if ts_format == TimestampFormat.HoursMinutesSecondsZulu:
+            return cls(ts_format, decode_timestamp_hms(raw))
+        if ts_format == TimestampFormat.MonthDayHoursMinutesZulu:
+            raise ValueError(f"Timestamp too short: {raw!r}")
+        return cls(ts_format, decode_timestamp_dhm(raw))
 
     def __bytes__(self) -> bytes:
         # pylint: disable=no-member

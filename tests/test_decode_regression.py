@@ -8,7 +8,6 @@ new information data types.
 
 import datetime
 from decimal import Decimal
-from unittest import mock
 
 import pytest
 from ax253 import Frame
@@ -33,17 +32,11 @@ from aprs.timestamp import Timestamp
 
 @pytest.fixture(autouse=True)
 def fixed_now(monkeypatch):
-    """Return a static datetime.datetime.now so the test returns consistent results."""
-
-    def new_now(*args, **kwargs):
-        return datetime.datetime(2022, 5, 23, 23, 59, tzinfo=datetime.UTC)
-
-    with mock.patch("aprs.timestamp.datetime") as mock_datetime:
-        mock_datetime.now.side_effect = new_now
-        mock_datetime.strptime.side_effect = lambda *args, **kw: (
-            datetime.datetime.strptime(*args, **kw)
-        )
-        yield
+    """Return a static "now" so the test returns consistent results."""
+    monkeypatch.setattr(
+        "aprs.timestamp._now",
+        lambda tz: datetime.datetime(2022, 5, 23, 23, 59, tzinfo=tz),
+    )
 
 
 @pytest.mark.parametrize(
