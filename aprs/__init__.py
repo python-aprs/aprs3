@@ -8,10 +8,11 @@ Python APRS Module.
 :source: <https://github.com/ampledata/aprs>
 
 """
-from importlib_metadata import version
+
+from importlib.metadata import version
 
 from . import decimaldegrees, geo_util, position, timestamp
-from .aprsis import APRSISProtocol, create_aprsis_connection, TCP
+from .aprsis import TCP, APRSISProtocol, create_aprsis_connection
 from .classes import (
     APRSFrame,
     DataType,
@@ -24,10 +25,10 @@ from .classes import (
     StatusReport,
 )
 from .constants import (
-    APRSIS_HTTP_HEADERS,
-    APRSIS_SERVERS,
     APRSIS_FILTER_PORT,
+    APRSIS_HTTP_HEADERS,
     APRSIS_RX_PORT,
+    APRSIS_SERVERS,
     APRSIS_URL,
     DEFAULT_TOCALL,
     PositionFormat,
@@ -35,14 +36,14 @@ from .constants import (
     timestamp_formats_map,
 )
 from .data_ext import (
-    AreaObject,
-    CourseSpeed,
-    DataExt,
     DFS,
     PHG,
     RNG,
+    AreaObject,
+    CourseSpeed,
+    DataExt,
 )
-from .kiss import create_serial_connection, create_tcp_connection, SerialKISS, TCPKISS
+from .kiss import TCPKISS, SerialKISS, create_serial_connection, create_tcp_connection
 from .position import Position
 from .timestamp import Timestamp
 

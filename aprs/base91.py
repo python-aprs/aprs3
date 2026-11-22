@@ -23,7 +23,7 @@ https://github.com/rossengeorgiev/aprs-python/blob/2b139d18578e62818adb6fac217a9
 """
 
 __all__ = ["to_decimal", "from_decimal"]
-from math import log, ceil
+from math import ceil, log
 from re import findall
 
 

@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # setuptools_scm needs tags
+    - uses: astral-sh/setup-uv@v6
+    - run: uv sync --locked
+    - run: uv run ruff check
+    - run: uv run ruff format --check
+    - name: ty check (advisory until existing type errors are fixed)
+      run: uv run ty check
+      continue-on-error: true
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # setuptools_scm needs tags
+    - uses: astral-sh/setup-uv@v6
+      with:
+        python-version: ${{ matrix.python-version }}
+    - run: uv sync --locked
+    - run: uv run pytest

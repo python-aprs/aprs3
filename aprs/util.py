@@ -1,10 +1,12 @@
 """Internal helpers."""
-from typing import Iterator, Type, TypeVar
+
+from collections.abc import Iterator
+from typing import TypeVar
 
 _T = TypeVar("_T")
 
 
-def attrs_subclasses(cls: Type[_T]) -> Iterator[Type[_T]]:
+def attrs_subclasses(cls: type[_T]) -> Iterator[type[_T]]:
     """
     Yield the direct subclasses of ``cls`` that are live attrs classes.
 

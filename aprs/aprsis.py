@@ -1,22 +1,19 @@
 """APRS-IS send/receive protocol for async and sync use."""
+
 import asyncio
 import functools
 import logging
+from collections.abc import Iterable
 from typing import (
     Any,
-    Dict,
-    Iterable,
-    Optional,
-    Tuple,
 )
 
 from attrs import define, field
-
 from ax253 import SyncFrameDecode, TNC2Decode, TNC2Protocol
 
 # pylint: disable=cyclic-import
 from .classes import APRSFrame
-from .constants import APRSIS_SERVERS, APRSIS_FILTER_PORT, DEFAULT_MYCALL
+from .constants import APRSIS_FILTER_PORT, APRSIS_SERVERS, DEFAULT_MYCALL
 
 # pylint: disable=duplicate-code
 __author__ = "Masen Furer KF7HVM <kf7hvm@0x26.net>"
@@ -54,21 +51,17 @@ class APRSISProtocol(TNC2Protocol):
         # pylint: enable=import-outside-toplevel
 
         self.transport.write(
-            "user {} pass {} vers {} {} {}\r\n".format(
-                user,
-                passcode,
-                __distribution__,
-                __version__,
-                command,
-            ).encode("ascii"),
+            f"user {user} pass {passcode} vers {__distribution__} {__version__} {command}\r\n".encode(
+                "ascii"
+            ),
         )
 
 
 def _handle_kwargs(
-    protocol_kwargs: Dict[str, Any],
-    create_connection_kwargs: Dict[str, Any],
-    **kwargs: Any
-) -> Dict[str, Any]:
+    protocol_kwargs: dict[str, Any],
+    create_connection_kwargs: dict[str, Any],
+    **kwargs: Any,
+) -> dict[str, Any]:
     """Handle async connection kwarg combination to avoid duplication."""
     if create_connection_kwargs is None:
         create_connection_kwargs = {}
@@ -86,10 +79,10 @@ async def create_aprsis_connection(  # pylint: disable=too-many-arguments
     user: str = DEFAULT_MYCALL,
     passcode: str = "-1",
     command: str = "",
-    protocol_kwargs: Optional[Dict[str, Any]] = None,
-    loop: Optional[asyncio.BaseEventLoop] = None,
-    create_connection_kwargs: Optional[Dict[str, Any]] = None,
-) -> Tuple[asyncio.BaseTransport, APRSISProtocol]:
+    protocol_kwargs: dict[str, Any] | None = None,
+    loop: asyncio.BaseEventLoop | None = None,
+    create_connection_kwargs: dict[str, Any] | None = None,
+) -> tuple[asyncio.BaseTransport, APRSISProtocol]:
     """
     Establish an async APRS-IS connection.
 

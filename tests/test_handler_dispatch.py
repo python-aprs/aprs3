@@ -1,4 +1,5 @@
 """InformationField dispatch must survive attrs ``slots=True`` class replacement."""
+
 import gc
 
 from attrs import define
