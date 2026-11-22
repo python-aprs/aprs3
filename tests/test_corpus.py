@@ -9,6 +9,7 @@ TNC2 text and through AX.25 binary (the KISS path).
 
 import datetime
 import re
+from decimal import Decimal
 from pathlib import Path
 
 import pytest
@@ -21,6 +22,7 @@ from aprs import (
     ItemReport,
     Message,
     ObjectReport,
+    Position,
     PositionReport,
     StatusReport,
 )
@@ -206,10 +208,14 @@ def test_unsupported_formats_kept_raw(tnc2, data_type):
     assert field.comment == field.raw[1:]
 
 
-def test_unknown_data_type_is_rejected():
-    # e.g. a Kenwood "]" prefix; frame decoders log and drop these
-    with pytest.raises(ValueError):
-        info("N0CALL-7>APK102:]=4903.50N/07201.75W>Kenwood")
+def test_unknown_data_type_is_kept():
+    # e.g. a Kenwood "]" prefix: issue #20, the frame decodes with the raw bytes
+    tnc2 = "N0CALL-7>APK102:]=4903.50N/07201.75W>Kenwood"
+    field = info(tnc2)
+    assert type(field) is InformationField
+    assert field.data_type is None
+    assert field.comment == field.raw == b"]=4903.50N/07201.75W>Kenwood"
+    assert str(APRSFrame.from_str(tnc2)) == tnc2
 
 
 def test_positive_altitude_comment():
@@ -291,3 +297,120 @@ def test_offset_position_keeps_prefix():
     assert isinstance(report, PositionReport)
     assert report.prefix == b"TNC2 BTEXT "
     assert report.comment == b"header"
+
+
+# --- pre-release bug fixes ---------------------------------------------------
+
+
+def test_compressed_position_keeps_following_text_as_comment():
+    """Issue #19: was TypeError (data_ext passed twice)."""
+    report = info("N0CALL>APRS:!/5L!!<*e7>  TPHG5132 igate")
+    assert report.data_ext == b""
+    assert report.comment == b"PHG5132 igate"
+    report = info("N0CALL>APRS:=/5L!!<*e7>7P[RNG0050")
+    assert isinstance(report.data_ext, CourseSpeed)
+    assert report.comment == b"RNG0050"
+
+
+@pytest.mark.parametrize("text", ["hello world", "", "&foo", "]Kenwood"])
+def test_unknown_data_type_decodes(text):
+    """Issue #20."""
+    field = info(f"N0CALL>APRS:{text}")
+    assert type(field) is InformationField
+    assert field.data_type is None
+    assert field.raw == field.comment == text.encode()
+
+
+def test_unknown_data_type_with_position_after_text():
+    """Issue #20: APRS101 p32 allows a position after up to 40 characters."""
+    report = info("N0CALL>APRS:TNC beacon !4903.50N/07201.75W-")
+    assert isinstance(report, PositionReport)
+    assert report.prefix == b"TNC beacon "
+
+
+def test_old_mic_e_data_type():
+    """Issue #21."""
+    assert DataType.OLD_MIC_E_DATA.value == b"\x1d"
+    assert DataType.OLD_MIC_E_DATA is not DataType.CURRENT_MIC_E_DATA
+    assert info("N0CALL>APRS:\x1d'abc").data_type is DataType.OLD_MIC_E_DATA
+
+
+def test_killed_item_with_bang_in_comment():
+    """Issue #22."""
+    item = info("N0CALL>APRS:)AID #2_4903.50N/07201.75WA comment!")
+    assert isinstance(item, ItemReport)
+    assert (item.name, item.killed, item.comment) == (b"AID #2", True, b" comment!")
+    live = info("N0CALL>APRS:)AID #2!4903.50N/07201.75WA under_score")
+    assert (live.name, live.killed, live.comment) == (b"AID #2", False, b" under_score")
+
+
+def test_item_without_terminator_is_rejected():
+    with pytest.raises(ValueError):
+        info("N0CALL>APRS:)NO TERMINATOR")
+
+
+def test_course_360_is_kept():
+    """Issue #23."""
+    report = info("N0CALL>APRS:!4903.50N/07201.75W>360/010")
+    assert report.data_ext == CourseSpeed(course=360, speed=10)
+    assert bytes(CourseSpeed(course=0, speed=10)) == b"000/010"
+
+
+@pytest.mark.parametrize("course", [-1, 361, 999])
+def test_course_out_of_range(course):
+    """Issue #23: no silent wrap."""
+    with pytest.raises(ValueError):
+        CourseSpeed(course=course, speed=0)
+    # as text it isn't a course/speed extension, so it stays in the comment
+    report = info(f"N0CALL>APRS:!4903.50N/07201.75W>{course:03d}/010")
+    assert report.data_ext == b""
+
+
+@pytest.mark.parametrize(
+    "info_text",
+    [
+        "!9903.50N/07201.75W-",  # 99 degrees north
+        "!9000.01N/07201.75W-",  # just past the pole
+        "!4903.50N/18201.75W-",  # 182 degrees west
+        "!4903.50N/18000.01E-",
+        "!4963.50N/07201.75W-",  # 63 minutes
+        "!4903.50N/07260.00W-",
+    ],
+)
+def test_out_of_range_position_is_rejected(info_text):
+    """Issue #24: rejected like other malformed positions."""
+    with pytest.raises(ValueError):
+        info(f"N0CALL>APRS:{info_text}")
+
+
+def test_position_limits_decode():
+    assert float(info("N0CALL>APRS:!9000.00N/18000.00W-").lat) == 90
+    assert float(info("N0CALL>APRS:!9000.00S/18000.00E-").long) == 180
+
+
+@pytest.mark.parametrize("kwargs", [{"lat": 90.5}, {"lat": -91}, {"long": 180.1}])
+def test_out_of_range_position_cannot_be_built(kwargs):
+    """Issue #24."""
+    with pytest.raises(ValueError):
+        Position(**kwargs)
+
+
+def test_ambiguity_only_centres_blanked_digits():
+    """Issue #25."""
+    report = info("N0CALL>APRS:!4903.5 N/07201.75W-")
+    assert report.lat == pytest.approx(Decimal("49.059167"), abs=Decimal("1e-6"))
+    assert report.long == pytest.approx(Decimal("-72.029167"), abs=Decimal("1e-6"))
+    assert report._position.ambiguity == 1
+    assert report._position.long_ambiguity == 0
+
+    report = info("N0CALL>APRS:!4903.50N/0720 .  W-")
+    assert report.lat == pytest.approx(Decimal("49.058333"), abs=Decimal("1e-6"))
+    # 072 degrees 0x minutes: centred at 072 05'
+    assert report.long == pytest.approx(Decimal("-72.083333"), abs=Decimal("1e-6"))
+    assert report._position.long_ambiguity == 3
+
+
+def test_matching_ambiguity_leaves_long_ambiguity_unset():
+    report = info("N0CALL>APRS:!4903.  N/07201.  W-")
+    assert report._position.ambiguity == 2
+    assert report._position.long_ambiguity is None

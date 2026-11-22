@@ -31,23 +31,37 @@ AMBIGUITY_CENTER_MINUTES = (
 )
 
 
-def _decode_dm(text: str, degree_digits: int, ambiguity: int) -> Decimal:
-    """Decode "DDMM.mm" or "DDDMM.mm" with ``ambiguity`` trailing digits blanked."""
+def _decode_dm(text: str, degree_digits: int) -> Decimal:
+    """
+    Decode "DDMM.mm" or "DDDMM.mm", where trailing digits may be blanked.
+
+    Blanked digits are centred in their range; digits that were sent are kept.
+    """
     unblanked = text.replace(" ", "0")
     if not re.fullmatch(r"[0-9]{%d}[0-9]{2}\.[0-9]{2}" % degree_digits, unblanked):
         raise ValueError(f"{text!r} is not a valid coordinate")
-    if ambiguate(unblanked.encode("ascii"), text.count(" ")) != text.encode("ascii"):
-        raise ValueError(f"{text!r}: only trailing digits may be blanked")
+    ambiguity = text.count(" ")
+    if ambiguity > 4 or ambiguate(unblanked.encode("ascii"), ambiguity) != text.encode(
+        "ascii"
+    ):
+        raise ValueError(f"{text!r}: only up to 4 trailing digits may be blanked")
     degrees = int(unblanked[:degree_digits])
-    minutes = Decimal(unblanked[degree_digits:]) + AMBIGUITY_CENTER_MINUTES[ambiguity]
-    return dm2decimal(degrees, minutes)
+    minutes = Decimal(unblanked[degree_digits:])
+    max_degrees = 90 if degree_digits == 2 else 180
+    if minutes >= 60 or degrees > max_degrees or (degrees == max_degrees and minutes):
+        raise ValueError(f"{text!r} is out of range")
+    return dm2decimal(degrees, minutes + AMBIGUITY_CENTER_MINUTES[ambiguity])
 
 
 def decode_position_uncompressed(data: bytes):
     """
-    :return: dict with keys lat, long, sym_table_id, symbol_code, ambiguity
+    :return: dict with keys lat, long, sym_table_id, symbol_code, ambiguity,
+        and long_ambiguity when the longitude has a different number of
+        blanked digits than the latitude
 
     An ambiguous position (APRS101 p24) is placed in the middle of its box.
+    Only blanked digits are centred, so a longitude sent with more precision
+    than the latitude keeps it.
     """
     text = data.decode("latin1")
     if len(text) < 19 or not text.startswith(POSITION_UNCOMPRESSED_SIGNATURE):
@@ -56,18 +70,19 @@ def decode_position_uncompressed(data: bytes):
     long_text, long_hemisphere = text[9:17], text[17:18]
     if lat_hemisphere not in ("N", "S") or long_hemisphere not in ("E", "W"):
         raise ValueError(f"{data[:19]!r} is not an uncompressed position")
-    # the latitude sets the ambiguity; spaces in the longitude are ignored
+    lat = _decode_dm(lat_text, 2) * (-1 if lat_hemisphere == "S" else 1)
+    long = _decode_dm(long_text, 3) * (-1 if long_hemisphere == "W" else 1)
+    # APRS101 p24: the latitude sets the ambiguity
     ambiguity = deambiguate(lat_text.encode("ascii"))
-    if ambiguity > 4:
-        raise ValueError(f"{data[:19]!r} is not an uncompressed position")
-    lat = _decode_dm(lat_text, 2, ambiguity) * (-1 if lat_hemisphere == "S" else 1)
-    long = _decode_dm(long_text, 3, ambiguity) * (-1 if long_hemisphere == "W" else 1)
+    long_ambiguity = deambiguate(long_text.encode("ascii"))
+    extra = {} if long_ambiguity == ambiguity else {"long_ambiguity": long_ambiguity}
     return dict(
         lat=lat,
         sym_table_id=data[8:9],
         long=long,
         symbol_code=data[18:19],
         ambiguity=ambiguity,
+        **extra,
     )
 
 
@@ -77,12 +92,15 @@ def encode_position_uncompressed(
     sym_table_id,
     symbol_code,
     ambiguity=None,
+    long_ambiguity=None,
 ) -> bytes:
+    if long_ambiguity is None:
+        long_ambiguity = ambiguity
     return b"".join(
         [
             ambiguate(dec2dm_lat(lat), ambiguity),
             sym_table_id,
-            ambiguate(dec2dm_lng(long), ambiguity),
+            ambiguate(dec2dm_lng(long), long_ambiguity),
             symbol_code,
         ]
     )
@@ -157,7 +175,8 @@ COMPRESSION_TYPE_ALTITUDE = ord("S") - 33
 def _encode_cs(data_ext, altitude_ft, ignored_cs=None) -> bytes:
     if isinstance(data_ext, CourseSpeed):
         return (
-            from_decimal(int(data_ext.course) // 4, 1)
+            # 360 (due north) is code 0: code 90 ("{") marks a range
+            from_decimal(int(data_ext.course) % 360 // 4, 1)
             + from_decimal(int(round(math.log(data_ext.speed + 1, 1.08))), 1)
         ).encode("ascii")
     if isinstance(data_ext, RNG):
@@ -202,19 +221,32 @@ def encode_position_compressed(  # pylint: disable=too-many-arguments
     )
 
 
+def _in_range(limit):
+    def validator(instance, attribute, value):
+        if not -limit <= value <= limit:
+            raise ValueError(f"{attribute.name} must be within ±{limit}, got {value!r}")
+
+    return validator
+
+
 @define(frozen=True, slots=True)
 class Position:
     """Represents a position including any data extension."""
 
     position_format: PositionFormat = field(default=PositionFormat.Uncompressed)
-    lat: float = field(default=0.0)
+    lat: float = field(default=0.0, validator=_in_range(90))
     sym_table_id: bytes = field(default=b"/")
-    long: float = field(default=0.0)
+    long: float = field(default=0.0, validator=_in_range(180))
     symbol_code: bytes = field(default=b"-")
     altitude_ft: int | None = field(default=None)
     data_ext: bytes | DataExt = field(default=b"")
     ambiguity: int = field(default=0)
     """Uncompressed only: how many trailing digits are blanked (0-4)."""
+    long_ambiguity: int | None = field(default=None)
+    """
+    Uncompressed only: blanked longitude digits, when they differ from the
+    latitude's; None means the same as ambiguity.
+    """
     compression_type: int | None = field(default=None)
     """Compressed only: the type byte (minus 33); None picks a default."""
     ignored_cs: bytes | None = field(default=None)
@@ -246,8 +278,12 @@ class Position:
             except ValueError:  # pylint: disable=try-except-raise
                 # eventually we may try to decode other position types here
                 raise
-        # try to decode extended data
-        data_ext, remainder = DataExt.split_parse(remainder)
+        # try to decode extended data; a compressed position carries
+        # course/speed or range in its cs bytes (APRS101 p36), so text after
+        # it (e.g. an igate's PHG) stays in the comment
+        data_ext = b""
+        if position_format is PositionFormat.Uncompressed:
+            data_ext, remainder = DataExt.split_parse(remainder)
         # try to find the altitude comment
         alt_match = ALTITUDE_REX.search(remainder)
         if alt_match and "altitude_ft" not in position:
@@ -273,6 +309,7 @@ class Position:
                         self.sym_table_id,
                         self.symbol_code,
                         ambiguity=self.ambiguity,
+                        long_ambiguity=self.long_ambiguity,
                     ),
                     bytes(self.data_ext),
                 ]

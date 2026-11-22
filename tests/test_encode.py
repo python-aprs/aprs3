@@ -141,3 +141,23 @@ def test_message_text_not_truncated(text):
     assert bytes(frame.info) == info
     assert bytes(frame).endswith(info)
     assert bytes(APRSFrame.from_bytes(bytes(frame)).info) == info
+
+
+def test_compressed_course_360_is_north():
+    """Issue #23: 360 encodes as code 0; code 90 ("{") would mean a range."""
+    north = position_report(
+        data_ext=CourseSpeed(course=360, speed=10),
+        position_format=PositionFormat.Compressed,
+    )
+    zero = position_report(
+        data_ext=CourseSpeed(course=0, speed=10),
+        position_format=PositionFormat.Compressed,
+    )
+    assert north == zero
+    assert north[11:12] == b"!"
+
+
+def test_uncompressed_long_ambiguity():
+    """Issue #25."""
+    assert position_report(ambiguity=1, long_ambiguity=0) == b"!4930.0 N/07245.00W>"
+    assert position_report(ambiguity=0, long_ambiguity=2) == b"!4930.00N/07245.  W>"

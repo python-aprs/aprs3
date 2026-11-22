@@ -1,6 +1,7 @@
 """Python APRS Module Class Definitions."""
 
 import enum
+import re
 from functools import lru_cache
 from typing import Any
 
@@ -22,7 +23,7 @@ class DataType(enum.Enum):
     """APRS101.PDF p. 27"""
 
     CURRENT_MIC_E_DATA = b"\x1c"
-    OLD_MIC_E_DATA = b"\x1c"
+    OLD_MIC_E_DATA = b"\x1d"
     POSITION_W_O_TIMESTAMP = b"!"
     PEET_BROS_U_II = b"#"
     RAW_GPS_DATA = b"$"
@@ -52,6 +53,7 @@ class DataType(enum.Enum):
 MIC_E_DATA_TYPES = frozenset(
     {
         DataType.CURRENT_MIC_E_DATA,
+        DataType.OLD_MIC_E_DATA,
         DataType.OLD_MIC_E_DATA_2,
         DataType.CURRENT_MIC_E_DATA_2,
     }
@@ -69,7 +71,8 @@ class InformationField:
     """
 
     raw: bytes
-    data_type: DataType
+    data_type: DataType | None
+    """None when the first byte isn't a known APRS data type identifier."""
     data: bytes
     comment: bytes = field(default=b"")
 
@@ -83,8 +86,13 @@ class InformationField:
 
     @classmethod
     def from_bytes(cls, raw: bytes) -> "InformationField":
-        data_type = DataType(raw[0:1])
-        handler = cls._find_handler(data_type)
+        try:
+            data_type = DataType(raw[0:1])
+        except ValueError:
+            # free text, an empty info field, or an unused identifier
+            # (APRS101 p17): keep the raw bytes so the frame still decodes
+            data_type = None
+        handler = None if data_type is None else cls._find_handler(data_type)
         if (handler is None or data_type == DataType.OBJECT) and (
             data_type not in MIC_E_DATA_TYPES
         ):
@@ -102,7 +110,7 @@ class InformationField:
                 raw=raw,
                 data_type=data_type,
                 data=b"",
-                comment=raw[1:],
+                comment=raw if data_type is None else raw[1:],
             )
         return handler.from_bytes(raw)
 
@@ -329,10 +337,14 @@ class ItemReport(InformationField, PositionMixin):
             raise DataTypeError(
                 f"{data_type!r} cannot be handled by {cls!r} (expecting {cls.__data_type__!r})",
             )
-        for split in (b"!", b"_"):
-            name, status, remainder = raw[1:].partition(split)
-            if status:
-                break
+        # APRS101 p59: the name (3-9 characters) can't contain "!" or "_",
+        # so the first of either ends it; the comment may contain both
+        match = re.search(rb"[!_]", raw[1:])
+        if match is None:
+            raise ValueError(f"{raw!r}: item name is not terminated by '!' or '_'")
+        name = raw[1 : 1 + match.start()]
+        status = match.group()
+        remainder = raw[2 + match.start() :]
         name = name.strip()
         killed = status == b"_"
         position, data, comment = Position.from_bytes_with_data_and_remainder(remainder)
