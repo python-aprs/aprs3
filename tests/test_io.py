@@ -258,7 +258,7 @@ def test_kiss_sync_tcpkiss():
             tnc.write(APRSFrame.from_str(STATUS))
         finally:
             tnc.stop()
-        finish_sync_close(tnc)
+        # stop() finishes closing: the server sees EOF without another loop run
         server.wait_done()
 
     assert str(frame) == RF_POSITION
@@ -268,16 +268,6 @@ def test_kiss_sync_tcpkiss():
 
 
 # --- helpers -----------------------------------------------------------------
-
-
-def finish_sync_close(sync):
-    """
-    Let the sync wrapper's loop process the transport close.
-
-    kiss3 < 8.1.0a1's TCPKISS.stop() only calls transport.close(), which
-    closes the socket on the next loop iteration (fixed in python-aprs/kiss3#16).
-    """
-    sync.loop.run_until_complete(asyncio.sleep(0))
 
 
 @contextlib.contextmanager
