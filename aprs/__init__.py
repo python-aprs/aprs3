@@ -1,12 +1,13 @@
-"""
-Python APRS Module.
-~~~~
+"""Encode and decode APRS packets.
 
-:author: Greg Albrecht W2GMD <oss@undef.net>
-:copyright: Copyright 2017 Greg Albrecht and Contributors
-:license: Apache License, Version 2.0
-:source: <https://github.com/ampledata/aprs>
+``APRSFrame`` decodes an AX.25 frame or TNC2 text into typed information
+fields (positions, objects, items, status reports and messages) and encodes
+them back. Connect to APRS-IS with ``TCP`` or ``create_aprsis_connection``,
+or to a TNC with ``SerialKISS``, ``TCPKISS``, ``create_serial_connection``
+and ``create_tcp_connection``.
 
+Based on the original ``aprs`` module by Greg Albrecht W2GMD
+(https://github.com/ampledata/aprs), Apache License 2.0.
 """
 
 from importlib.metadata import version
