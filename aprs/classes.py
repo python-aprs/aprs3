@@ -50,7 +50,7 @@ class DataTypeError(ValueError):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True)
 class InformationField:
     """
     Class for APRS 'Information' Field.
@@ -103,7 +103,7 @@ class InformationField:
         return self.raw
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True)
 class PositionReport(InformationField, TimestampMixin, PositionMixin):
     timestamp: Timestamp | None = None
     position: Position | None = None
@@ -156,7 +156,7 @@ class PositionReport(InformationField, TimestampMixin, PositionMixin):
         )
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True)
 class Message(InformationField):
     addressee: bytes = b""
     text: bytes = b""
@@ -202,7 +202,7 @@ class Message(InformationField):
         )
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True)
 class StatusReport(InformationField, TimestampMixin):
     status: bytes = b""
     timestamp: Timestamp | None = None
@@ -244,7 +244,7 @@ class StatusReport(InformationField, TimestampMixin):
         )
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True)
 class ObjectReport(InformationField, TimestampMixin, PositionMixin):
     name: bytes | None = None
     killed: bool = False
@@ -289,7 +289,7 @@ class ObjectReport(InformationField, TimestampMixin, PositionMixin):
         )
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True)
 class ItemReport(InformationField, PositionMixin):
     name: bytes | None = None
     killed: bool = False
@@ -334,7 +334,7 @@ class ItemReport(InformationField, PositionMixin):
         )
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True)
 class APRSFrame(Frame):
     """An AX.25 frame whose information field is decoded as APRS."""
 

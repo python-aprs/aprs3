@@ -56,3 +56,16 @@ def test_aprsframe_decodes_info_on_init_and_replace():
 
 def test_aprs_kiss_decoder_always_strips_command_byte():
     assert APRSDecode(strip_df_start=False).strip_df_start is True
+
+
+def test_value_types_are_slotted():
+    frame = APRSFrame.from_str(
+        "N0CALL>APZ069:@202350z4606.00N/12254.00W>PHG5132/A=000100 hi"
+    )
+    report = frame.info
+    assert isinstance(report, PositionReport)
+    for obj in (frame, frame.source, report, report.position, report.timestamp):
+        assert not hasattr(obj, "__dict__"), type(obj)
+    assert not hasattr(report.position.data_ext, "__dict__")
+    msg = InformationField.from_bytes(b":N0CALL   :hello{1")
+    assert not hasattr(msg, "__dict__")

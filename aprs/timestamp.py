@@ -61,7 +61,7 @@ def decode_timestamp_mdhm(data: bytes) -> datetime:
     return ts
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True)
 class Timestamp:
     """Represents a timestamp for an APRS information field."""
 
@@ -98,4 +98,5 @@ class Timestamp:
 
 
 class TimestampMixin:  # pylint: disable=too-few-public-methods
+    __slots__ = ()
     timestamp: Timestamp | None

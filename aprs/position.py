@@ -159,7 +159,7 @@ def encode_position_compressed(  # pylint: disable=too-many-arguments
     return b"".join(data)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True)
 class Position:
     """Represents a position including any data extension."""
 
@@ -240,6 +240,7 @@ class Position:
 
 # pylint: disable=no-member,inconsistent-return-statements
 class PositionMixin:
+    __slots__ = ()
     position: Position | None
 
     @property

@@ -36,8 +36,8 @@ dev = [
 
 [[package]]
 name = "ax253"
-version = "0.1.5.post2.dev9+gfdc6f5aa0"
-source = { git = "https://github.com/python-aprs/ax253?branch=refactor%2Fdataclasses#fdc6f5aa054e82242d4d1c2b828f35b5b40428ac" }
+version = "0.1.5.post2.dev10+g69d30dc82"
+source = { git = "https://github.com/python-aprs/ax253?branch=refactor%2Fdataclasses#69d30dc82d0e459607c512f2673954f9d74bd702" }
 dependencies = [
     { name = "bitarray" },
 ]

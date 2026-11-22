@@ -13,7 +13,7 @@ __copyright__ = "Copyright 2022 Masen Furer and Contributors"
 __license__ = "Apache License, Version 2.0"
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True)
 class DataExt(ABC):
     @classmethod
     @abstractmethod
@@ -42,7 +42,7 @@ class DataExt(ABC):
         """Serialize the data extension as bytes."""
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True)
 class CourseSpeed(DataExt):
     course: int = 0
     speed: int = 0
@@ -66,7 +66,7 @@ class CourseSpeed(DataExt):
         return b"%03d/%03d" % ((self.course % 360), (self.speed % 1000))
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True)
 class PHG(DataExt):
     """
     PHGphgd
@@ -103,7 +103,7 @@ class PHG(DataExt):
         return b"PHG%d%b%d%d" % (power_code, height_code, gain_code, directivity_code)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True)
 class RNG(DataExt):
     """
     RNGrrrr
@@ -126,7 +126,7 @@ class RNG(DataExt):
         return b"RNG%04d" % (self.range % 10000)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True)
 class DFS(DataExt):
     """
     DFSshgd
@@ -168,7 +168,7 @@ class DFS(DataExt):
         )
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True)
 class AreaObject(DataExt):
     """
     Tyy/Cxx
