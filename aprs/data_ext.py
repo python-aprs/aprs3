@@ -6,6 +6,8 @@ from typing import Tuple, Union
 
 from attrs import define, field
 
+from .util import attrs_subclasses
+
 
 __author__ = "Masen Furer KF7HVM <kf7hvm@0x26.net>"
 __copyright__ = "Copyright 2022 Masen Furer and Contributors"
@@ -21,7 +23,7 @@ class DataExt(ABC):
 
     @classmethod
     def from_bytes(cls, raw: bytes) -> Union["DataExt", bytes]:
-        for subcls in cls.__subclasses__():
+        for subcls in attrs_subclasses(cls):
             if subcls.try_parse(raw):
                 try:
                     return subcls.from_bytes(raw[:7])
