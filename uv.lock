@@ -25,7 +25,7 @@ dev = [
 requires-dist = [
     { name = "attrs", specifier = ">20" },
     { name = "ax253", specifier = ">=0.2.0" },
-    { name = "kiss3", specifier = ">=8.1.0a1" },
+    { name = "kiss3", specifier = ">=8.1.0" },
 ]
 
 [package.metadata.requires-dev]
@@ -332,16 +332,16 @@ wheels = [
 
 [[package]]
 name = "kiss3"
-version = "8.1.0a1"
+version = "8.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
     { name = "ax253" },
     { name = "pyserial-asyncio" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ef/a6/d16d70de693d386489ff84899db84bdd6c79fdf03482351103ee2dc4929b/kiss3-8.1.0a1.tar.gz", hash = "sha256:fb1426e0b917d191732440c5c5b91f36720eac1ea71047ec24bd70ebd19d300c", size = 61489, upload-time = "2026-11-22T20:46:28.116Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/9d/74/b148005c7dfa68cb6a632c2bf2df71d006140f8a4113239fd5483bcd174a/kiss3-8.1.0.tar.gz", hash = "sha256:13465139a86a42b6596f5c6fe926d5b9c2a1bf1036cc058aa29159aace2cdd43", size = 61955, upload-time = "2026-11-22T22:07:44.593Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/19/5d/58d8303e33c25375312c0a64d9a9bfdc14f82e06c14a4f341a12e0897f82/kiss3-8.1.0a1-py3-none-any.whl", hash = "sha256:897c73b06527a1ad24c703987c785a0924eb58e4de1aa59898c828826260cd3f", size = 12803, upload-time = "2026-11-22T20:46:27.447Z" },
+    { url = "https://files.pythonhosted.org/packages/0c/5d/d9f477df33adaf94d3314f04c1b9431417b26b2201a5f6b1c88b71ac4a60/kiss3-8.1.0-py3-none-any.whl", hash = "sha256:0a377a5f43e3710dd61b735b7c939c75d51df45a569914e5605f300b4be0aa5b", size = 13209, upload-time = "2026-11-22T22:07:43.618Z" },
 ]
 
 [[package]]

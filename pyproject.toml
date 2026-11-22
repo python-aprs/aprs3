@@ -17,7 +17,7 @@ requires-python = ">=3.11"
 dependencies = [
     "attrs > 20",
     "ax253 >= 0.2.0",
-    "kiss3 >= 8.1.0a1",
+    "kiss3 >= 8.1.0",
 ]
 readme = "README.rst"
 license = {file = "LICENSE"}
