@@ -132,7 +132,7 @@ class TCP(SyncFrameDecode[APRSFrame]):
         if self._protocol is None or self._protocol.transport is None:
             return
         self._protocol.transport.close()
-        loop = SyncFrameDecode._loop
+        loop = self.loop
         if loop is not None and not loop.is_running() and not loop.is_closed():
             loop.run_until_complete(asyncio.sleep(0))
 
