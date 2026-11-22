@@ -29,18 +29,9 @@ CORPUS = Path(__file__).parent / "corpus" / "packets.txt"
 
 # packet text -> reason; these are expected to fail until the bug is fixed
 _NEG_ZERO = "longitude 0.00W re-encodes as E (sign of zero lost)"
-_LAT_90 = "latitude 90 isn't recognized as uncompressed ('9' missing from the signature)"
-_AMBIGUITY = "position ambiguity (spaces) is not decoded or re-encoded"
 _COMP_TYPE = "compressed position: compression type byte re-encoded as '#'"
-_MIC_E_BANG = "a '!' inside a Mic-E frame is taken as an offset position, then fails"
 KNOWN_BUGS: dict[str, str] = {
     "N0CALL>APRS:!0000.00N/00000.00W.null island": _NEG_ZERO,
-    "N0CALL>APRS:!9000.00N/18000.00E.pole": _LAT_90,
-    "N0CALL>APRS:!4903.5 N/07201.7 W-ambiguity 1": _AMBIGUITY,
-    "N0CALL>APRS:!4903.  N/07201.  W-ambiguity 2": _AMBIGUITY,
-    "N0CALL>APRS:!490 .  N/0720 .  W-ambiguity 3": _AMBIGUITY,
-    "N0CALL>APRS:!49  .  N/072  .  W-ambiguity 4": _AMBIGUITY,
-    "N0CALL>APRS:)G/WB4APR!53  .  N\\002  .  Wd": _AMBIGUITY,
     "N0CALL>APRS:=/5L!!<*e7>7P[": _COMP_TYPE,
     "N0CALL>APRS:!/5L!!<*e7>{?!": _COMP_TYPE,
     "N0CALL>APRS:=/5L!!<*e7OS]S": _COMP_TYPE,
@@ -48,11 +39,9 @@ KNOWN_BUGS: dict[str, str] = {
     "N0CALL>APRS:!/5L!!<*e7>   no course/speed": _COMP_TYPE,
     "N0CALL>APRS:)MOBIL!\\5L!!<*e79 sT": _COMP_TYPE,
     "N0CALL>APRS:)AID #2!/5L!!<*e7>7P[": _COMP_TYPE,
-    "N0CALL>APRS:;LEADER   *092345z/5L!!<*e7>7P[": "object with a compressed position raises IndexError",
+    "N0CALL>APRS:;LEADER   *092345z/5L!!<*e7>7P[": _COMP_TYPE,
     "N0CALL>APRS:TNC2 BTEXT !4903.50N/07201.75W-header": "text before an offset '!' position is dropped on re-encode",
     "N0CALL>APRS::WU2Z     :{": "empty message number: the '{' is dropped on re-encode",
-    'N0CALL-7>T2SP0W,N0DIGI*,WIDE2-1,qAR,N0GATE:`c51l!?>/`"4V}_%': _MIC_E_BANG,
-    "N0CALL-7>T2SP0W:'c7sl!?>/]\"4H}": _MIC_E_BANG,
 }
 
 
@@ -237,9 +226,6 @@ def test_unknown_data_type_is_rejected():
         info("N0CALL-7>APK102:]=4903.50N/07201.75W>Kenwood")
 
 
-@pytest.mark.xfail(
-    reason="/A= altitude regex only matches negative altitudes", strict=True
-)
 def test_positive_altitude_comment():
     report = info("N0CALL>APRS:=4903.50N/07201.75W>088/036/A=001234 mobile")
     assert report.altitude_ft == 1234
@@ -258,11 +244,57 @@ def test_compressed_course_speed():
     assert report.data_ext.speed == pytest.approx(36.2, abs=0.1)
 
 
-@pytest.mark.xfail(
-    reason="compressed altitude (cs + type byte) decoded as course/speed", strict=True
-)
 def test_compressed_altitude():
     # APRS101 p40: altitude 10004 ft
     report = info("N0CALL>APRS:=/5L!!<*e7OS]S")
     assert report.altitude_ft == pytest.approx(10004, abs=1)
     assert report.data_ext == b""
+
+
+@pytest.mark.parametrize(
+    "tnc2, ambiguity, lat, long",
+    [
+        # an ambiguous position is placed in the middle of its box
+        ("N0CALL>APRS:!4903.50N/07201.75W-", 0, 49 + 3.5 / 60, -(72 + 1.75 / 60)),
+        ("N0CALL>APRS:!4903.5 N/07201.7 W-", 1, 49 + 3.55 / 60, -(72 + 1.75 / 60)),
+        ("N0CALL>APRS:!4903.  N/07201.  W-", 2, 49 + 3.5 / 60, -(72 + 1.5 / 60)),
+        ("N0CALL>APRS:!490 .  N/0720 .  W-", 3, 49 + 5 / 60, -(72 + 5 / 60)),
+        ("N0CALL>APRS:!49  .  N/072  .  W-", 4, 49.5, -72.5),
+        ("N0CALL>APRS:!49  .  S/072  .  E-", 4, -49.5, 72.5),
+    ],
+)
+def test_position_ambiguity(tnc2, ambiguity, lat, long):
+    report = info(tnc2)
+    assert report._position.ambiguity == ambiguity
+    assert float(report.lat) == pytest.approx(lat)
+    assert float(report.long) == pytest.approx(long)
+
+
+@pytest.mark.parametrize(
+    "info_text",
+    [
+        "!49 3.50N/07201.75W-",  # space inside the digits
+        "!4903.50X/07201.75W-",  # bad hemisphere
+        "!4903.50N/07201.75Q-",
+        "!4903.50N/0720",  # truncated
+        "!     .  N/     .  W-",  # more than 4 digits blanked
+    ],
+)
+def test_malformed_position_is_rejected(info_text):
+    with pytest.raises(ValueError):
+        info(f"N0CALL>APRS:{info_text}")
+
+
+def test_bang_in_unsupported_format_stays_raw():
+    """A "!" that doesn't start a position leaves the packet undecoded, not dropped."""
+    field = info("N0CALL>APRS:<IGATE,MSG_CNT=30!,LOC_CNT=61")
+    assert type(field) is InformationField
+    assert field.data_type is DataType.STATION_CAPABILITIES
+
+
+def test_compressed_object():
+    obj = info("N0CALL>APRS:;LEADER   *092345z/5L!!<*e7>7P[")
+    assert isinstance(obj, ObjectReport)
+    assert obj.name == b"LEADER"
+    assert float(obj.lat) == pytest.approx(49.5, abs=1e-4)
+    assert obj.data_ext.course == 88

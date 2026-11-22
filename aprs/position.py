@@ -10,39 +10,64 @@ from .base91 import from_decimal, to_decimal
 from .constants import PositionFormat
 from .data_ext import RNG, CourseSpeed, DataExt
 from .decimaldegrees import dm2decimal
-from .geo_util import ambiguate, dec2dm_lat, dec2dm_lng
+from .geo_util import ambiguate, deambiguate, dec2dm_lat, dec2dm_lng
 
 __author__ = "Masen Furer KF7HVM <kf7hvm@0x26.net>"
 __copyright__ = "Copyright 2022 Masen Furer and Contributors"
 __license__ = "Apache License, Version 2.0"
 
 
-POSITION_UNCOMPRESSED_SIGNATURE = tuple(chr(c) for c in range(ord(b"0"), ord(b"9")))
-ALTITUDE_REX = re.compile(rb"/A=(-[0-9]+)")
+POSITION_UNCOMPRESSED_SIGNATURE = tuple("0123456789")
+# APRS101 p26: "/A=aaaaaa", 6 digits, or "-" and 5 digits when negative
+ALTITUDE_REX = re.compile(rb"/A=(-[0-9]{5}|[0-9]{6})")
+# Minutes to add to an ambiguous position to place it in the middle of its box,
+# by ambiguity level (APRS101 p24: 1 to 4 trailing digits replaced by spaces)
+AMBIGUITY_CENTER_MINUTES = (
+    Decimal(0),
+    Decimal("0.05"),
+    Decimal("0.5"),
+    Decimal(5),
+    Decimal(30),
+)
+
+
+def _decode_dm(text: str, degree_digits: int, ambiguity: int) -> Decimal:
+    """Decode "DDMM.mm" or "DDDMM.mm" with ``ambiguity`` trailing digits blanked."""
+    unblanked = text.replace(" ", "0")
+    if not re.fullmatch(r"[0-9]{%d}[0-9]{2}\.[0-9]{2}" % degree_digits, unblanked):
+        raise ValueError(f"{text!r} is not a valid coordinate")
+    if ambiguate(unblanked.encode("ascii"), text.count(" ")) != text.encode("ascii"):
+        raise ValueError(f"{text!r}: only trailing digits may be blanked")
+    degrees = int(unblanked[:degree_digits])
+    minutes = Decimal(unblanked[degree_digits:]) + AMBIGUITY_CENTER_MINUTES[ambiguity]
+    return dm2decimal(degrees, minutes)
 
 
 def decode_position_uncompressed(data: bytes):
     """
-    :return: dict with keys lat, long, sym_table_id, symbol_code
+    :return: dict with keys lat, long, sym_table_id, symbol_code, ambiguity
+
+    An ambiguous position (APRS101 p24) is placed in the middle of its box.
     """
-    text = data.decode("ascii")
-    if not text.startswith(POSITION_UNCOMPRESSED_SIGNATURE):
+    text = data.decode("latin1")
+    if len(text) < 19 or not text.startswith(POSITION_UNCOMPRESSED_SIGNATURE):
         raise ValueError(f"{data[:19]!r} is not an uncompressed position")
-    lat_degrees = int(text[:2])
-    lat_minutes = Decimal(text[2:7])
-    lat_sign = -1 if text[7:8] == "S" else 1
-    lat = dm2decimal(lat_degrees, lat_minutes) * lat_sign
-    sym_table_id = data[8:9]
-    long_degrees = int(text[9:12])
-    long_minutes = Decimal(text[12:17])
-    long_sign = -1 if text[17:18] == "W" else 1
-    long = dm2decimal(long_degrees, long_minutes) * long_sign
-    symbol_code = data[18:19]
+    lat_text, lat_hemisphere = text[:7], text[7:8]
+    long_text, long_hemisphere = text[9:17], text[17:18]
+    if lat_hemisphere not in ("N", "S") or long_hemisphere not in ("E", "W"):
+        raise ValueError(f"{data[:19]!r} is not an uncompressed position")
+    # the latitude sets the ambiguity; spaces in the longitude are ignored
+    ambiguity = deambiguate(lat_text.encode("ascii"))
+    if ambiguity > 4:
+        raise ValueError(f"{data[:19]!r} is not an uncompressed position")
+    lat = _decode_dm(lat_text, 2, ambiguity) * (-1 if lat_hemisphere == "S" else 1)
+    long = _decode_dm(long_text, 3, ambiguity) * (-1 if long_hemisphere == "W" else 1)
     return dict(
         lat=lat,
-        sym_table_id=sym_table_id,
+        sym_table_id=data[8:9],
         long=long,
-        symbol_code=symbol_code,
+        symbol_code=data[18:19],
+        ambiguity=ambiguity,
     )
 
 
@@ -81,32 +106,32 @@ def compress_long(data: float) -> bytes:
 
 def decode_position_compressed(data: bytes):
     """
-    :return: dict with keys lat, long, sym_table_id, symbol_code, data_ext
+    :return: dict with keys lat, long, sym_table_id, symbol_code, data_ext,
+        and altitude_ft when the cs bytes hold an altitude
     """
-    text = data.decode("latin1")
-    if chr(data[0]) in POSITION_UNCOMPRESSED_SIGNATURE:
+    if len(data) < 13 or chr(data[0]) in POSITION_UNCOMPRESSED_SIGNATURE:
         raise ValueError(f"{data[:13]!r} is not a compressed position")
+    text = data.decode("latin1")
     sym_table_id = data[0:1]
     lat = Decimal(str(decompress_lat(text[1:5])))
     long = Decimal(str(decompress_long(text[5:9])))
     symbol_code = data[9:10]
     c_ext = text[10:12]
-    comp_type = data[12]
+    comp_type = data[12] - 33
     init_kwargs = {}
+    data_ext = b""
 
-    if c_ext[0] == " ":
-        data_ext = b""
-    else:
-        if c_ext[0] == "{":
+    # APRS101 p38-40: a space in c means no course/speed, range or altitude
+    if c_ext[0] != " ":
+        if (comp_type >> 3) & 0b11 == 0b10:
+            # GGA source: cs is an altitude
+            init_kwargs["altitude_ft"] = int(round(1.002 ** to_decimal(c_ext)))
+        elif c_ext[0] == "{":
             data_ext = RNG(range=2 * 1.08 ** to_decimal(c_ext[1]))
-        elif ord("!") <= ord(c_ext[0]) <= ord("z"):
+        else:
             data_ext = CourseSpeed(
                 course=to_decimal(c_ext[0]) * 4, speed=1.08 ** to_decimal(c_ext[1]) - 1
             )
-
-        if comp_type % 0b11000 == 0b10000:
-            # extract altitude
-            init_kwargs["altitude_ft"] = 1.002 ** to_decimal(c_ext)
 
     return dict(
         sym_table_id=sym_table_id,
@@ -171,6 +196,8 @@ class Position:
     symbol_code: bytes = field(default=b"-")
     altitude_ft: int | None = field(default=None)
     data_ext: bytes | DataExt = field(default=b"")
+    ambiguity: int = field(default=0)
+    """Uncompressed only: how many trailing digits are blanked (0-4)."""
 
     @classmethod
     def from_bytes_with_data_and_remainder(
@@ -223,6 +250,7 @@ class Position:
                         self.long,
                         self.sym_table_id,
                         self.symbol_code,
+                        ambiguity=self.ambiguity,
                     ),
                     bytes(self.data_ext),
                 ]
