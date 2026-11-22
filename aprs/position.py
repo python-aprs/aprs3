@@ -121,11 +121,15 @@ def decode_position_compressed(data: bytes):
     init_kwargs = {}
     data_ext = b""
 
-    # APRS101 p38-40: a space in c means no course/speed, range or altitude
-    if c_ext[0] != " ":
+    # APRS101 p38-40: a space in c means no course/speed, range or altitude,
+    # and s is ignored (but kept so the position re-encodes unchanged)
+    if c_ext[0] == " ":
+        if c_ext != "  ":
+            init_kwargs["ignored_cs"] = data[10:12]
+    else:
         if (comp_type >> 3) & 0b11 == 0b10:
             # GGA source: cs is an altitude
-            init_kwargs["altitude_ft"] = int(round(1.002 ** to_decimal(c_ext)))
+            init_kwargs["altitude_ft"] = 1.002 ** to_decimal(c_ext)
         elif c_ext[0] == "{":
             data_ext = RNG(range=2 * 1.08 ** to_decimal(c_ext[1]))
         else:
@@ -139,8 +143,30 @@ def decode_position_compressed(data: bytes):
         long=long,
         symbol_code=symbol_code,
         data_ext=data_ext,
+        compression_type=comp_type,
         **init_kwargs,
     )
+
+
+# Compression type bytes used when encoding a Position that wasn't decoded:
+# current GPS fix, compressed origin; GGA source when cs holds an altitude
+COMPRESSION_TYPE_DEFAULT = ord("#") - 33
+COMPRESSION_TYPE_ALTITUDE = ord("S") - 33
+
+
+def _encode_cs(data_ext, altitude_ft, ignored_cs=None) -> bytes:
+    if isinstance(data_ext, CourseSpeed):
+        return (
+            from_decimal(int(data_ext.course) // 4, 1)
+            + from_decimal(int(round(math.log(data_ext.speed + 1, 1.08))), 1)
+        ).encode("ascii")
+    if isinstance(data_ext, RNG):
+        return b"{" + from_decimal(
+            int(round(math.log(data_ext.range / 2, 1.08))), 1
+        ).encode("ascii")
+    if altitude_ft:
+        return from_decimal(int(round(math.log(altitude_ft, 1.002))), 2).encode("ascii")
+    return ignored_cs or b"  "
 
 
 def encode_position_compressed(  # pylint: disable=too-many-arguments
@@ -151,38 +177,25 @@ def encode_position_compressed(  # pylint: disable=too-many-arguments
     ambiguity=None,  # pylint: disable=unused-argument
     data_ext=None,
     altitude_ft=None,
+    compression_type=None,
+    ignored_cs=None,
 ) -> bytes:
-    data = [
-        sym_table_id,
-        compress_lat(lat),
-        compress_long(long),
-        symbol_code,
-    ]
-    if data_ext:
-        if isinstance(data_ext, CourseSpeed):
-            data.append(from_decimal(data_ext.course // 4, 1).encode("ascii"))
-            data.append(
-                from_decimal(int(round(math.log(data_ext.speed + 1, 1.08))), 1).encode(
-                    "ascii"
-                )
-            )
-            data.append(b"#")
-        elif isinstance(data_ext, RNG):
-            data.append(b"{")
-            data.append(
-                from_decimal(int(round(math.log(data_ext.range / 2, 1.08))), 1).encode(
-                    "ascii"
-                )
-            )
-            data.append(b"#")
-    elif altitude_ft:
-        data.append(
-            from_decimal(int(round(math.log(altitude_ft, 1.002))), 1).encode("ascii")
+    if compression_type is None:
+        compression_type = (
+            COMPRESSION_TYPE_ALTITUDE
+            if altitude_ft and not data_ext
+            else COMPRESSION_TYPE_DEFAULT
         )
-        data.append(b"#")
-    else:
-        data.append(b"  #")
-    return b"".join(data)
+    return b"".join(
+        [
+            sym_table_id,
+            compress_lat(lat),
+            compress_long(long),
+            symbol_code,
+            _encode_cs(data_ext, altitude_ft, ignored_cs),
+            bytes([compression_type + 33]),
+        ]
+    )
 
 
 @define(frozen=True, slots=True)
@@ -198,6 +211,10 @@ class Position:
     data_ext: bytes | DataExt = field(default=b"")
     ambiguity: int = field(default=0)
     """Uncompressed only: how many trailing digits are blanked (0-4)."""
+    compression_type: int | None = field(default=None)
+    """Compressed only: the type byte (minus 33); None picks a default."""
+    ignored_cs: bytes | None = field(default=None)
+    """Compressed only: cs bytes starting with a space, which carry no data."""
 
     @classmethod
     def from_bytes_with_data_and_remainder(
@@ -229,7 +246,8 @@ class Position:
         data_ext, remainder = DataExt.split_parse(remainder)
         # try to find the altitude comment
         alt_match = ALTITUDE_REX.search(remainder)
-        if alt_match:
+        if alt_match and "altitude_ft" not in position:
+            # a compressed altitude (in cs) takes precedence
             position["altitude_ft"] = int(alt_match.group(1))
         return (
             cls(
@@ -263,6 +281,8 @@ class Position:
                 self.symbol_code,
                 data_ext=self.data_ext,
                 altitude_ft=self.altitude_ft,
+                compression_type=self.compression_type,
+                ignored_cs=self.ignored_cs,
             )
         raise ValueError(f"Unknown position format: {self.position_format!r}")
 
@@ -303,6 +323,14 @@ class PositionMixin:
         return b""
 
     def format_altitude(self) -> bytes:
+        """The "/A=" comment for altitude_ft, unless it's already encoded."""
+        position = self._position
+        if (
+            position is not None
+            and position.position_format is PositionFormat.Compressed
+            and not position.data_ext
+        ):
+            return b""  # carried in the compressed cs bytes
         if self.altitude_ft and not ALTITUDE_REX.search(getattr(self, "comment", b"")):
             return b"/A=%06d" % self.altitude_ft
         return b""

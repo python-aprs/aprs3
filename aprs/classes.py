@@ -93,7 +93,8 @@ class InformationField:
                 # special case in APRS101 p32: a position after up to 40
                 # characters of other text (e.g. a TNC beacon header)
                 try:
-                    return PositionReport.from_bytes(found_data_type + data)
+                    report = PositionReport.from_bytes(found_data_type + data)
+                    return attr.evolve(report, raw=raw, prefix=x1j_header)
                 except ValueError:
                     pass  # just a "!" in some other kind of packet
         if handler is None:
@@ -125,6 +126,8 @@ class InformationField:
 class PositionReport(InformationField, TimestampMixin, PositionMixin):
     _timestamp: Timestamp | None = field(default=None)
     _position: Position | None = field(default=None)
+    prefix: bytes = field(default=b"")
+    """Text before the "!" of a position that doesn't start the info field."""
 
     __data_type__ = [
         DataType.POSITION_W_O_TIMESTAMP,
@@ -159,6 +162,7 @@ class PositionReport(InformationField, TimestampMixin, PositionMixin):
     def __bytes__(self) -> bytes:
         return b"".join(
             [
+                self.prefix,
                 self.data_type.value,
                 bytes(self._timestamp)
                 if self.data_type
@@ -215,7 +219,7 @@ class Message(InformationField):
                 self.addressee.ljust(9),  # pylint: disable=no-member
                 DataType.MESSAGE.value,
                 self.text[:67],  # pylint: disable=unsubscriptable-object
-                b"{%s" % self.number if self.number else b"",
+                b"" if self.number is None else b"{%s" % self.number,
             ],
         )
 

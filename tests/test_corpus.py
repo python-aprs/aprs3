@@ -28,21 +28,7 @@ from aprs import (
 CORPUS = Path(__file__).parent / "corpus" / "packets.txt"
 
 # packet text -> reason; these are expected to fail until the bug is fixed
-_NEG_ZERO = "longitude 0.00W re-encodes as E (sign of zero lost)"
-_COMP_TYPE = "compressed position: compression type byte re-encoded as '#'"
-KNOWN_BUGS: dict[str, str] = {
-    "N0CALL>APRS:!0000.00N/00000.00W.null island": _NEG_ZERO,
-    "N0CALL>APRS:=/5L!!<*e7>7P[": _COMP_TYPE,
-    "N0CALL>APRS:!/5L!!<*e7>{?!": _COMP_TYPE,
-    "N0CALL>APRS:=/5L!!<*e7OS]S": _COMP_TYPE,
-    "N0CALL>APRS:@092345z/5L!!<*e7>7P[timestamped": _COMP_TYPE,
-    "N0CALL>APRS:!/5L!!<*e7>   no course/speed": _COMP_TYPE,
-    "N0CALL>APRS:)MOBIL!\\5L!!<*e79 sT": _COMP_TYPE,
-    "N0CALL>APRS:)AID #2!/5L!!<*e7>7P[": _COMP_TYPE,
-    "N0CALL>APRS:;LEADER   *092345z/5L!!<*e7>7P[": _COMP_TYPE,
-    "N0CALL>APRS:TNC2 BTEXT !4903.50N/07201.75W-header": "text before an offset '!' position is dropped on re-encode",
-    "N0CALL>APRS::WU2Z     :{": "empty message number: the '{' is dropped on re-encode",
-}
+KNOWN_BUGS: dict[str, str] = {}
 
 
 def _unescape(line: str) -> str:
@@ -298,3 +284,10 @@ def test_compressed_object():
     assert obj.name == b"LEADER"
     assert float(obj.lat) == pytest.approx(49.5, abs=1e-4)
     assert obj.data_ext.course == 88
+
+
+def test_offset_position_keeps_prefix():
+    report = info("N0CALL>APRS:TNC2 BTEXT !4903.50N/07201.75W-header")
+    assert isinstance(report, PositionReport)
+    assert report.prefix == b"TNC2 BTEXT "
+    assert report.comment == b"header"

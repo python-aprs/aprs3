@@ -66,9 +66,9 @@ ignore = [
 extend-safe-fixes = ["UP028"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["tests", "aprs"]
 timeout = 30
-addopts = "--cov=aprs --cov-report=term-missing"
+addopts = "--cov=aprs --cov-report=term-missing --doctest-modules"
 filterwarnings = ["error"]
 
 [tool.coverage.report]

@@ -1,5 +1,8 @@
 """Python APRS Module Geo Utility Function Definitions."""
 
+import decimal
+import math
+
 from . import decimaldegrees
 
 __author__ = "Greg Albrecht W2GMD <oss@undef.net>"
@@ -7,64 +10,56 @@ __copyright__ = "Copyright 2017 Greg Albrecht and Contributors"
 __license__ = "Apache License, Version 2.0"
 
 
+def _is_negative(dec) -> bool:
+    """True for negative values, including -0 (e.g. a decoded "0000.00W")."""
+    if isinstance(dec, decimal.Decimal):
+        return dec.is_signed()
+    return math.copysign(1.0, float(dec)) < 0
+
+
+def _dm(dec) -> tuple[int, decimal.Decimal]:
+    """Absolute degrees and minutes rounded to 0.01, carrying 60 minutes."""
+    degrees, minutes = decimaldegrees.decimal2dm(abs(decimal.Decimal(str(dec))))
+    minutes = minutes.quantize(decimal.Decimal("0.01"), rounding=decimal.ROUND_HALF_UP)
+    if minutes >= 60:
+        degrees, minutes = degrees + 1, minutes - 60
+    return int(degrees), minutes
+
+
 def dec2dm_lat(dec: float) -> bytes:
     """
-    Converts DecDeg to APRS Coord format.
-
-    See: http://ember2ash.com/lat.htm
-
-    Source: http://stackoverflow.com/questions/2056750
+    Converts decimal degrees to APRS latitude format (DDMM.mmN).
 
     Example:
-        >>> test_lat = 37.7418096
-        >>> aprs_lat = dec2dm_lat(test_lat)
-        >>> aprs_lat
-        '3744.51N'
-        >>> test_lat = -8.01
-        >>> aprs_lat = dec2dm_lat(test_lat)
-        >>> aprs_lat
-        '0800.60S'
+        >>> dec2dm_lat(37.7418096)
+        b'3744.51N'
+        >>> dec2dm_lat(-8.01)
+        b'0800.60S'
+        >>> dec2dm_lat(-0.5)
+        b'0030.00S'
     """
-    dec_min = decimaldegrees.decimal2dm(dec)
-
-    deg = dec_min[0]
-    abs_deg = abs(deg)
-
-    if not deg == abs_deg:
-        suffix = b"S"
-    else:
-        suffix = b"N"
-
-    return b"%02d%05.2f%s" % (abs_deg, dec_min[1], suffix)
+    degrees, minutes = _dm(dec)
+    suffix = b"S" if _is_negative(dec) else b"N"
+    return b"%02d%05.2f%s" % (degrees, minutes, suffix)
 
 
 def dec2dm_lng(dec: float) -> bytes:
     """
-    Converts DecDeg to APRS Coord format.
-
-    See: http://ember2ash.com/lat.htm
+    Converts decimal degrees to APRS longitude format (DDDMM.mmE).
 
     Example:
-        >>> test_lng = 122.38833
-        >>> aprs_lng = dec2dm_lng(test_lng)
-        >>> aprs_lng
-        '12223.30E'
-        >>> test_lng = -99.01
-        >>> aprs_lng = dec2dm_lng(test_lng)
-        >>> aprs_lng
-        '09900.60W'
+        >>> dec2dm_lng(122.38833)
+        b'12223.30E'
+        >>> dec2dm_lng(-99.01)
+        b'09900.60W'
+        >>> dec2dm_lng(-0.0)
+        b'00000.00W'
+        >>> dec2dm_lng(-72.99999999)
+        b'07300.00W'
     """
-    dec_min = decimaldegrees.decimal2dm(dec)
-
-    deg = dec_min[0]
-    abs_deg = abs(deg)
-
-    if not deg == abs_deg:
-        suffix = b"W"
-    else:
-        suffix = b"E"
-
-    return b"%03d%05.2f%s" % (abs_deg, dec_min[1], suffix)
+    degrees, minutes = _dm(dec)
+    suffix = b"W" if _is_negative(dec) else b"E"
+    return b"%03d%05.2f%s" % (degrees, minutes, suffix)
 
 
 def ambiguate(pos: bytes, ambiguity: int) -> bytes:
@@ -73,15 +68,15 @@ def ambiguate(pos: bytes, ambiguity: int) -> bytes:
 
     Derived from @asdil12's `process_ambiguity()`.
 
-    >>> pos = '12345.67N'
+    >>> pos = b'12345.67N'
     >>> ambiguate(pos, 0)
-    '12345.67N'
+    b'12345.67N'
     >>> ambiguate(pos, 1)
-    '12345.6 N'
+    b'12345.6 N'
     >>> ambiguate(pos, 2)
-    '12345.  N'
+    b'12345.  N'
     >>> ambiguate(pos, 3)
-    '1234 .  N'
+    b'1234 .  N'
     """
     if not isinstance(pos, bytes):
         pos = str(pos).encode("ascii")
