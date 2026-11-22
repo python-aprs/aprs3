@@ -18,13 +18,14 @@ from collections.abc import Callable
 import pytest
 
 import aprs
-from aprs import APRSFrame, Message, PositionReport, StatusReport
+from aprs import APRSFrame, InformationField, Message, PositionReport, StatusReport
 from aprs.aprsis import create_aprsis_connection
 from aprs.kiss import create_serial_connection, create_tcp_connection
 
 POSITION = "N0CALL-9>APDR16,TCPIP*,qAC,T2TEST:=4903.50N/07201.75W$ via APRSdroid"
 STATUS = "N0CALL>APDW17,WIDE1-1:>Dire Wolf status"
 MESSAGE = "N0CALL>APRS::N0CALL-2 :ping{7"
+UNKNOWN = "N0CALL>APRS:]unknown data type"
 RF_POSITION = "N0CALL>APDW17,N0DIGI*,WIDE2-1:!4903.50N/07201.75W#digi"
 
 FEND, FESC, TFEND, TFESC = b"\xc0", b"\xdb", b"\xdc", b"\xdd"
@@ -98,7 +99,7 @@ async def aprsis_script(server, reader, writer):
     await asyncio.sleep(0.01)
     writer.write(b"\n" + STATUS.encode() + b"\r\n")
     writer.write(b"not a packet\r\n")  # dropped
-    writer.write(b"N0CALL>APRS:]unknown data type\r\n")  # dropped
+    writer.write(UNKNOWN.encode() + b"\r\n")  # kept, data_type None (#20)
     writer.write(b"# 22 Nov 2026 19:00:00 GMT T2TEST 127.0.0.1:14580\r\n")
     writer.write(MESSAGE.encode() + b"\r\n")
     await writer.drain()
@@ -114,7 +115,7 @@ async def test_aprsis_login_and_receive():
             passcode="-1",
             command="filter r/49/-72/50",
         )
-        frames = await asyncio.wait_for(_take(protocol, 3), 5)
+        frames = await asyncio.wait_for(_take(protocol, 4), 5)
         transport.close()
         await server.done.wait()
 
@@ -122,9 +123,15 @@ async def test_aprsis_login_and_receive():
     assert (
         login == f"user N0CALL pass -1 vers aprs3 {aprs.__version__} filter r/49/-72/50"
     )
-    assert [str(f) for f in frames] == [POSITION, STATUS, MESSAGE]
+    assert [str(f) for f in frames] == [POSITION, STATUS, UNKNOWN, MESSAGE]
     assert all(isinstance(f, APRSFrame) for f in frames)
-    assert [type(f.info) for f in frames] == [PositionReport, StatusReport, Message]
+    assert [type(f.info) for f in frames] == [
+        PositionReport,
+        StatusReport,
+        InformationField,
+        Message,
+    ]
+    assert frames[2].info.data_type is None
 
 
 async def _take(protocol, n):
@@ -174,10 +181,10 @@ def test_aprsis_sync_tcp_failed_start_cleans_up_quietly(monkeypatch):
 def test_aprsis_sync_tcp():
     with threaded_server(aprsis_script) as server:
         with aprs.TCP(host="127.0.0.1", port=server.port, user="N0CALL") as tcp:
-            frames = tcp.read(min_frames=3)
+            frames = tcp.read(min_frames=4)
         # stop() finishes closing: the server sees EOF without another loop run
         server.wait_done()
-    assert [str(f) for f in frames] == [POSITION, STATUS, MESSAGE]
+    assert [str(f) for f in frames] == [POSITION, STATUS, UNKNOWN, MESSAGE]
 
 
 # --- KISS --------------------------------------------------------------------

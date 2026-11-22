@@ -128,3 +128,22 @@ InformationField N0CALL>APRS:,test invalid
 InformationField N0CALL>APRS:#W1AW weather
 InformationField N0CALL>APRS:*Peet Bros weather
 InformationField N0CALL>APRS:%DF data
+
+## Pre-release bug fixes (issues #19 to #25)
+# 19: text after a compressed position stays in the comment
+PositionReport N0CALL>APRS:!/5L!!<*e7>  TPHG5132 igate
+PositionReport N0CALL>APRS:=/5L!!<*e7>7P[RNG0050
+# 20: free text, an empty info field and unused identifiers still decode
+InformationField N0CALL>APRS:hello world
+InformationField N0CALL>APRS:
+InformationField N0CALL>APRS:&foo
+PositionReport N0CALL>APRS:TNC beacon !4903.50N/07201.75W-
+# 21: old Mic-E (0x1d)
+InformationField N0CALL>APRS:\x1d'abc
+# 22: a killed item whose comment contains "!"
+ItemReport N0CALL>APRS:)AID #2_4903.50N/07201.75WA comment!
+# 23: course 360 is due north, not unknown
+PositionReport N0CALL>APRS:!4903.50N/07201.75W>360/010
+# 25: the longitude keeps its own precision
+PositionReport N0CALL>APRS:!4903.5 N/07201.75W-
+PositionReport N0CALL>APRS:!4903.50N/0720 .  W-

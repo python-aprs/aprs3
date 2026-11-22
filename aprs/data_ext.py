@@ -43,9 +43,15 @@ class DataExt(ABC):
         """Serialize the data extension as bytes."""
 
 
+def _valid_course(instance, attribute, value):
+    # APRS101 p27: 001-360 degrees, 360 is due north and 000 means unknown
+    if not 0 <= value <= 360:
+        raise ValueError(f"course must be between 0 and 360, got {value!r}")
+
+
 @define(frozen=True, slots=True)
 class CourseSpeed(DataExt):
-    course: int = field(default=0)
+    course: int = field(default=0, validator=_valid_course)
     speed: int = field(default=0)
 
     @classmethod
@@ -64,7 +70,7 @@ class CourseSpeed(DataExt):
         )
 
     def __bytes__(self) -> bytes:
-        return b"%03d/%03d" % ((self.course % 360), (self.speed % 1000))
+        return b"%03d/%03d" % (self.course, (self.speed % 1000))
 
 
 @define(frozen=True, slots=True)
