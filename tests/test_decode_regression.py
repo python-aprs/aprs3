@@ -80,7 +80,8 @@ def fixed_now(monkeypatch):
         pytest.param(
             "MEISNR>APN382,QAR,W7DG-5:;EL-1369*111111z!4558.13NF12259.58W MEISSNER LOOKOUT N7QXO-7",
             PositionReport(
-                raw=b"!4558.13NF12259.58W MEISSNER LOOKOUT N7QXO-7",
+                raw=b";EL-1369*111111z!4558.13NF12259.58W MEISSNER LOOKOUT N7QXO-7",
+                prefix=b";EL-1369*111111z",
                 data_type=DataType.POSITION_W_O_TIMESTAMP,
                 data=b"4558.13NF12259.58W ",
                 comment=b"MEISSNER LOOKOUT N7QXO-7",
@@ -162,6 +163,7 @@ def fixed_now(monkeypatch):
                     lat=Decimal("46.17683224563301"),
                     long=Decimal("-122.98066816127016"),
                     symbol_code=b"-",
+                    compression_type=ord("#") - 33,
                 ),
             ),
             id="position, compressed, without timestamp",
@@ -180,6 +182,7 @@ def fixed_now(monkeypatch):
                     long=Decimal("-122.98066816127016"),
                     symbol_code=b"-",
                     data_ext=CourseSpeed(course=88, speed=36.23201216883807),
+                    compression_type=ord("#") - 33,
                 ),
             ),
             id="position, compressed, with cs",

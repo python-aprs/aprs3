@@ -47,6 +47,17 @@ class DataType(enum.Enum):
     THIRD_PARTY_TRAFFIC = b"}"
 
 
+# Mic-E encodes the position in the destination address; its info field can
+# contain a "!" that is not a position
+MIC_E_DATA_TYPES = frozenset(
+    {
+        DataType.CURRENT_MIC_E_DATA,
+        DataType.OLD_MIC_E_DATA_2,
+        DataType.CURRENT_MIC_E_DATA_2,
+    }
+)
+
+
 class DataTypeError(ValueError):
     pass
 
@@ -74,11 +85,18 @@ class InformationField:
     def from_bytes(cls, raw: bytes) -> "InformationField":
         data_type = DataType(raw[0:1])
         handler = cls._find_handler(data_type)
-        if handler is None or data_type == DataType.OBJECT:
+        if (handler is None or data_type == DataType.OBJECT) and (
+            data_type not in MIC_E_DATA_TYPES
+        ):
             x1j_header, found_data_type, data = raw.partition(b"!")
             if found_data_type and len(x1j_header) <= 40:
-                # special case in APRS101
-                return PositionReport.from_bytes(found_data_type + data)
+                # special case in APRS101 p32: a position after up to 40
+                # characters of other text (e.g. a TNC beacon header)
+                try:
+                    report = PositionReport.from_bytes(found_data_type + data)
+                    return attr.evolve(report, raw=raw, prefix=x1j_header)
+                except ValueError:
+                    pass  # just a "!" in some other kind of packet
         if handler is None:
             return cls(
                 raw=raw,
@@ -108,6 +126,8 @@ class InformationField:
 class PositionReport(InformationField, TimestampMixin, PositionMixin):
     _timestamp: Timestamp | None = field(default=None)
     _position: Position | None = field(default=None)
+    prefix: bytes = field(default=b"")
+    """Text before the "!" of a position that doesn't start the info field."""
 
     __data_type__ = [
         DataType.POSITION_W_O_TIMESTAMP,
@@ -142,6 +162,7 @@ class PositionReport(InformationField, TimestampMixin, PositionMixin):
     def __bytes__(self) -> bytes:
         return b"".join(
             [
+                self.prefix,
                 self.data_type.value,
                 bytes(self._timestamp)
                 if self.data_type
@@ -198,7 +219,7 @@ class Message(InformationField):
                 self.addressee.ljust(9),  # pylint: disable=no-member
                 DataType.MESSAGE.value,
                 self.text[:67],  # pylint: disable=unsubscriptable-object
-                b"{%s" % self.number if self.number else b"",
+                b"" if self.number is None else b"{%s" % self.number,
             ],
         )
 
