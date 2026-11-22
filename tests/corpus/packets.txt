@@ -1,0 +1,130 @@
+# APRS packet corpus, one TNC2 monitor-format line per packet.
+#
+# Each packet line is "<expected InformationField class> <TNC2 frame>". A packet must
+# decode to that class and re-encode to exactly the same text (and survive a
+# trip through AX.25 binary). Lines starting with "#" are comments.
+#
+# Sources: "APRS101 pNN" lines are examples from the APRS 1.0.1 spec on that page,
+# addressed from N0CALL. The other lines are built from the formats common
+# software and radios send (Dire Wolf, APRSdroid, Kenwood/Yaesu Mic-E, Xastir,
+# aprx, weather stations), using test callsigns. Do not copy fixtures from
+# GPL-licensed projects into this file.
+#
+# Non-ASCII bytes are written as \xNN escapes (the frame is decoded as latin1, like
+# APRS-IS text), so "\xc3\xa9" is UTF-8 for e-acute.
+#
+# Known decode/encode bugs are listed in KNOWN_BUGS in test_corpus.py.
+
+## Positions, uncompressed, no timestamp
+PositionReport N0CALL>APRS:!4903.50N/07201.75W-Test 001234
+PositionReport N0CALL>APRS:!4903.50N/07201.75W-Test /A=001234
+PositionReport N0CALL>APRS:!0000.00N/00000.00W.null island
+PositionReport N0CALL>APRS:!4903.50S/07201.75E-southern east
+PositionReport N0CALL>APRS:!9000.00N/18000.00E.pole
+PositionReport N0CALL>APRS:!4903.5 N/07201.7 W-ambiguity 1
+PositionReport N0CALL>APRS:!4903.  N/07201.  W-ambiguity 2
+PositionReport N0CALL>APRS:!490 .  N/0720 .  W-ambiguity 3
+PositionReport N0CALL>APRS:!49  .  N/072  .  W-ambiguity 4
+PositionReport N0CALL>APRS:=4903.50N/07201.75W-RNG0050 2m
+PositionReport N0CALL>APRS:!4903.50N/07201.75W#PHG5132/W1 digi
+PositionReport N0CALL>APRS:=4903.50N/07201.75W$DFS2360/sig
+PositionReport N0CALL>APRS:=4903.50N/07201.75Wl/A=-00012
+PositionReport N0CALL>APRS:!4903.50NE07201.75W#overlay E digi
+PositionReport N0CALL>APRS:!4903.50N\07201.75Wk alternate table
+PositionReport N0CALL>APRS:!4903.50N/07201.75W>
+PositionReport N0CALL>APRS:=4903.50N/07201.75W>088/036/A=001234 mobile
+PositionReport N0CALL>APRS:!4903.50N/07201.75W-Test!W12!
+PositionReport N0CALL>APDW17,WIDE1-1,WIDE2-1:!4903.50N/07201.75W#PHG7260/Dire Wolf digi/igate
+PositionReport N0CALL-10>APMI06,TCPIP*,qAS,N0GATE:!4903.50N/07201.75W#PHG5130 aprx 13.8V
+PositionReport N0CALL-9>APDR16,TCPIP*,qAC,T2TEST:=4903.50N/07201.75W$ via APRSdroid
+PositionReport N0CALL-9>APDR16,TCPIP*,qAC,T2TEST:=4903.50N/07201.75W$ caf\xc3\xa9 72\xc2\xb0F
+PositionReport N0CALL>APRS,N0DIGI*,WIDE2-1,qAR,N0GATE:!4903.50N/07201.75W-heard via digi
+
+## Positions, uncompressed, with timestamp
+PositionReport N0CALL>APRS:/092345z4903.50N/07201.75W>Test1234
+PositionReport N0CALL>APRS:@092345/4903.50N/07201.75W>088/036
+PositionReport N0CALL>APRS:/234517h4903.50N/07201.75W>PHG5132
+PositionReport N0CALL>APRS:@092345z4903.50N/07201.75W_220/004g005t077r000p000P000h50b09900wRSW
+
+## Positions, compressed (APRS101 p38-41)
+PositionReport N0CALL>APRS:=/5L!!<*e7>7P[
+PositionReport N0CALL>APRS:!/5L!!<*e7>{?!
+PositionReport N0CALL>APRS:=/5L!!<*e7OS]S
+PositionReport N0CALL>APRS:@092345z/5L!!<*e7>7P[timestamped
+PositionReport N0CALL>APRS:!/5L!!<*e7>   no course/speed
+
+## Positions after a leading header (APRS101 p32: "!" within the first 40 characters)
+PositionReport N0CALL>APRS:TNC2 BTEXT !4903.50N/07201.75W-header
+
+## Messages (APRS101 ch. 14)
+Message N0CALL>APRS::WU2Z     :Testing
+Message N0CALL>APRS::WU2Z     :Testing{003
+Message N0CALL>APRS::WU2Z     :ack003
+Message N0CALL>APRS::WU2Z     :rej003
+Message N0CALL>APRS::N0CALL-12:Hi there{12345
+Message N0CALL>APRS::EMAIL    :foo@example.com Test email{0A
+Message N0CALL>APRS::WU2Z     :{
+Message N0CALL>APRS::WU2Z     :
+Message N0CALL>APRS::WU2Z     :brace { in text
+## Messages, reply-ack (aprs.org/aprs11/replyacks.txt)
+Message N0CALL>APRS::WU2Z     :Testing{AB}
+Message N0CALL>APRS::WU2Z     :Testing{AB}CD
+Message N0CALL>APRS::WU2Z     :ackAB}CD
+Message N0CALL>APRS::WU2Z     :ackAB}
+## Bulletins, announcements, NWS, telemetry metadata (message format)
+Message N0CALL>APRS::BLN1     :Snow expected in Tampa RSN
+Message N0CALL>APRS::BLNA     :Huntsville hamfest on Saturday
+Message N0CALL>APRS::BLN3WX   :Group bulletin
+Message N0CALL>APRS::NWS-WARN :092010z,THUNDER_STORM,AR_ASHLEY,{S9JbA
+Message N0CALL>APRS::N0CALL-1 :PARM.Battery,Btemp,ATemp,Pres,Alt,Camra,Chute,Sun,10m,ATV
+Message N0CALL>APRS::N0CALL-1 :UNIT.v/100,deg.F,deg.F,Mbar,Kft,Click,OPEN,on,on,hi
+Message N0CALL>APRS::N0CALL-1 :EQNS.0,5.2,0,0,.53,-32,3,4.39,49,-32,3,18,1,2,3
+Message N0CALL>APRS::N0CALL-1 :BITS.10110000,N0CALL Balloon
+
+## Status (APRS101 ch. 16)
+StatusReport N0CALL>APRS:>Net Control Center
+StatusReport N0CALL>APRS:>092345zNet Control Center
+StatusReport N0CALL>APRS:>IO91SX/G
+StatusReport N0CALL>APRS:>IO91SX/- My house
+StatusReport N0CALL>APRS:>
+StatusReport N0CALL>APRS:>^B7
+StatusReport N0CALL>APDW17,N0DIGI-1,WIDE1*,WIDE2-1:>Dire Wolf status
+StatusReport N0CALL>APRS:>caf\xc3\xa9
+
+## Objects (APRS101 ch. 11)
+ObjectReport N0CALL>APRS:;LEADER   *092345z4903.50N/07201.75W>088/036
+ObjectReport N0CALL>APRS:;LEADER   _092345z4903.50N/07201.75W>088/036
+ObjectReport N0CALL>APRS:;LEADER   *092345/4903.50N/07201.75W>
+ObjectReport N0CALL>APRS:;LEADER   *234517h4903.50N/07201.75W>
+ObjectReport N0CALL>APRS:;NET-0900 *092345z4903.50N/07201.75Wn146.520MHz T100 net tonight
+ObjectReport N0CALL>APRS:;145.290-R*111111z4903.50N/07201.75Wr145.290MHz T100 -060 R40m
+ObjectReport N0CALL>APRS:;LEADER   *092345z/5L!!<*e7>7P[
+
+## Items (APRS101 ch. 11)
+ItemReport N0CALL>APRS:)AID #2!4903.50N/07201.75WA
+ItemReport N0CALL>APRS:)AID #2_4903.50N/07201.75WA
+ItemReport N0CALL>APRS:)G/WB4APR!53  .  N\002  .  Wd
+ItemReport N0CALL>APRS:)MOBIL!\5L!!<*e79 sT
+ItemReport N0CALL>APRS:)AID #2!/5L!!<*e7>7P[
+ItemReport N0CALL>APRS:)FD!4903.50N/07201.75W;Field Day site
+
+## Formats without a decoder: kept as a raw InformationField and re-encoded unchanged
+InformationField N0CALL>APRS:`(_fn"Oj/]"4-}=
+InformationField N0CALL-7>T2SP0W,N0DIGI*,WIDE2-1,qAR,N0GATE:`c51l!?>/`"4V}_%
+InformationField N0CALL-7>T2SP0W:'c7sl!?>/]"4H}
+InformationField N0CALL-9>S32U6T,WIDE1-1:`(_fn"Oj/>=
+InformationField N0CALL>APRS:_10090556c220s004g005t077r000p000P000h50b09900wRSW
+InformationField N0CALL>APRS:T#005,199,000,255,073,123,01101001
+InformationField N0CALL>APRS:T#MIC199,000,255,073,123,01101001
+InformationField N0CALL>APRS:$GPRMC,063909,A,3349.4302,N,11700.3721,W,43.022,89.3,291099,13.6,E*52
+InformationField N0CALL>APRS:$GPGGA,102705,5157.9762,N,00029.3256,W,1,04,2.0,75.7,M,47.6,M,,*62
+InformationField N0CALL>APRS:<IGATE,MSG_CNT=30,LOC_CNT=61
+InformationField N0CALL>APRS:?APRS?
+InformationField N0CALL>APRS:?IGATE?
+InformationField N0CALL>APRS:[IO91SX] 35 miles NNW of London
+InformationField N0CALL>APRS:}W1AW>APRS,TCPIP,N0CALL*:>hello from IS
+InformationField N0CALL>APRS:{Q1qwerty
+InformationField N0CALL>APRS:,test invalid
+InformationField N0CALL>APRS:#W1AW weather
+InformationField N0CALL>APRS:*Peet Bros weather
+InformationField N0CALL>APRS:%DF data
