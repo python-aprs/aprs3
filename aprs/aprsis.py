@@ -1,6 +1,7 @@
 """APRS-IS send/receive protocol for async and sync use."""
 
 import asyncio
+import dataclasses
 import functools
 import logging
 from collections.abc import Iterable
@@ -8,7 +9,6 @@ from typing import (
     Any,
 )
 
-from attrs import define, field
 from ax253 import SyncFrameDecode, TNC2Decode, TNC2Protocol
 
 # pylint: disable=cyclic-import
@@ -25,7 +25,7 @@ __license__ = "Apache License, Version 2.0"
 log = logging.getLogger(__name__)
 
 
-@define
+@dataclasses.dataclass
 class APRSDecode(TNC2Decode):
     """Decode info fields as APRS."""
 
@@ -37,11 +37,11 @@ class APRSDecode(TNC2Decode):
             log.debug("Ignore frame decode error %r", frame, exc_info=True)
 
 
-@define
+@dataclasses.dataclass
 class APRSISProtocol(TNC2Protocol):
     """Protocol for logging into APRS-IS servers (TNC2)."""
 
-    decoder: APRSDecode = field(factory=APRSDecode)
+    decoder: APRSDecode = dataclasses.field(default_factory=APRSDecode)
 
     def login(self, user: str, passcode: str, command: str):
         # pylint: disable=import-outside-toplevel

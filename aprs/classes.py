@@ -1,17 +1,16 @@
 """Python APRS Module Class Definitions."""
 
+import dataclasses
 import enum
 from functools import lru_cache
 from typing import Any
 
-import attr
-from attrs import define, field
 from ax253 import Frame
 
 from .constants import TimestampFormat
 from .position import Position, PositionMixin
 from .timestamp import Timestamp, TimestampMixin
-from .util import attrs_subclasses
+from .util import dataclass_subclasses
 
 __author__ = "Masen Furer KF7HVM <kf7hvm@0x26.net>"
 __copyright__ = "Copyright 2022 Masen Furer and Contributors"
@@ -51,7 +50,7 @@ class DataTypeError(ValueError):
     pass
 
 
-@define(frozen=True, slots=True)
+@dataclasses.dataclass(frozen=True)
 class InformationField:
     """
     Class for APRS 'Information' Field.
@@ -60,12 +59,12 @@ class InformationField:
     raw: bytes
     data_type: DataType
     data: bytes
-    comment: bytes = field(default=b"")
+    comment: bytes = b""
 
     @classmethod
     @lru_cache(len(DataType.__members__))
     def _find_handler(cls, data_type: DataType) -> type["InformationField"] | None:
-        for subcls in attrs_subclasses(cls):
+        for subcls in dataclass_subclasses(cls):
             if data_type in subcls.__data_type__:
                 return subcls
         return None
@@ -104,10 +103,10 @@ class InformationField:
         return self.raw
 
 
-@define(frozen=True, slots=True)
+@dataclasses.dataclass(frozen=True)
 class PositionReport(InformationField, TimestampMixin, PositionMixin):
-    _timestamp: Timestamp | None = field(default=None)
-    _position: Position | None = field(default=None)
+    timestamp: Timestamp | None = None
+    position: Position | None = None
 
     __data_type__ = [
         DataType.POSITION_W_O_TIMESTAMP,
@@ -143,25 +142,25 @@ class PositionReport(InformationField, TimestampMixin, PositionMixin):
         return b"".join(
             [
                 self.data_type.value,
-                bytes(self._timestamp)
+                bytes(self.timestamp)
                 if self.data_type
                 in [
                     DataType.POSITION_W_TIMESTAMP_MSG,
                     DataType.POSITION_W_TIMESTAMP_NO_MSG,
                 ]
                 else b"",
-                bytes(self._position),
+                bytes(self.position),
                 self.format_altitude(),
                 self.comment,
             ],
         )
 
 
-@define(frozen=True, slots=True)
+@dataclasses.dataclass(frozen=True)
 class Message(InformationField):
-    addressee: bytes = field(default=b"")
-    text: bytes = field(default=b"")
-    number: bytes | None = field(default=None)
+    addressee: bytes = b""
+    text: bytes = b""
+    number: bytes | None = None
 
     __data_type__ = [DataType.MESSAGE]
 
@@ -203,10 +202,10 @@ class Message(InformationField):
         )
 
 
-@define(frozen=True, slots=True)
+@dataclasses.dataclass(frozen=True)
 class StatusReport(InformationField, TimestampMixin):
-    status: bytes = field(default=b"")
-    _timestamp: Timestamp | None = field(default=None)
+    status: bytes = b""
+    timestamp: Timestamp | None = None
 
     __data_type__ = [DataType.STATUS]
 
@@ -222,7 +221,7 @@ class StatusReport(InformationField, TimestampMixin):
             timestamp, data = Timestamp.from_bytes(data[:7]), data[7:]
             if timestamp.timestamp_format != TimestampFormat.DayHoursMinutesZulu:
                 # APRS101 p. 80: Note: The timestamp can only be in DHM zulu format.
-                timestamp = attr.evolve(
+                timestamp = dataclasses.replace(
                     timestamp, timestamp_format=TimestampFormat.DayHoursMinutesZulu
                 )
         except ValueError:
@@ -239,18 +238,18 @@ class StatusReport(InformationField, TimestampMixin):
         return b"".join(
             [
                 DataType.STATUS.value,
-                bytes(self._timestamp) if self._timestamp else b"",
+                bytes(self.timestamp) if self.timestamp else b"",
                 self.status,
             ],
         )
 
 
-@define(frozen=True, slots=True)
+@dataclasses.dataclass(frozen=True)
 class ObjectReport(InformationField, TimestampMixin, PositionMixin):
-    name: bytes = field(default=None)
-    killed: bool = field(default=False)
-    _timestamp: Timestamp | None = field(default=None)
-    _position: Position | None = field(default=None)
+    name: bytes | None = None
+    killed: bool = False
+    timestamp: Timestamp | None = None
+    position: Position | None = None
 
     __data_type__ = [DataType.OBJECT]
 
@@ -282,19 +281,19 @@ class ObjectReport(InformationField, TimestampMixin, PositionMixin):
                 self.data_type.value,
                 self.name.ljust(9),  # pylint: disable=no-member
                 b"_" if self.killed else b"*",
-                bytes(self._timestamp) if self._timestamp else b"",
-                bytes(self._position) if self._position else b"",
+                bytes(self.timestamp) if self.timestamp else b"",
+                bytes(self.position) if self.position else b"",
                 self.format_altitude(),
                 self.comment,
             ],
         )
 
 
-@define(frozen=True, slots=True)
+@dataclasses.dataclass(frozen=True)
 class ItemReport(InformationField, PositionMixin):
-    name: bytes = field(default=None)
-    killed: bool = field(default=False)
-    _position: Position | None = field(default=None)
+    name: bytes | None = None
+    killed: bool = False
+    position: Position | None = None
 
     __data_type__ = [DataType.ITEM]
 
@@ -328,13 +327,17 @@ class ItemReport(InformationField, PositionMixin):
                 self.data_type.value,
                 self.name,
                 b"_" if self.killed else b"!",
-                bytes(self._position),
+                bytes(self.position),
                 self.format_altitude(),
                 self.comment,
             ],
         )
 
 
-@define(frozen=True, slots=True)
+@dataclasses.dataclass(frozen=True)
 class APRSFrame(Frame):
-    info: InformationField = field(default=b"", converter=InformationField.from_any)
+    """An AX.25 frame whose information field is decoded as APRS."""
+
+    @staticmethod
+    def _convert_info(info: Any) -> "InformationField":
+        return InformationField.from_any(info)

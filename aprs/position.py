@@ -1,10 +1,9 @@
 """Represent various position formats"""
 
+import dataclasses
 import math
 import re
 from decimal import Decimal
-
-from attrs import define, field
 
 from .base91 import from_decimal, to_decimal
 from .constants import PositionFormat
@@ -160,17 +159,17 @@ def encode_position_compressed(  # pylint: disable=too-many-arguments
     return b"".join(data)
 
 
-@define(frozen=True, slots=True)
+@dataclasses.dataclass(frozen=True)
 class Position:
     """Represents a position including any data extension."""
 
-    position_format: PositionFormat = field(default=PositionFormat.Uncompressed)
-    lat: float = field(default=0.0)
-    sym_table_id: bytes = field(default=b"/")
-    long: float = field(default=0.0)
-    symbol_code: bytes = field(default=b"-")
-    altitude_ft: int | None = field(default=None)
-    data_ext: bytes | DataExt = field(default=b"")
+    position_format: PositionFormat = PositionFormat.Uncompressed
+    lat: float = 0.0
+    sym_table_id: bytes = b"/"
+    long: float = 0.0
+    symbol_code: bytes = b"-"
+    altitude_ft: int | None = None
+    data_ext: bytes | DataExt = b""
 
     @classmethod
     def from_bytes_with_data_and_remainder(
@@ -241,37 +240,37 @@ class Position:
 
 # pylint: disable=no-member,inconsistent-return-statements
 class PositionMixin:
-    _position: Position | None = field(default=None)
+    position: Position | None
 
     @property
     def lat(self) -> float | None:
-        if self._position:
-            return self._position.lat
+        if self.position:
+            return self.position.lat
 
     @property
     def long(self) -> float | None:
-        if self._position:
-            return self._position.long
+        if self.position:
+            return self.position.long
 
     @property
     def sym_table_id(self) -> bytes | None:
-        if self._position:
-            return self._position.sym_table_id
+        if self.position:
+            return self.position.sym_table_id
 
     @property
     def symbol_code(self) -> bytes | None:
-        if self._position:
-            return self._position.symbol_code
+        if self.position:
+            return self.position.symbol_code
 
     @property
     def altitude_ft(self) -> int | None:
-        if self._position:
-            return self._position.altitude_ft
+        if self.position:
+            return self.position.altitude_ft
 
     @property
     def data_ext(self) -> DataExt | bytes:
-        if self._position:
-            return self._position.data_ext
+        if self.position:
+            return self.position.data_ext
         return b""
 
     def format_altitude(self) -> bytes:

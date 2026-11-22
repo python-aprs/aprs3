@@ -57,7 +57,7 @@ Synchronous wrappers are also included where that may be more convenient::
 
     from pprint import pformat
 
-    import attrs
+    import dataclasses
 
     import aprs
 
@@ -76,7 +76,7 @@ Synchronous wrappers are also included where that may be more convenient::
 
         # block until 3 frames are available and print decoded form
         for frame in aprs_tcp.read(min_frames=3):
-            print(pformat(attrs.asdict(frame)))
+            print(pformat(dataclasses.asdict(frame)))
 
 Additionally, this package may be used with real TNCs via Serial KISS or KISS-over-TCP.
 

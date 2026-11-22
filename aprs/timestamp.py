@@ -1,8 +1,7 @@
 """Represent various timestamp formats"""
 
+import dataclasses
 from datetime import UTC, datetime, timedelta
-
-from attrs import define, field
 
 from .constants import TimestampFormat, timestamp_formats_map
 
@@ -62,12 +61,12 @@ def decode_timestamp_mdhm(data: bytes) -> datetime:
     return ts
 
 
-@define(frozen=True, slots=True)
+@dataclasses.dataclass(frozen=True)
 class Timestamp:
     """Represents a timestamp for an APRS information field."""
 
-    timestamp_format: TimestampFormat = field(default=TimestampFormat.DayHoursMinutesZulu)
-    timestamp: datetime = field(factory=utcnow_tz)
+    timestamp_format: TimestampFormat = TimestampFormat.DayHoursMinutesZulu
+    timestamp: datetime = dataclasses.field(default_factory=utcnow_tz)
 
     @classmethod
     def from_bytes(cls, raw: bytes) -> "Timestamp":
@@ -99,10 +98,4 @@ class Timestamp:
 
 
 class TimestampMixin:  # pylint: disable=too-few-public-methods
-    _timestamp: Timestamp | None
-
-    @property
-    def timestamp(self) -> datetime | None:
-        if self._timestamp:
-            return self._timestamp.timestamp
-        return None
+    timestamp: Timestamp | None

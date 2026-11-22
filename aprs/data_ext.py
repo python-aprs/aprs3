@@ -1,20 +1,19 @@
 """Encoders and decoders for Data extension structures"""
 
+import dataclasses
 import math
 import re
 from abc import ABC, abstractmethod
 from typing import Union
 
-from attrs import define, field
-
-from .util import attrs_subclasses
+from .util import dataclass_subclasses
 
 __author__ = "Masen Furer KF7HVM <kf7hvm@0x26.net>"
 __copyright__ = "Copyright 2022 Masen Furer and Contributors"
 __license__ = "Apache License, Version 2.0"
 
 
-@define(frozen=True, slots=True)
+@dataclasses.dataclass(frozen=True)
 class DataExt(ABC):
     @classmethod
     @abstractmethod
@@ -23,7 +22,7 @@ class DataExt(ABC):
 
     @classmethod
     def from_bytes(cls, raw: bytes) -> Union["DataExt", bytes]:
-        for subcls in attrs_subclasses(cls):
+        for subcls in dataclass_subclasses(cls):
             if subcls.try_parse(raw):
                 try:
                     return subcls.from_bytes(raw[:7])
@@ -43,10 +42,10 @@ class DataExt(ABC):
         """Serialize the data extension as bytes."""
 
 
-@define(frozen=True, slots=True)
+@dataclasses.dataclass(frozen=True)
 class CourseSpeed(DataExt):
-    course: int = field(default=0)
-    speed: int = field(default=0)
+    course: int = 0
+    speed: int = 0
 
     @classmethod
     def try_parse(cls, raw: bytes) -> bool:
@@ -67,16 +66,16 @@ class CourseSpeed(DataExt):
         return b"%03d/%03d" % ((self.course % 360), (self.speed % 1000))
 
 
-@define(frozen=True, slots=True)
+@dataclasses.dataclass(frozen=True)
 class PHG(DataExt):
     """
     PHGphgd
     """
 
-    power_w: int = field(default=0)
-    height_ft: int = field(default=0)
-    gain_db: int = field(default=0)
-    directivity: int = field(default=0)
+    power_w: int = 0
+    height_ft: int = 0
+    gain_db: int = 0
+    directivity: int = 0
 
     @classmethod
     def try_parse(cls, raw: bytes) -> bool:
@@ -104,13 +103,13 @@ class PHG(DataExt):
         return b"PHG%d%b%d%d" % (power_code, height_code, gain_code, directivity_code)
 
 
-@define(frozen=True, slots=True)
+@dataclasses.dataclass(frozen=True)
 class RNG(DataExt):
     """
     RNGrrrr
     """
 
-    range: int = field(default=0)
+    range: int = 0
 
     @classmethod
     def try_parse(cls, raw: bytes) -> bool:
@@ -127,16 +126,16 @@ class RNG(DataExt):
         return b"RNG%04d" % (self.range % 10000)
 
 
-@define(frozen=True, slots=True)
+@dataclasses.dataclass(frozen=True)
 class DFS(DataExt):
     """
     DFSshgd
     """
 
-    strength_s: int = field(default=0)
-    height_ft: int = field(default=0)
-    gain_db: int = field(default=0)
-    directivity: int = field(default=0)
+    strength_s: int = 0
+    height_ft: int = 0
+    gain_db: int = 0
+    directivity: int = 0
 
     @classmethod
     def try_parse(cls, raw: bytes) -> bool:
@@ -169,14 +168,14 @@ class DFS(DataExt):
         )
 
 
-@define(frozen=True, slots=True)
+@dataclasses.dataclass(frozen=True)
 class AreaObject(DataExt):
     """
     Tyy/Cxx
     """
 
-    t: bytes = field(default=b"")
-    c: bytes = field(default=b"")
+    t: bytes = b""
+    c: bytes = b""
 
     @classmethod
     def try_parse(cls, raw: bytes) -> bool:

@@ -15,7 +15,6 @@ authors = [
 ]
 requires-python = ">=3.11"
 dependencies = [
-    "attrs > 20",
     "ax253 >= 0.1.5",
     "kiss3 >= 8.0.0",
 ]
@@ -75,3 +74,8 @@ fail_under = 80
 
 [tool.ty.environment]
 python-version = "3.11"
+
+[tool.uv.sources]
+# TODO before merge: drop these and require the ax253 / kiss3 releases without attrs
+ax253 = { git = "https://github.com/python-aprs/ax253", branch = "refactor/dataclasses" }
+kiss3 = { git = "https://github.com/python-aprs/kiss3", branch = "refactor/dataclasses" }
