@@ -122,8 +122,19 @@ class TCP(SyncFrameDecode[APRSFrame]):
         self.kwargs = kwargs
 
     def stop(self) -> None:
-        if self.protocol:
-            self.protocol.transport.close()
+        """
+        Close the connection and let the event loop finish closing it.
+
+        asyncio transports release the socket on the next loop iteration
+        after close(), and this class's loop only runs inside its calls, so
+        the server would otherwise see the connection stay open.
+        """
+        if self._protocol is None or self._protocol.transport is None:
+            return
+        self._protocol.transport.close()
+        loop = SyncFrameDecode._loop
+        if loop is not None and not loop.is_running() and not loop.is_closed():
+            loop.run_until_complete(asyncio.sleep(0))
 
     def start(self, **kwargs: Any) -> None:
         """

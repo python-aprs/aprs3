@@ -149,11 +149,16 @@ async def test_aprsis_write_and_eof():
     assert [str(f) for f in frames] == [STATUS]
 
 
+def test_aprsis_sync_tcp_stop_without_start():
+    tcp = aprs.TCP(host="127.0.0.1", port=1)
+    tcp.stop()  # also what __del__ does; must not raise
+
+
 def test_aprsis_sync_tcp():
     with threaded_server(aprsis_script) as server:
         with aprs.TCP(host="127.0.0.1", port=server.port, user="N0CALL") as tcp:
             frames = tcp.read(min_frames=3)
-        finish_sync_close(tcp)
+        # stop() finishes closing: the server sees EOF without another loop run
         server.wait_done()
     assert [str(f) for f in frames] == [POSITION, STATUS, MESSAGE]
 
@@ -252,9 +257,8 @@ def finish_sync_close(sync):
     """
     Let the sync wrapper's loop process the transport close.
 
-    stop() only calls transport.close(), which closes the socket on the next
-    loop iteration, and the sync wrappers' loop only runs inside their calls.
-    Until then the peer sees an open connection.
+    kiss3 < 8.1.0a1's TCPKISS.stop() only calls transport.close(), which
+    closes the socket on the next loop iteration (fixed in python-aprs/kiss3#16).
     """
     sync.loop.run_until_complete(asyncio.sleep(0))
 
