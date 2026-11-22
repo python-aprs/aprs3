@@ -11,6 +11,7 @@ from ax253 import Frame
 from .constants import TimestampFormat
 from .position import Position, PositionMixin
 from .timestamp import Timestamp, TimestampMixin
+from .util import attrs_subclasses
 
 __author__ = "Masen Furer KF7HVM <kf7hvm@0x26.net>"
 __copyright__ = "Copyright 2022 Masen Furer and Contributors"
@@ -64,7 +65,7 @@ class InformationField:
     @classmethod
     @lru_cache(len(DataType.__members__))
     def _find_handler(cls, data_type: DataType) -> Optional[Type["InformationField"]]:
-        for subcls in cls.__subclasses__():
+        for subcls in attrs_subclasses(cls):
             if data_type in subcls.__data_type__:
                 return subcls
         return None
