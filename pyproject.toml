@@ -69,6 +69,7 @@ extend-safe-fixes = ["UP028"]
 testpaths = ["tests"]
 timeout = 30
 addopts = "--cov=aprs --cov-report=term-missing"
+filterwarnings = ["error"]
 
 [tool.coverage.report]
 fail_under = 80
