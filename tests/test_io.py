@@ -8,7 +8,10 @@ written go out in the right wire format.
 
 import asyncio
 import contextlib
+import gc
 import os
+import socket
+import sys
 import threading
 from collections.abc import Callable
 
@@ -152,6 +155,20 @@ async def test_aprsis_write_and_eof():
 def test_aprsis_sync_tcp_stop_without_start():
     tcp = aprs.TCP(host="127.0.0.1", port=1)
     tcp.stop()  # also what __del__ does; must not raise
+
+
+def test_aprsis_sync_tcp_failed_start_cleans_up_quietly(monkeypatch):
+    """Issue #8: a connect error in __enter__ must not make __del__ raise."""
+    unraisable = []
+    monkeypatch.setattr(sys, "unraisablehook", unraisable.append)
+    with socket.socket() as s:
+        s.bind(("127.0.0.1", 0))
+        port = s.getsockname()[1]  # closed again: connecting is refused
+    with pytest.raises(OSError):
+        with aprs.TCP(host="127.0.0.1", port=port, user="N0CALL"):
+            pass
+    gc.collect()
+    assert unraisable == []
 
 
 def test_aprsis_sync_tcp():
