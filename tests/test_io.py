@@ -296,17 +296,3 @@ def threaded_server(script):
         loop.call_soon_threadsafe(stop.set)
         thread.join(5)
         loop.close()
-
-
-@pytest.fixture(autouse=True)
-def fresh_sync_loop():
-    """Older ax253 shares a class-level loop; don't leak it across tests."""
-    import attrs
-    from ax253 import SyncFrameDecode
-
-    yield
-    if "_loop" in attrs.fields_dict(SyncFrameDecode):
-        return  # per-instance loops (newer ax253) are closed with the instance
-    loop, SyncFrameDecode._loop = SyncFrameDecode._loop, None
-    if loop is not None and not loop.is_running():
-        loop.close()
