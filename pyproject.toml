@@ -69,10 +69,10 @@ extend-safe-fixes = ["UP028"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 timeout = 30
-asyncio_mode = "auto"
-asyncio_default_fixture_loop_scope = "function"
 addopts = "--cov=aprs --cov-report=term-missing"
 filterwarnings = ["error"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 
 [tool.coverage.report]
 fail_under = 80
