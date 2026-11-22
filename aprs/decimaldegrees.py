@@ -44,8 +44,8 @@ To run doctest units just execut this module script as follows
 $ python decimaldegrees.py [-v]
 
 """
-import decimal as libdecimal
 
+import decimal as libdecimal
 from decimal import Decimal as D
 
 __revision__ = "$Revision: 1.1 $"

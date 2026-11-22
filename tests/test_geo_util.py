@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 """
 Python APRS Module Geo Utility Function Tests.
@@ -46,9 +45,7 @@ dddmm.hhW (i.e. degrees, minutes and hundredths of a minute west).
 from aprs import geo_util
 
 __author__ = "Greg Albrecht W2GMD <oss@undef.net>"  # NOQA pylint: disable=R0801
-__copyright__ = (
-    "Copyright 2017 Greg Albrecht and Contributors"  # NOQA pylint: disable=R0801
-)
+__copyright__ = "Copyright 2017 Greg Albrecht and Contributors"  # NOQA pylint: disable=R0801
 __license__ = "Apache License, Version 2.0"  # NOQA pylint: disable=R0801
 
 

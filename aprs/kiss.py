@@ -1,10 +1,10 @@
 """Helpers for attaching TNC via Serial KISS or KISS-over-TCP"""
-import logging
-from typing import Iterable
 
-from attrs import define, field
+import logging
+from collections.abc import Iterable
 
 import kiss
+from attrs import define, field
 
 from .classes import APRSFrame
 

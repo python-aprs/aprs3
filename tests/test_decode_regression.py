@@ -5,12 +5,12 @@ stumped us at one point.
 Adding regression tests is an excellent tool for implementing decoders for
 new information data types.
 """
+
 import datetime
 from decimal import Decimal
 from unittest import mock
 
 import pytest
-
 from ax253 import Frame
 
 from aprs.classes import (
@@ -23,10 +23,9 @@ from aprs.classes import (
     StatusReport,
 )
 from aprs.constants import PositionFormat, TimestampFormat
-from aprs.data_ext import CourseSpeed, DFS, PHG, RNG
+from aprs.data_ext import DFS, PHG, RNG, CourseSpeed
 from aprs.position import Position
 from aprs.timestamp import Timestamp
-
 
 # ignore long lines in this file
 # flake8: noqa: E501 line too long
@@ -37,12 +36,12 @@ def fixed_now(monkeypatch):
     """Return a static datetime.datetime.now so the test returns consistent results."""
 
     def new_now(*args, **kwargs):
-        return datetime.datetime(2022, 5, 23, 23, 59, tzinfo=datetime.timezone.utc)
+        return datetime.datetime(2022, 5, 23, 23, 59, tzinfo=datetime.UTC)
 
     with mock.patch("aprs.timestamp.datetime") as mock_datetime:
         mock_datetime.now.side_effect = new_now
-        mock_datetime.strptime.side_effect = (
-            lambda *args, **kw: datetime.datetime.strptime(*args, **kw)
+        mock_datetime.strptime.side_effect = lambda *args, **kw: (
+            datetime.datetime.strptime(*args, **kw)
         )
         yield
 
@@ -110,9 +109,7 @@ def fixed_now(monkeypatch):
                 comment=b"WX3in1Plus2.0 U=13.9V",
                 timestamp=Timestamp(
                     timestamp_format=TimestampFormat.DayHoursMinutesZulu,
-                    timestamp=datetime.datetime(
-                        2022, 5, 20, 23, 50, tzinfo=datetime.timezone.utc
-                    ),
+                    timestamp=datetime.datetime(2022, 5, 20, 23, 50, tzinfo=datetime.UTC),
                 ),
                 position=Position(
                     lat=Decimal("46.97316666666666666666666667"),
@@ -253,9 +250,7 @@ def fixed_now(monkeypatch):
                 comment=b"",
                 timestamp=Timestamp(
                     timestamp_format=TimestampFormat.DayHoursMinutesZulu,
-                    timestamp=datetime.datetime(
-                        2022, 5, 23, 21, 14, tzinfo=datetime.timezone.utc
-                    ),
+                    timestamp=datetime.datetime(2022, 5, 23, 21, 14, tzinfo=datetime.UTC),
                 ),
                 status=b"Oregon Coast Repeater Group: WX: Rose Lodge, OR: www.ocrg.org:W7GC-5",
             ),
@@ -278,7 +273,7 @@ def fixed_now(monkeypatch):
                         23,
                         22,
                         9,
-                        tzinfo=datetime.timezone.utc,
+                        tzinfo=datetime.UTC,
                     ),
                 ),
                 position=Position(

@@ -1,13 +1,13 @@
 """Encoders and decoders for Data extension structures"""
-from abc import ABC, abstractmethod
+
 import math
 import re
-from typing import Tuple, Union
+from abc import ABC, abstractmethod
+from typing import Union
 
 from attrs import define, field
 
 from .util import attrs_subclasses
-
 
 __author__ = "Masen Furer KF7HVM <kf7hvm@0x26.net>"
 __copyright__ = "Copyright 2022 Masen Furer and Contributors"
@@ -32,7 +32,7 @@ class DataExt(ABC):
         return b""
 
     @classmethod
-    def split_parse(cls, raw: bytes) -> Tuple[Union["DataExt", bytes], bytes]:
+    def split_parse(cls, raw: bytes) -> tuple[Union["DataExt", bytes], bytes]:
         parsed = cls.from_bytes(raw)
         if parsed:
             return parsed, raw[7:]
@@ -57,7 +57,7 @@ class CourseSpeed(DataExt):
     def from_bytes(cls, raw: bytes) -> "CourseSpeed":
         course, slash, speed = raw[:7].partition(b"/")
         if not slash or len(course) != len(speed):
-            raise ValueError("{!r} is not a Course/Speed extension field".format(raw))
+            raise ValueError(f"{raw!r} is not a Course/Speed extension field")
         return cls(
             course=int(course.decode("ascii")),
             speed=int(speed.decode("ascii")),
@@ -86,7 +86,7 @@ class PHG(DataExt):
     @classmethod
     def from_bytes(cls, raw: bytes) -> "PHG":
         if not raw.startswith(b"PHG"):
-            raise ValueError("{!r} is not a PHG extension field".format(raw))
+            raise ValueError(f"{raw!r} is not a PHG extension field")
         power_code, height_code, gain_code, directivity_code = raw[3:7]
         zero_byte = ord(b"0")
         return cls(
@@ -120,7 +120,7 @@ class RNG(DataExt):
     @classmethod
     def from_bytes(cls, raw: bytes) -> "RNG":
         if not raw.startswith(b"RNG"):
-            raise ValueError("{!r} is not a RNG extension field".format(raw))
+            raise ValueError(f"{raw!r} is not a RNG extension field")
         return cls(range=int(raw[3:7]))
 
     def __bytes__(self) -> bytes:
@@ -146,7 +146,7 @@ class DFS(DataExt):
     @classmethod
     def from_bytes(cls, raw: bytes) -> "DFS":
         if not raw.startswith(b"DFS"):
-            raise ValueError("{!r} is not a DFS extension field".format(raw))
+            raise ValueError(f"{raw!r} is not a DFS extension field")
         strength_code, height_code, gain_code, directivity_code = raw[3:7]
         zero_byte = ord(b"0")
         return cls(
@@ -186,7 +186,7 @@ class AreaObject(DataExt):
     @classmethod
     def from_bytes(cls, raw: bytes) -> "AreaObject":
         if not re.match(rb"T../C..", raw[:7]):
-            raise ValueError("{!r} is not an Area Object extension field".format(raw))
+            raise ValueError(f"{raw!r} is not an Area Object extension field")
         return cls(
             t=raw[1:3],
             c=raw[5:7],

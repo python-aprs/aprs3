@@ -1,11 +1,11 @@
 """Python APRS Module Class Definitions."""
+
 import enum
 from functools import lru_cache
-from typing import Any, Optional, Type
+from typing import Any
 
 import attr
 from attrs import define, field
-
 from ax253 import Frame
 
 from .constants import TimestampFormat
@@ -64,7 +64,7 @@ class InformationField:
 
     @classmethod
     @lru_cache(len(DataType.__members__))
-    def _find_handler(cls, data_type: DataType) -> Optional[Type["InformationField"]]:
+    def _find_handler(cls, data_type: DataType) -> type["InformationField"] | None:
         for subcls in attrs_subclasses(cls):
             if data_type in subcls.__data_type__:
                 return subcls
@@ -106,8 +106,8 @@ class InformationField:
 
 @define(frozen=True, slots=True)
 class PositionReport(InformationField, TimestampMixin, PositionMixin):
-    _timestamp: Optional[Timestamp] = field(default=None)
-    _position: Optional[Position] = field(default=None)
+    _timestamp: Timestamp | None = field(default=None)
+    _position: Position | None = field(default=None)
 
     __data_type__ = [
         DataType.POSITION_W_O_TIMESTAMP,
@@ -121,11 +121,7 @@ class PositionReport(InformationField, TimestampMixin, PositionMixin):
         data_type = DataType(raw[0:1])
         if data_type not in cls.__data_type__:
             raise DataTypeError(
-                "{!r} cannot be handled by {!r} (expecting {!r})".format(
-                    data_type,
-                    cls,
-                    cls.__data_type__,
-                ),
+                f"{data_type!r} cannot be handled by {cls!r} (expecting {cls.__data_type__!r})",
             )
         timestamp, remainder = None, raw[1:]
         if data_type in [
@@ -165,7 +161,7 @@ class PositionReport(InformationField, TimestampMixin, PositionMixin):
 class Message(InformationField):
     addressee: bytes = field(default=b"")
     text: bytes = field(default=b"")
-    number: Optional[bytes] = field(default=None)
+    number: bytes | None = field(default=None)
 
     __data_type__ = [DataType.MESSAGE]
 
@@ -174,19 +170,13 @@ class Message(InformationField):
         data_type = DataType(raw[0:1])
         if data_type not in cls.__data_type__:
             raise DataTypeError(
-                "{!r} cannot be handled by {!r} (expecting {!r})".format(
-                    data_type,
-                    cls,
-                    cls.__data_type__,
-                ),
+                f"{data_type!r} cannot be handled by {cls!r} (expecting {cls.__data_type__!r})",
             )
         data = raw[1:]
         end_of_addressee = data[9:10]
         if end_of_addressee != DataType.MESSAGE.value:
             raise ValueError(
-                "Expecting {!r} at index 9 of {!r}".format(
-                    DataType.MESSAGE.value, data
-                ),
+                f"Expecting {DataType.MESSAGE.value!r} at index 9 of {data!r}",
             )
         init_kwargs = dict(addressee=data[:9].strip())
         text = data[10:]
@@ -216,7 +206,7 @@ class Message(InformationField):
 @define(frozen=True, slots=True)
 class StatusReport(InformationField, TimestampMixin):
     status: bytes = field(default=b"")
-    _timestamp: Optional[Timestamp] = field(default=None)
+    _timestamp: Timestamp | None = field(default=None)
 
     __data_type__ = [DataType.STATUS]
 
@@ -225,11 +215,7 @@ class StatusReport(InformationField, TimestampMixin):
         data_type = DataType(raw[0:1])
         if data_type not in cls.__data_type__:
             raise DataTypeError(
-                "{!r} cannot be handled by {!r} (expecting {!r})".format(
-                    data_type,
-                    cls,
-                    cls.__data_type__,
-                ),
+                f"{data_type!r} cannot be handled by {cls!r} (expecting {cls.__data_type__!r})",
             )
         timestamp, data = None, raw[1:]
         try:
@@ -263,8 +249,8 @@ class StatusReport(InformationField, TimestampMixin):
 class ObjectReport(InformationField, TimestampMixin, PositionMixin):
     name: bytes = field(default=None)
     killed: bool = field(default=False)
-    _timestamp: Optional[Timestamp] = field(default=None)
-    _position: Optional[Position] = field(default=None)
+    _timestamp: Timestamp | None = field(default=None)
+    _position: Position | None = field(default=None)
 
     __data_type__ = [DataType.OBJECT]
 
@@ -273,11 +259,7 @@ class ObjectReport(InformationField, TimestampMixin, PositionMixin):
         data_type = DataType(raw[0:1])
         if data_type not in cls.__data_type__:
             raise DataTypeError(
-                "{!r} cannot be handled by {!r} (expecting {!r})".format(
-                    data_type,
-                    cls,
-                    cls.__data_type__,
-                ),
+                f"{data_type!r} cannot be handled by {cls!r} (expecting {cls.__data_type__!r})",
             )
         name = raw[1:10].strip()
         killed = raw[10:11] == b"_"
@@ -312,7 +294,7 @@ class ObjectReport(InformationField, TimestampMixin, PositionMixin):
 class ItemReport(InformationField, PositionMixin):
     name: bytes = field(default=None)
     killed: bool = field(default=False)
-    _position: Optional[Position] = field(default=None)
+    _position: Position | None = field(default=None)
 
     __data_type__ = [DataType.ITEM]
 
@@ -321,11 +303,7 @@ class ItemReport(InformationField, PositionMixin):
         data_type = DataType(raw[0:1])
         if data_type not in cls.__data_type__:
             raise DataTypeError(
-                "{!r} cannot be handled by {!r} (expecting {!r})".format(
-                    data_type,
-                    cls,
-                    cls.__data_type__,
-                ),
+                f"{data_type!r} cannot be handled by {cls!r} (expecting {cls.__data_type__!r})",
             )
         for split in (b"!", b"_"):
             name, status, remainder = raw[1:].partition(split)

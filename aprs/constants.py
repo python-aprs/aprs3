@@ -1,4 +1,5 @@
 """Python APRS Module Constants."""
+
 import enum
 import os
 

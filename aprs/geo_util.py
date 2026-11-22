@@ -1,4 +1,5 @@
 """Python APRS Module Geo Utility Function Definitions."""
+
 from . import decimaldegrees
 
 __author__ = "Greg Albrecht W2GMD <oss@undef.net>"

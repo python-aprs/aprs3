@@ -1,7 +1,7 @@
 import asyncio
 import os
 
-from aprs import APRSFrame, create_aprsis_connection, InformationField
+from aprs import APRSFrame, InformationField, create_aprsis_connection
 
 MYCALL = os.environ.get("MYCALL", "N0CALL")
 DESTINATION = os.environ.get("DESTINATION", "APZ069")

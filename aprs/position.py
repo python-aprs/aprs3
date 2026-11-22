@@ -1,17 +1,16 @@
 """Represent various position formats"""
-from decimal import Decimal
+
 import math
 import re
-from typing import Optional, Tuple, Union
+from decimal import Decimal
 
 from attrs import define, field
 
 from .base91 import from_decimal, to_decimal
 from .constants import PositionFormat
-from .data_ext import CourseSpeed, DataExt, RNG
+from .data_ext import RNG, CourseSpeed, DataExt
 from .decimaldegrees import dm2decimal
 from .geo_util import ambiguate, dec2dm_lat, dec2dm_lng
-
 
 __author__ = "Masen Furer KF7HVM <kf7hvm@0x26.net>"
 __copyright__ = "Copyright 2022 Masen Furer and Contributors"
@@ -28,7 +27,7 @@ def decode_position_uncompressed(data: bytes):
     """
     text = data.decode("ascii")
     if not text.startswith(POSITION_UNCOMPRESSED_SIGNATURE):
-        raise ValueError("{!r} is not an uncompressed position".format(data[:19]))
+        raise ValueError(f"{data[:19]!r} is not an uncompressed position")
     lat_degrees = int(text[:2])
     lat_minutes = Decimal(text[2:7])
     lat_sign = -1 if text[7:8] == "S" else 1
@@ -86,7 +85,7 @@ def decode_position_compressed(data: bytes):
     """
     text = data.decode("latin1")
     if chr(data[0]) in POSITION_UNCOMPRESSED_SIGNATURE:
-        raise ValueError("{!r} is not a compressed position".format(data[:13]))
+        raise ValueError(f"{data[:13]!r} is not a compressed position")
     sym_table_id = data[0:1]
     lat = Decimal(str(decompress_lat(text[1:5])))
     long = Decimal(str(decompress_long(text[5:9])))
@@ -170,13 +169,13 @@ class Position:
     sym_table_id: bytes = field(default=b"/")
     long: float = field(default=0.0)
     symbol_code: bytes = field(default=b"-")
-    altitude_ft: Optional[int] = field(default=None)
-    data_ext: Union[bytes, DataExt] = field(default=b"")
+    altitude_ft: int | None = field(default=None)
+    data_ext: bytes | DataExt = field(default=b"")
 
     @classmethod
     def from_bytes_with_data_and_remainder(
         cls, raw: bytes
-    ) -> Tuple["Position", bytes, bytes]:
+    ) -> tuple["Position", bytes, bytes]:
         """
         Create a Position from raw packet bytes.
 
@@ -237,40 +236,40 @@ class Position:
                 data_ext=self.data_ext,
                 altitude_ft=self.altitude_ft,
             )
-        raise ValueError("Unknown position format: {!r}".format(self.position_format))
+        raise ValueError(f"Unknown position format: {self.position_format!r}")
 
 
 # pylint: disable=no-member,inconsistent-return-statements
 class PositionMixin:
-    _position: Optional[Position] = field(default=None)
+    _position: Position | None = field(default=None)
 
     @property
-    def lat(self) -> Optional[float]:
+    def lat(self) -> float | None:
         if self._position:
             return self._position.lat
 
     @property
-    def long(self) -> Optional[float]:
+    def long(self) -> float | None:
         if self._position:
             return self._position.long
 
     @property
-    def sym_table_id(self) -> Optional[bytes]:
+    def sym_table_id(self) -> bytes | None:
         if self._position:
             return self._position.sym_table_id
 
     @property
-    def symbol_code(self) -> Optional[bytes]:
+    def symbol_code(self) -> bytes | None:
         if self._position:
             return self._position.symbol_code
 
     @property
-    def altitude_ft(self) -> Optional[int]:
+    def altitude_ft(self) -> int | None:
         if self._position:
             return self._position.altitude_ft
 
     @property
-    def data_ext(self) -> Union[DataExt, bytes]:
+    def data_ext(self) -> DataExt | bytes:
         if self._position:
             return self._position.data_ext
         return b""

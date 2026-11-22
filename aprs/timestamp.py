@@ -1,6 +1,6 @@
 """Represent various timestamp formats"""
-from datetime import datetime, timedelta, timezone
-from typing import Optional
+
+from datetime import UTC, datetime, timedelta
 
 from attrs import define, field
 
@@ -17,12 +17,12 @@ FUTURE_TIMESTAMP_THRESHOLD = timedelta(hours=1)
 
 
 def utcnow_tz():
-    return datetime.now(tz=timezone.utc)
+    return datetime.now(tz=UTC)
 
 
 def decode_timestamp_dhm(data: bytes) -> datetime:
     ts_format = TimestampFormat(data[6:7])
-    tzinfo = None if ts_format == TimestampFormat.DayHoursMinutesLocal else timezone.utc
+    tzinfo = None if ts_format == TimestampFormat.DayHoursMinutesLocal else UTC
     now = datetime.now(tz=tzinfo)
     ts = datetime.strptime(data[:6].decode("ascii"), timestamp_formats_map[ts_format])
     maybe_ts = ts.replace(year=now.year, month=now.month, tzinfo=tzinfo)
@@ -40,9 +40,7 @@ def decode_timestamp_hms(data: bytes) -> datetime:
         data[:6].decode("ascii"),
         timestamp_formats_map[TimestampFormat.HoursMinutesSecondsZulu],
     )
-    maybe_ts = ts.replace(
-        year=now.year, month=now.month, day=now.day, tzinfo=timezone.utc
-    )
+    maybe_ts = ts.replace(year=now.year, month=now.month, day=now.day, tzinfo=UTC)
     if maybe_ts > (now + FUTURE_TIMESTAMP_THRESHOLD):
         # can't have a timestamp (too far) in the future, so assume it's from yesterday
         return maybe_ts - timedelta(days=1)
@@ -56,7 +54,7 @@ def decode_timestamp_mdhm(data: bytes) -> datetime:
         timestamp_formats_map[TimestampFormat.MonthDayHoursMinutesZulu],
     ).replace(
         year=now.year,
-        tzinfo=timezone.utc,
+        tzinfo=UTC,
     )
     if ts > (now + FUTURE_TIMESTAMP_THRESHOLD):
         # can't have a timestamp in the future, so assume it's from last year
@@ -68,9 +66,7 @@ def decode_timestamp_mdhm(data: bytes) -> datetime:
 class Timestamp:
     """Represents a timestamp for an APRS information field."""
 
-    timestamp_format: TimestampFormat = field(
-        default=TimestampFormat.DayHoursMinutesZulu
-    )
+    timestamp_format: TimestampFormat = field(default=TimestampFormat.DayHoursMinutesZulu)
     timestamp: datetime = field(factory=utcnow_tz)
 
     @classmethod
@@ -103,10 +99,10 @@ class Timestamp:
 
 
 class TimestampMixin:  # pylint: disable=too-few-public-methods
-    _timestamp: Optional[Timestamp]
+    _timestamp: Timestamp | None
 
     @property
-    def timestamp(self) -> Optional[datetime]:
+    def timestamp(self) -> datetime | None:
         if self._timestamp:
             return self._timestamp.timestamp
         return None
