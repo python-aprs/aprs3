@@ -7,14 +7,14 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      # PyPI trusted publishing (OIDC); no API token needed
+      id-token: write
     steps:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0  # setuptools_scm needs tags
     - uses: astral-sh/setup-uv@v6
     - run: uv build
-    - run: uv publish
-      env:
-        UV_PUBLISH_USERNAME: ${{ secrets.PYPI_USERNAME }}
-        UV_PUBLISH_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-        UV_PUBLISH_URL: ${{ secrets.PYPI_INDEX || 'https://upload.pypi.org/legacy/' }}
+    - run: uv publish --trusted-publishing always
