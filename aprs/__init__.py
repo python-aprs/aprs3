@@ -8,7 +8,7 @@ Python APRS Module.
 :source: <https://github.com/ampledata/aprs>
 
 """
-from importlib_metadata import version
+from importlib.metadata import version
 
 from . import decimaldegrees, geo_util, position, timestamp
 from .aprsis import APRSISProtocol, create_aprsis_connection, TCP
