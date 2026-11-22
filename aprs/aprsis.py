@@ -25,7 +25,7 @@ __license__ = "Apache License, Version 2.0"
 log = logging.getLogger(__name__)
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(slots=True)
 class APRSDecode(TNC2Decode):
     """Decode info fields as APRS."""
 
@@ -37,7 +37,7 @@ class APRSDecode(TNC2Decode):
             log.debug("Ignore frame decode error %r", frame, exc_info=True)
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(slots=True)
 class APRSISProtocol(TNC2Protocol):
     """Protocol for logging into APRS-IS servers (TNC2)."""
 

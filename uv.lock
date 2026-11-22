@@ -36,8 +36,8 @@ dev = [
 
 [[package]]
 name = "ax253"
-version = "0.1.5.post2.dev10+g69d30dc82"
-source = { git = "https://github.com/python-aprs/ax253?branch=refactor%2Fdataclasses#69d30dc82d0e459607c512f2673954f9d74bd702" }
+version = "0.1.5.post2.dev11+g424f63bd3"
+source = { git = "https://github.com/python-aprs/ax253?branch=refactor%2Fdataclasses#424f63bd320714cc04c0f183d4ba521569069470" }
 dependencies = [
     { name = "bitarray" },
 ]
@@ -314,8 +314,8 @@ wheels = [
 
 [[package]]
 name = "kiss3"
-version = "8.0.1.dev6+g430355845"
-source = { git = "https://github.com/python-aprs/kiss3?branch=refactor%2Fdataclasses#43035584527ec3e5a22ddb2f3e72de22cbc254bc" }
+version = "8.0.1.dev8+g280a28008"
+source = { git = "https://github.com/python-aprs/kiss3?branch=refactor%2Fdataclasses#280a28008065c0ea1dec2c5ef7d041f585230909" }
 dependencies = [
     { name = "ax253" },
     { name = "bitarray" },

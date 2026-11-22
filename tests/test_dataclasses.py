@@ -69,3 +69,11 @@ def test_value_types_are_slotted():
     assert not hasattr(report.position.data_ext, "__dict__")
     msg = InformationField.from_bytes(b":N0CALL   :hello{1")
     assert not hasattr(msg, "__dict__")
+
+
+def test_aprs_kiss_decoder_decodes_through_slotted_super():
+    frame = APRSFrame.from_str("N0CALL>APZ069::N0CALL-2 :ping{1")
+    kiss_bytes = b"\xc0\x00" + bytes(frame) + b"\xc0"
+    (decoded,) = list(APRSDecode().update(kiss_bytes))
+    assert isinstance(decoded.info, Message)
+    assert not hasattr(APRSDecode(), "__dict__")

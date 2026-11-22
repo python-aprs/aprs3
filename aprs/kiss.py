@@ -18,7 +18,7 @@ __license__ = "Apache License, Version 2.0"
 log = logging.getLogger(__name__)
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(slots=True)
 class APRSDecode(kiss.KISSDecode):
     strip_df_start: bool = True
 
@@ -27,7 +27,9 @@ class APRSDecode(kiss.KISSDecode):
         self.strip_df_start = True
 
     def decode_frames(self, frame: bytes) -> Iterable[APRSFrame]:
-        for kiss_frame in super().decode_frames(frame):
+        # explicit super(): slots=True dataclasses break the zero-argument form
+        # before Python 3.14
+        for kiss_frame in super(APRSDecode, self).decode_frames(frame):
             try:
                 yield APRSFrame.from_bytes(kiss_frame)
             except Exception:  # pylint: disable=broad-except
