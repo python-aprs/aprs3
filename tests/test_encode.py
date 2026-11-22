@@ -2,6 +2,7 @@
 
 from decimal import Decimal
 
+import attr
 import pytest
 
 from aprs import APRSFrame, CourseSpeed, Message, PositionReport
@@ -57,6 +58,28 @@ def test_uncompressed_with_ambiguity():
 def test_uncompressed_altitude_comment():
     assert position_report(altitude_ft=1234) == b"!4930.00N/07245.00W>/A=001234"
     assert position_report(altitude_ft=-12) == b"!4930.00N/07245.00W>/A=-00012"
+    # issue #26: 0 ft is a valid altitude, not an absent one
+    assert position_report(altitude_ft=0) == b"!4930.00N/07245.00W>/A=000000"
+
+
+def test_altitude_zero_from_evolved_frame():
+    # issue #26 reproduction: a constructed report must keep /A=000000
+    frame = APRSFrame.from_str("N0CALL>APRS:=4903.50N/07201.75W-")
+    report = attr.evolve(
+        frame.info,
+        position=attr.evolve(frame.info._position, altitude_ft=0),
+    )
+    assert bytes(report) == b"=4903.50N/07201.75W-/A=000000"
+
+
+def test_compressed_altitude_zero_is_encoded():
+    # issue #26: the compressed cs bytes must carry an altitude code for 0 ft,
+    # not the "no altitude" spaces. 1.002**c cannot represent 0 exactly, so the
+    # lowest valid code (c_ext = 0, decoded as 1 ft) is used.
+    encoded = position_report(altitude_ft=0, position_format=PositionFormat.Compressed)
+    assert encoded == b"!/5L!!<*e8>!!S"
+    decoded = APRSFrame.from_str("N0CALL>APRS:" + encoded.decode()).info
+    assert decoded.altitude_ft == pytest.approx(1.0)
 
 
 @pytest.mark.parametrize(

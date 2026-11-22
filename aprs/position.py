@@ -164,7 +164,11 @@ def _encode_cs(data_ext, altitude_ft, ignored_cs=None) -> bytes:
         return b"{" + from_decimal(
             int(round(math.log(data_ext.range / 2, 1.08))), 1
         ).encode("ascii")
-    if altitude_ft:
+    if altitude_ft is not None:
+        if altitude_ft <= 0:
+            # 1.002**c cannot produce 0 (or a negative value); encode the
+            # lowest valid code instead of failing on math.log()'s domain error
+            return from_decimal(0, 2).encode("ascii")
         return from_decimal(int(round(math.log(altitude_ft, 1.002))), 2).encode("ascii")
     return ignored_cs or b"  "
 
@@ -183,7 +187,7 @@ def encode_position_compressed(  # pylint: disable=too-many-arguments
     if compression_type is None:
         compression_type = (
             COMPRESSION_TYPE_ALTITUDE
-            if altitude_ft and not data_ext
+            if altitude_ft is not None and not data_ext
             else COMPRESSION_TYPE_DEFAULT
         )
     return b"".join(
@@ -331,6 +335,8 @@ class PositionMixin:
             and not position.data_ext
         ):
             return b""  # carried in the compressed cs bytes
-        if self.altitude_ft and not ALTITUDE_REX.search(getattr(self, "comment", b"")):
+        if self.altitude_ft is not None and not ALTITUDE_REX.search(
+            getattr(self, "comment", b"")
+        ):
             return b"/A=%06d" % self.altitude_ft
         return b""
