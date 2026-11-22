@@ -45,6 +45,7 @@ Homepage = "https://github.com/python-aprs/aprs3"
 [dependency-groups]
 dev = [
     "pytest>=8",
+    "pytest-asyncio>=0.24",
     "pytest-cov>=5",
     "pytest-timeout>=2",
     "ruff>=0.17",
@@ -70,6 +71,8 @@ testpaths = ["tests", "aprs"]
 timeout = 30
 addopts = "--cov=aprs --cov-report=term-missing --doctest-modules"
 filterwarnings = ["error"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 
 [tool.coverage.report]
 fail_under = 80
