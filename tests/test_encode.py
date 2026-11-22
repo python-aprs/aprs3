@@ -96,3 +96,25 @@ def test_message_number(number, expected):
         number=number,
     )
     assert bytes(message) == expected
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        # issue #7: telemetry headers ride in messages and exceed 67 chars
+        b"PARM.Vbat,Temp,Press,Alt,Light,Door,Heat,Fan,Lamp,Pump,Valve,Alarm,Spare",
+        b"x" * 100,
+    ],
+)
+def test_message_text_not_truncated(text):
+    info = b":N0CALL-1 :" + text
+    frame = APRSFrame.ui(
+        destination="APZ001",
+        source="N0CALL-1",
+        path=["WIDE1-1"],
+        info=info,
+    )
+    assert frame.info.text == text
+    assert bytes(frame.info) == info
+    assert bytes(frame).endswith(info)
+    assert bytes(APRSFrame.from_bytes(bytes(frame)).info) == info

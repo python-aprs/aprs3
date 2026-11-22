@@ -218,7 +218,10 @@ class Message(InformationField):
                 DataType.MESSAGE.value,
                 self.addressee.ljust(9),  # pylint: disable=no-member
                 DataType.MESSAGE.value,
-                self.text[:67],  # pylint: disable=unsubscriptable-object
+                # no truncation: the spec's 67 character limit applies to
+                # chat text, but telemetry PARM/UNIT/EQNS/BITS headers are
+                # carried as messages and may be longer
+                self.text,
                 b"" if self.number is None else b"{%s" % self.number,
             ],
         )
