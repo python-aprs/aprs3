@@ -5,6 +5,7 @@ from collections.abc import Iterable
 
 import kiss
 from attrs import define, field
+from kiss.kiss import GenericKISSDecode, handle_fend
 
 from .classes import APRSFrame
 
@@ -19,11 +20,12 @@ log = logging.getLogger(__name__)
 
 
 @define
-class APRSDecode(kiss.KISSDecode):
+class APRSDecode(GenericKISSDecode[APRSFrame]):
     strip_df_start: bool = field(default=True, converter=lambda v: True)
 
     def decode_frames(self, frame: bytes) -> Iterable[APRSFrame]:
-        for kiss_frame in super().decode_frames(frame):
+        kiss_frame = handle_fend(frame, strip_df_start=self.strip_df_start)
+        if kiss_frame is not None:
             try:
                 yield APRSFrame.from_bytes(kiss_frame)
             except Exception:  # pylint: disable=broad-except

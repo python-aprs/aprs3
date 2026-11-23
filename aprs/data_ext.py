@@ -52,12 +52,13 @@ def _valid_course(instance, attribute, value):
 @define(frozen=True, slots=True)
 class CourseSpeed(DataExt):
     course: int = field(default=0, validator=_valid_course)
-    speed: int = field(default=0)
+    speed: float = field(default=0)
+    """Knots: whole knots from text, a float from compressed cs bytes."""
 
     @classmethod
     def try_parse(cls, raw: bytes) -> bool:
         """Return True if this subclass might be able to parse raw bytes."""
-        return re.match(rb"[0-9]{3}/", raw[:4])
+        return re.match(rb"[0-9]{3}/", raw[:4]) is not None
 
     @classmethod
     def from_bytes(cls, raw: bytes) -> "CourseSpeed":
@@ -187,7 +188,7 @@ class AreaObject(DataExt):
     @classmethod
     def try_parse(cls, raw: bytes) -> bool:
         """Return True if this subclass might be able to parse raw bytes."""
-        return re.match(rb"T../C..", raw[:7])
+        return re.match(rb"T../C..", raw[:7]) is not None
 
     @classmethod
     def from_bytes(cls, raw: bytes) -> "AreaObject":

@@ -9,7 +9,7 @@ from typing import (
 )
 
 from attrs import define, field
-from ax253 import SyncFrameDecode, TNC2Decode, TNC2Protocol
+from ax253 import Frame, GenericDecoder, SyncFrameDecode, TNC2Decode, TNC2Protocol
 
 # pylint: disable=cyclic-import
 from .classes import APRSFrame
@@ -41,16 +41,16 @@ class APRSDecode(TNC2Decode):
 class APRSISProtocol(TNC2Protocol):
     """Protocol for logging into APRS-IS servers (TNC2)."""
 
-    decoder: APRSDecode = field(factory=APRSDecode)
+    decoder: GenericDecoder[Frame] = field(factory=APRSDecode)
 
-    def login(self, user: str, passcode: str, command: str):
+    def login(self, user: str, passcode: str, command: str) -> None:
         # pylint: disable=import-outside-toplevel
         # avoid circular import
         from . import __distribution__, __version__
 
         # pylint: enable=import-outside-toplevel
 
-        self.transport.write(
+        self._connected_transport().write(
             f"user {user} pass {passcode} vers {__distribution__} {__version__} {command}\r\n".encode(
                 "ascii"
             ),
@@ -58,13 +58,13 @@ class APRSISProtocol(TNC2Protocol):
 
 
 def _handle_kwargs(
-    protocol_kwargs: dict[str, Any],
-    create_connection_kwargs: dict[str, Any],
+    protocol_kwargs: dict[str, Any] | None,
+    create_connection_kwargs: dict[str, Any] | None,
     **kwargs: Any,
 ) -> dict[str, Any]:
     """Handle async connection kwarg combination to avoid duplication."""
-    if create_connection_kwargs is None:
-        create_connection_kwargs = {}
+    # a copy: the caller's dict must not collect protocol_factory
+    create_connection_kwargs = dict(create_connection_kwargs or {})
     create_connection_kwargs.update(kwargs)
     create_connection_kwargs["protocol_factory"] = functools.partial(
         create_connection_kwargs.pop("protocol_factory", APRSISProtocol),
@@ -80,7 +80,7 @@ async def create_aprsis_connection(  # pylint: disable=too-many-arguments
     passcode: str = "-1",
     command: str = "",
     protocol_kwargs: dict[str, Any] | None = None,
-    loop: asyncio.BaseEventLoop | None = None,
+    loop: asyncio.AbstractEventLoop | None = None,
     create_connection_kwargs: dict[str, Any] | None = None,
 ) -> tuple[asyncio.BaseTransport, APRSISProtocol]:
     """
@@ -92,13 +92,13 @@ async def create_aprsis_connection(  # pylint: disable=too-many-arguments
     :param passcode: APRS-IS passcode associated with the callsign
     :param command: initial command to send after connecting
     :param protocol_kwargs: These kwargs are passed directly to APRSISProtocol
-    :param loop: override the asyncio event loop (default calls `get_event_loop()`)
+    :param loop: override the asyncio event loop (default: the running loop)
     :param create_connection_kwargs: These kwargs are passed directly to
         loop.create_connection
     :return: (TCPTransport, APRSISProtocol)
     """
     if loop is None:
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
     protocol: APRSISProtocol
     transport, protocol = await loop.create_connection(
         host=host,

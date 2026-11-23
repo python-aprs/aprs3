@@ -3,7 +3,7 @@
 import enum
 import re
 from functools import lru_cache
-from typing import Any
+from typing import Any, ClassVar, TypeVar
 
 import attr
 from attrs import define, field
@@ -64,6 +64,15 @@ class DataTypeError(ValueError):
     pass
 
 
+_V = TypeVar("_V")
+
+
+def _required(value: _V | None, name: str) -> _V:
+    if value is None:
+        raise ValueError(f"cannot encode this report without a {name}")
+    return value
+
+
 @define(frozen=True, slots=True)
 class InformationField:
     """
@@ -75,6 +84,9 @@ class InformationField:
     """None when the first byte isn't a known APRS data type identifier."""
     data: bytes
     comment: bytes = field(default=b"")
+
+    __data_type__: ClassVar[list[DataType]] = []
+    """The data types a subclass decodes."""
 
     @classmethod
     @lru_cache(len(DataType.__members__))
@@ -129,11 +141,17 @@ class InformationField:
     def __bytes__(self) -> bytes:
         return self.raw
 
+    def _data_type_id(self) -> bytes:
+        """The data type identifier byte, for encoding."""
+        if self.data_type is None:
+            raise ValueError(f"{type(self).__name__} has no data type to encode")
+        return self.data_type.value
+
 
 @define(frozen=True, slots=True)
 class PositionReport(InformationField, TimestampMixin, PositionMixin):
-    _timestamp: Timestamp | None = field(default=None)
-    _position: Position | None = field(default=None)
+    _timestamp: Timestamp | None = field(default=None, alias="timestamp")
+    _position: Position | None = field(default=None, alias="position")
     prefix: bytes = field(default=b"")
     """Text before the "!" of a position that doesn't start the info field."""
 
@@ -171,15 +189,15 @@ class PositionReport(InformationField, TimestampMixin, PositionMixin):
         return b"".join(
             [
                 self.prefix,
-                self.data_type.value,
-                bytes(self._timestamp)
+                self._data_type_id(),
+                bytes(_required(self._timestamp, "timestamp"))
                 if self.data_type
                 in [
                     DataType.POSITION_W_TIMESTAMP_MSG,
                     DataType.POSITION_W_TIMESTAMP_NO_MSG,
                 ]
                 else b"",
-                bytes(self._position),
+                bytes(_required(self._position, "position")),
                 self.format_altitude(),
                 self.comment,
             ],
@@ -238,7 +256,7 @@ class Message(InformationField):
 @define(frozen=True, slots=True)
 class StatusReport(InformationField, TimestampMixin):
     status: bytes = field(default=b"")
-    _timestamp: Timestamp | None = field(default=None)
+    _timestamp: Timestamp | None = field(default=None, alias="timestamp")
 
     __data_type__ = [DataType.STATUS]
 
@@ -281,8 +299,8 @@ class StatusReport(InformationField, TimestampMixin):
 class ObjectReport(InformationField, TimestampMixin, PositionMixin):
     name: bytes = field(default=None)
     killed: bool = field(default=False)
-    _timestamp: Timestamp | None = field(default=None)
-    _position: Position | None = field(default=None)
+    _timestamp: Timestamp | None = field(default=None, alias="timestamp")
+    _position: Position | None = field(default=None, alias="position")
 
     __data_type__ = [DataType.OBJECT]
 
@@ -311,7 +329,7 @@ class ObjectReport(InformationField, TimestampMixin, PositionMixin):
     def __bytes__(self) -> bytes:
         return b"".join(
             [
-                self.data_type.value,
+                self._data_type_id(),
                 self.name.ljust(9),  # pylint: disable=no-member
                 b"_" if self.killed else b"*",
                 bytes(self._timestamp) if self._timestamp else b"",
@@ -326,7 +344,7 @@ class ObjectReport(InformationField, TimestampMixin, PositionMixin):
 class ItemReport(InformationField, PositionMixin):
     name: bytes = field(default=None)
     killed: bool = field(default=False)
-    _position: Position | None = field(default=None)
+    _position: Position | None = field(default=None, alias="position")
 
     __data_type__ = [DataType.ITEM]
 
@@ -361,10 +379,10 @@ class ItemReport(InformationField, PositionMixin):
     def __bytes__(self) -> bytes:
         return b"".join(
             [
-                self.data_type.value,
+                self._data_type_id(),
                 self.name,
                 b"_" if self.killed else b"!",
-                bytes(self._position),
+                bytes(_required(self._position, "position")),
                 self.format_altitude(),
                 self.comment,
             ],
@@ -373,4 +391,8 @@ class ItemReport(InformationField, PositionMixin):
 
 @define(frozen=True, slots=True)
 class APRSFrame(Frame):
-    info: InformationField = field(default=b"", converter=InformationField.from_any)
+    # Narrower than Frame.info (bytes); bytes(info) is still the AX.25 info.
+    # ty doesn't yet apply attrs converters (it sees the default, b"").
+    info: InformationField = field(  # ty: ignore[incompatible-attribute-override, invalid-assignment]
+        default=b"", converter=InformationField.from_any
+    )

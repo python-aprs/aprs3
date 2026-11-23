@@ -65,6 +65,7 @@ def test_uncompressed_altitude_comment():
 def test_altitude_zero_from_evolved_frame():
     # issue #26 reproduction: a constructed report must keep /A=000000
     frame = APRSFrame.from_str("N0CALL>APRS:=4903.50N/07201.75W-")
+    assert isinstance(frame.info, PositionReport)
     report = attr.evolve(
         frame.info,
         position=attr.evolve(frame.info._position, altitude_ft=0),
@@ -79,6 +80,7 @@ def test_compressed_altitude_zero_is_encoded():
     encoded = position_report(altitude_ft=0, position_format=PositionFormat.Compressed)
     assert encoded == b"!/5L!!<*e8>!!S"
     decoded = APRSFrame.from_str("N0CALL>APRS:" + encoded.decode()).info
+    assert isinstance(decoded, PositionReport)
     assert decoded.altitude_ft == pytest.approx(1.0)
 
 
@@ -97,6 +99,7 @@ def test_compressed_defaults(kwargs, expected):
     assert encoded == expected
     # and it decodes back to the same values
     decoded = APRSFrame.from_str("N0CALL>APRS:" + encoded.decode()).info
+    assert isinstance(decoded, PositionReport)
     if "altitude_ft" in kwargs:
         assert decoded.altitude_ft == pytest.approx(kwargs["altitude_ft"], rel=0.002)
 
@@ -137,6 +140,7 @@ def test_message_text_not_truncated(text):
         path=["WIDE1-1"],
         info=info,
     )
+    assert isinstance(frame.info, Message)
     assert frame.info.text == text
     assert bytes(frame.info) == info
     assert bytes(frame).endswith(info)
@@ -161,3 +165,15 @@ def test_uncompressed_long_ambiguity():
     """Issue #25."""
     assert position_report(ambiguity=1, long_ambiguity=0) == b"!4930.0 N/07245.00W>"
     assert position_report(ambiguity=0, long_ambiguity=2) == b"!4930.00N/07245.  W>"
+
+
+def test_report_without_position_does_not_encode():
+    report = PositionReport(raw=b"", data_type=DataType.POSITION_W_O_TIMESTAMP, data=b"")
+    with pytest.raises(ValueError, match="position"):
+        bytes(report)
+
+
+def test_report_without_data_type_does_not_encode():
+    report = PositionReport(raw=b"", data_type=None, data=b"", position=Position())
+    with pytest.raises(ValueError, match="data type"):
+        bytes(report)
