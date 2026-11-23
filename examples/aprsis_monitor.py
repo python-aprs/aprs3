@@ -62,6 +62,7 @@ async def monitor(args: argparse.Namespace) -> None:
     try:
         seen = 0
         async for frame in protocol.read():
+            assert isinstance(frame, aprs.APRSFrame)  # APRSISProtocol decodes APRS
             print(line_for(frame, args.near), flush=True)
             seen += 1
             if args.count and seen >= args.count:
