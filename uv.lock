@@ -24,7 +24,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "attrs", specifier = ">20" },
-    { name = "ax253", specifier = ">=0.2.0" },
+    { name = "ax253", specifier = ">=0.2.1" },
     { name = "kiss3", specifier = ">=8.1.0" },
 ]
 
@@ -49,15 +49,15 @@ wheels = [
 
 [[package]]
 name = "ax253"
-version = "0.2.0"
+version = "0.2.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
     { name = "bitarray" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d2/d1/7eb178ee1e10d77944b9827840b1a65ffe5a45bb32f1871fb2f1eb1b6a43/ax253-0.2.0.tar.gz", hash = "sha256:d49df322bac24283e77dd2149056149eab58d1a32f56dfa2c8dec7ef901ea92d", size = 72608, upload-time = "2026-11-22T22:04:47.348Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e3/62/d52843be213eadac14c0a4266d19470cb7f4f56480db7d2252d670c46e8a/ax253-0.2.1.tar.gz", hash = "sha256:8be6bcab9b8a9cc9d333d06ab4b09adfbf836ccc0d88c54682303de5f168c81a", size = 75473, upload-time = "2026-11-23T02:25:32.205Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f7/83/9ef1124a945106ab775e6b30108026ec1211c916cae1de77c6bf4e6192e5/ax253-0.2.0-py3-none-any.whl", hash = "sha256:3ffe876c0a3afac52e3d50612b1c69331f8bce0214b1d181daf0cf80d3a4f296", size = 23947, upload-time = "2026-11-22T22:04:46.527Z" },
+    { url = "https://files.pythonhosted.org/packages/57/24/15fe0e02cc8d1bbcbc64ef30a0542e91f0c6f6cca6976c24bbe293568cf8/ax253-0.2.1-py3-none-any.whl", hash = "sha256:55f73b0053a9ba635788864427cf01f7105cb5ad25f8d745c2baaf395b8ec57a", size = 25472, upload-time = "2026-11-23T02:25:31.453Z" },
 ]
 
 [[package]]
