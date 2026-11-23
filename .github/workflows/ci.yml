@@ -16,9 +16,7 @@ jobs:
     - run: uv sync --locked
     - run: uv run ruff check
     - run: uv run ruff format --check
-    - name: ty check (advisory until existing type errors are fixed)
-      run: uv run ty check
-      continue-on-error: true
+    - run: uv run ty check
 
   test:
     runs-on: ubuntu-latest

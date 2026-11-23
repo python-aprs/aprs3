@@ -16,8 +16,8 @@ authors = [
 requires-python = ">=3.11"
 dependencies = [
     "attrs > 20",
-    "ax253 >= 0.2.0",
-    "kiss3 >= 8.1.0",
+    "ax253 >= 0.2.1",
+    "kiss3 >= 8.1.1",
 ]
 readme = "README.rst"
 license = {file = "LICENSE"}

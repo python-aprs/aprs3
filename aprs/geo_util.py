@@ -26,7 +26,7 @@ def _dm(dec) -> tuple[int, decimal.Decimal]:
     return int(degrees), minutes
 
 
-def dec2dm_lat(dec: float) -> bytes:
+def dec2dm_lat(dec: float | decimal.Decimal) -> bytes:
     """
     Converts decimal degrees to APRS latitude format (DDMM.mmN).
 
@@ -43,7 +43,7 @@ def dec2dm_lat(dec: float) -> bytes:
     return b"%02d%05.2f%s" % (degrees, minutes, suffix)
 
 
-def dec2dm_lng(dec: float) -> bytes:
+def dec2dm_lng(dec: float | decimal.Decimal) -> bytes:
     """
     Converts decimal degrees to APRS longitude format (DDDMM.mmE).
 
@@ -62,7 +62,7 @@ def dec2dm_lng(dec: float) -> bytes:
     return b"%03d%05.2f%s" % (degrees, minutes, suffix)
 
 
-def ambiguate(pos: bytes, ambiguity: int) -> bytes:
+def ambiguate(pos: bytes, ambiguity: int | None) -> bytes:
     """
     Adjust ambiguity of position.
 

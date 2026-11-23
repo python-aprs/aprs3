@@ -1,6 +1,7 @@
 """Represent various timestamp formats"""
 
 from datetime import UTC, datetime, timedelta, tzinfo
+from typing import TYPE_CHECKING
 
 from attrs import define, field
 
@@ -131,7 +132,10 @@ class Timestamp:
 
 
 class TimestampMixin:  # pylint: disable=too-few-public-methods
-    _timestamp: Timestamp | None
+    if TYPE_CHECKING:
+        # provided by the attrs class this is mixed into (read-only: frozen)
+        @property
+        def _timestamp(self) -> Timestamp | None: ...
 
     @property
     def timestamp(self) -> datetime | None:

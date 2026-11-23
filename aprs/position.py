@@ -3,6 +3,7 @@
 import math
 import re
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from attrs import define, field
 
@@ -87,12 +88,12 @@ def decode_position_uncompressed(data: bytes):
 
 
 def encode_position_uncompressed(
-    lat,
-    long,
-    sym_table_id,
-    symbol_code,
-    ambiguity=None,
-    long_ambiguity=None,
+    lat: float | Decimal,
+    long: float | Decimal,
+    sym_table_id: bytes,
+    symbol_code: bytes,
+    ambiguity: int | None = None,
+    long_ambiguity: int | None = None,
 ) -> bytes:
     if long_ambiguity is None:
         long_ambiguity = ambiguity
@@ -234,11 +235,13 @@ class Position:
     """Represents a position including any data extension."""
 
     position_format: PositionFormat = field(default=PositionFormat.Uncompressed)
-    lat: float = field(default=0.0, validator=_in_range(90))
+    lat: float | Decimal = field(default=0.0, validator=_in_range(90))
+    """Decimal when decoded from uncompressed text (exact), float otherwise."""
     sym_table_id: bytes = field(default=b"/")
-    long: float = field(default=0.0, validator=_in_range(180))
+    long: float | Decimal = field(default=0.0, validator=_in_range(180))
     symbol_code: bytes = field(default=b"-")
-    altitude_ft: int | None = field(default=None)
+    altitude_ft: float | None = field(default=None)
+    """Whole feet from "/A=", a float from compressed cs bytes."""
     data_ext: bytes | DataExt = field(default=b"")
     ambiguity: int = field(default=0)
     """Uncompressed only: how many trailing digits are blanked (0-4)."""
@@ -330,15 +333,18 @@ class Position:
 
 # pylint: disable=no-member,inconsistent-return-statements
 class PositionMixin:
-    _position: Position | None = field(default=None)
+    if TYPE_CHECKING:
+        # provided by the attrs class this is mixed into (read-only: frozen)
+        @property
+        def _position(self) -> Position | None: ...
 
     @property
-    def lat(self) -> float | None:
+    def lat(self) -> float | Decimal | None:
         if self._position:
             return self._position.lat
 
     @property
-    def long(self) -> float | None:
+    def long(self) -> float | Decimal | None:
         if self._position:
             return self._position.long
 
@@ -353,7 +359,7 @@ class PositionMixin:
             return self._position.symbol_code
 
     @property
-    def altitude_ft(self) -> int | None:
+    def altitude_ft(self) -> float | None:
         if self._position:
             return self._position.altitude_ft
 
