@@ -4,189 +4,159 @@ aprs3 - Python APRS Module
 .. image:: https://github.com/python-aprs/aprs3/actions/workflows/pytest.yml/badge.svg
     :target: https://github.com/python-aprs/aprs3/actions
 
-aprs3 is a module for encoding and decoding APRS data for use with AX.25 or APRS-IS.
+aprs3 encodes and decodes APRS packets, and talks to APRS-IS servers and
+KISS TNCs (Dire Wolf, hardware TNCs) with asyncio or plain blocking calls.
+It needs Python 3.11 or newer.
 
-Supported Data Types
-====================
+Install it from PyPI::
 
-* Position (``PositionReport``)
+    pip install aprs3
 
-  * Compressed
-  * Uncompressed
-  * w/ Timestamp
-  * Data Extension
+Decoding packets
+================
 
-    * Course / Speed
-    * PHG
-    * RNG
-    * DFS
+``APRSFrame`` parses TNC2 text (what APRS-IS sends) or AX.25 bytes (what a
+TNC sends), and decodes the information field into a typed report:
 
-  * Altitude
+>>> import aprs
+>>> frame = aprs.APRSFrame.from_str(
+...     "KF7HVM-9>APZ069,WIDE1-1:!4610.00N/12255.00W>090/025/A=000500 on the road"
+... )
+>>> type(frame.info).__name__
+'PositionReport'
+>>> round(float(frame.info.lat), 4), round(float(frame.info.long), 4)
+(46.1667, -122.9167)
+>>> frame.info.data_ext, frame.info.altitude_ft
+(CourseSpeed(course=90, speed=25), 500)
 
-* Object (``ObjectReport``)
-* Item (``ItemReport``)
-* Status (``StatusReport``)
-* Message (``Message``)
+The report types are:
 
-Unknown data types will be decoded as ``InformationField``.
+* ``PositionReport``: compressed or uncompressed, with or without a
+  timestamp, with altitude and a course/speed, PHG, RNG or DFS extension
+* ``ObjectReport`` and ``ItemReport``
+* ``StatusReport``
+* ``Message``, including acks and rejects
 
-Interfaces
-==========
+>>> aprs.APRSFrame.from_str("KF7HVM>APZ069::N0CALL   :hello there{42").info
+Message(raw=b':N0CALL   :hello there{42', data_type=<DataType.MESSAGE: b':'>, data=b'N0CALL   :hello there{42', comment=b'', addressee=b'N0CALL', text=b'hello there', number=b'42')
 
-This package supplies async methods for interacting with APRS-IS::
+Other data types (telemetry, weather, Mic-E and so on) decode as a plain
+``InformationField`` that keeps the raw bytes.
+
+Encoding packets
+================
+
+Build a report, then wrap it in a frame with ``APRSFrame.ui``. ``bytes(frame)``
+is ready for a TNC, and ``str(frame)`` for APRS-IS:
+
+>>> beacon = aprs.PositionReport(
+...     raw=b"",
+...     data=b"",
+...     data_type=aprs.DataType.POSITION_W_O_TIMESTAMP_MSG,
+...     position=aprs.Position(lat=46.1, long=-122.9, symbol_code=b"-"),
+...     comment=b"Home station",
+... )
+>>> frame = aprs.APRSFrame.ui("APZ069", "N0CALL", ["WIDE1-1"], bytes(beacon))
+>>> str(frame)
+'N0CALL>APZ069,WIDE1-1:=4606.00N/12254.00W-Home station'
+
+Connecting to APRS-IS
+=====================
+
+With asyncio, ``create_aprsis_connection`` logs in and ``protocol.read()``
+yields decoded frames. A passcode of ``-1`` is receive-only:
+
+.. code-block:: python
 
     import asyncio
-    from aprs import create_aprsis_connection
-
-    async def main():
-        transport, protocol = create_aprsis_connection(
-            host="noam.aprs2.net",
-            port=14580,
-            user="KF7HVM",
-            passcode="-1",  # use a real passcode for TX
-            command='filter r/46.1/-122.9/500',
-        )
-
-        async for frame in protocol.read():
-            print(frame)
-
-    if __name__ == "__main__":
-        asyncio.run(main())
-
-Synchronous wrappers are also included where that may be more convenient::
-
-    from pprint import pformat
-
-    import attrs
 
     import aprs
 
-    with aprs.TCP(
-        host="noam.aprs2.net",
-        port=14580,
-        user="KF7HVM",
-        passcode="-1",  # use a real passcode for TX
-        command='filter r/46.1/-122.9/500',
-    ) as aprs_tcp:
-        # block until 1 frame is available and print repr
-        print(repr(aprs_tcp.read(
-            callback=lambda f: print(f),
-            min_frames=1,
-        )[0]))
 
-        # block until 3 frames are available and print decoded form
-        for frame in aprs_tcp.read(min_frames=3):
-            print(pformat(attrs.asdict(frame)))
+    async def main():
+        transport, protocol = await aprs.create_aprsis_connection(
+            host="rotate.aprs2.net",
+            user="N0CALL",
+            passcode="-1",
+            command="filter r/46.1/-122.9/50",  # within 50 km
+        )
+        async for frame in protocol.read():
+            print(frame)
 
-Additionally, this package may be used with real TNCs via Serial KISS or KISS-over-TCP.
 
-* serial:
+    asyncio.run(main())
 
-  * sync: ``aprs_serial = aprs.SerialKISS("/dev/ttyUSB0", 9600)``
-  * async: ``transport, protocol = aprs.create_serial_connection("/dev/ttyUSB0", 9600)``
+Without asyncio, ``aprs.TCP`` takes the same arguments and blocks in
+``read()``:
 
-* tcp:
+.. code-block:: python
 
-  * sync: ``aprs_kiss_tcp = aprs.TCPKISS("localhost", 8001)``
-  * async: ``transport, protocol = aprs.create_tcp_connection("localhost", 8001)``
+    import aprs
 
-These objects are used in the same way as the sample shown above.
+    with aprs.TCP(user="N0CALL", command="filter r/46.1/-122.9/50") as aprs_is:
+        for frame in aprs_is.read(min_frames=3):
+            print(frame.source, type(frame.info).__name__)
 
-For versions of the KISS transports which do NOT automatically encode/decode APRS data,
-see `kiss3 <https://github.com/python-aprs/kiss3>`_.
+Connecting to a TNC
+===================
+
+``TCPKISS`` and ``SerialKISS`` (or ``create_tcp_connection`` and
+``create_serial_connection`` with asyncio) speak KISS to a TNC and decode
+what it hears into ``APRSFrame`` objects. Dire Wolf listens for KISS on TCP
+port 8001:
+
+.. code-block:: python
+
+    import aprs
+
+    tnc = aprs.TCPKISS("localhost", 8001)
+    tnc.start()
+    try:
+        tnc.write(aprs.APRSFrame.from_str("N0CALL>APZ069,WIDE1-1:>on the air"))
+        for frame in tnc.read(min_frames=1):
+            print(frame)
+    finally:
+        tnc.stop()
+
+For KISS without the APRS decoding, use `kiss3 <https://github.com/python-aprs/kiss3>`_.
+
+Examples
+========
+
+The `examples <./examples>`_ directory has scripts you can run:
+
+* ``aprs_decode.py`` prints a readable line for each packet given on the
+  command line or piped in.
+* ``aprsis_monitor.py`` watches APRS-IS traffic around a location, with each
+  station's distance and bearing.
+* ``beacon.py`` sends your position through a KISS TNC or APRS-IS, once or
+  on a timer.
 
 Versions
 ========
 
-- **8.x.x branch is a large rewrite including async functionality and full packet encoding**.
-
-Previous versions were released by ``ampledata`` as ``aprs``:
-
-- 7.x.x branch and-on will be Python 3.x ONLY.
-- 6.5.x branch will be the last version of this Module that supports Python 2.7.x
-
-
-Installation
-============
-Install from pypi using pip: ``pip install aprs3``
-
-
-Usage Examples
-==============
-
-Example 1: Library Usage - Receive
-----------------------------------
-
-The following example connects to APRS-IS and filters for APRS
-frames within 500 miles of 46.1N, 122.9W. Any frames returned are
-sent to the callback *p*, which prints them.
-
-Example 1 Code
-^^^^^^^^^^^^^^
-::
-
-
-    import aprs
-
-    def p(x): print(x)
-
-    with aprs.TCP(command='filter r/46.1/-122.9/500') as aprs_tcp:
-        # callback can be passed to read()
-        aprs_tcp.read(callback=p)
-
-Example 1 Output
-^^^^^^^^^^^^^^^^
-::
-
-    W2GMD-6>APRX28,TCPIP*,qAC,APRSFI-I1:T#471,7.5,34.7,37.0,1.0,137.0,00000000
-
-Example 2: Library Usage - Send
-----------------------------------
-
-The following example connects to APRS-IS and sends an APRS frame.
-
-Example 2 Code
-^^^^^^^^^^^^^^
-::
-
-    import aprs
-
-    frame = aprs.APRSFrame.from_str('KF7HVM-2>APRS:>Test from aprs!')
-
-    with aprs.TCP(user='W2GMD', passcode='12345') as a:
-        a.write(frame)
+8.x is a rewrite with asyncio support and full packet encoding. Earlier
+versions were released by Greg Albrecht as ``aprs``.
 
 Testing
 =======
-Run pytest via tox::
 
-    tox
+Run the tests with `uv <https://docs.astral.sh/uv/>`_::
 
+    uv run pytest
 
-See Also
-========
-
-* `Python kiss3 Module <https://github.com/python-aprs/kiss3>`_ Library for interfacing-to and encoding-for various KISS Interfaces.
-
-  * Forked from `ampledata/kiss <https://github.com/ampledata/kiss>`_
-
-* `Python APRS Gateway <https://github.com/ampledata/aprsgate>`_ Uses Redis PubSub to run a multi-interface APRS Gateway.
-* `Python APRS Tracker <https://github.com/ampledata/aprstracker>`_ TK.
-* `dirus <https://github.com/ampledata/dirus>`_ Dirus is a daemon for managing a SDR to Dire Wolf interface. Manifests that interface as a KISS TCP port.
-
-
-Similar Projects
+Related projects
 ================
 
-* `apex <https://github.com/Syncleus/apex>`_ by Jeffrey Phillips Freeman (WI2ARD). Next-Gen APRS Protocol. (based on this Module! :)
-* `aprslib <https://github.com/rossengeorgiev/aprs-python>`_ by Rossen Georgiev. A Python APRS Library with build-in parsers for several Frame types.
-* `aprx <http://thelifeofkenneth.com/aprx/>`_ by Matti & Kenneth. A C-based Digi/IGate Software for POSIX platforms.
-* `dixprs <https://sites.google.com/site/dixprs/>`_ by HA5DI. A Python APRS project with KISS, digipeater, et al., support.
-* `APRSDroid <http://aprsdroid.org/>`_ by GE0RG. A Java/Scala Android APRS App.
-* `YAAC <http://www.ka2ddo.org/ka2ddo/YAAC.html>`_ by KA2DDO. A Java APRS Client.
-* `Ham-APRS-FAP <http://search.cpan.org/dist/Ham-APRS-FAP/>`_ by aprs.fi: A Perl APRS Parser.
-* `Dire Wolf <https://github.com/wb2osz/direwolf>`_ by WB2OSZ. A C-Based Soft-TNC for interfacing with sound cards. Can present as a KISS interface!
-
+* `kiss3 <https://github.com/python-aprs/kiss3>`_ and
+  `ax253 <https://github.com/python-aprs/ax253>`_, the KISS and AX.25 layers
+  this package builds on.
+* `base-aprs-client <https://github.com/python-aprs/base-aprs-client>`_, an
+  APRS messaging client built on this package.
+* `aprslib <https://github.com/rossengeorgiev/aprs-python>`_ by Rossen
+  Georgiev, an APRS parser with many more data types.
+* `Dire Wolf <https://github.com/wb2osz/direwolf>`_ by WB2OSZ, a sound card
+  TNC with a KISS interface.
 
 Source
 ======

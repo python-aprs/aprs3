@@ -67,9 +67,9 @@ ignore = [
 extend-safe-fixes = ["UP028"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests", "aprs"]
+testpaths = ["tests", "aprs", "README.rst"]
 timeout = 30
-addopts = "--cov=aprs --cov-report=term-missing --doctest-modules"
+addopts = "--cov=aprs --cov-report=term-missing --doctest-modules --doctest-glob=README.rst"
 filterwarnings = ["error"]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
@@ -79,3 +79,4 @@ fail_under = 80
 
 [tool.ty.environment]
 python-version = "3.11"
+extra-paths = ["examples"]
