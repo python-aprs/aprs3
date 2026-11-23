@@ -204,6 +204,13 @@ class PositionReport(InformationField, TimestampMixin, PositionMixin):
         )
 
 
+MESSAGE_NUMBER = re.compile(rb"\{([A-Za-z0-9]{0,5}(?:\}[A-Za-z0-9]{0,5})?)$")
+"""A trailing message number: {N} with 1-5 characters, or {MM}AA with a reply-ack.
+
+The number keeps a reply-ack's "}" and acked number (aprs11/replyacks.txt).
+"""
+
+
 @define(frozen=True, slots=True)
 class Message(InformationField):
     addressee: bytes = field(default=b"")
@@ -227,9 +234,9 @@ class Message(InformationField):
             )
         init_kwargs = dict(addressee=data[:9].strip())
         text = data[10:]
-        if b"{" in text[-6:]:
-            text, _, number = text.rpartition(b"{")
-            init_kwargs["number"] = number
+        match = MESSAGE_NUMBER.search(text)
+        if match is not None:
+            text, init_kwargs["number"] = text[: match.start()], match.group(1)
         return cls(
             raw=raw,
             data_type=data_type,

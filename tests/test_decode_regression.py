@@ -333,3 +333,27 @@ def test_decode(packet_text, exp_decoded_iframe):
     else:
         # otherwise the re-encoded packet should match the input exactly
         assert bytes(iframe) == f.info
+
+
+@pytest.mark.parametrize(
+    "info, text, number",
+    [
+        (":N0CALL   :hi{42", b"hi", b"42"),
+        (":N0CALL   :hi{2A}", b"hi", b"2A}"),
+        (":N0CALL   :hi{2A}1B", b"hi", b"2A}1B"),
+        # longer numbers with a reply-ack, as base-aprs-client sends them
+        (
+            ":N0CALL   :thanks for checking in{b639}87ae",
+            b"thanks for checking in",
+            b"b639}87ae",
+        ),
+        (":N0CALL   :hi{M1383", b"hi", b"M1383"),
+        (":N0CALL   :hi{", b"hi", b""),
+        (":N0CALL   :no number", b"no number", None),
+        (":N0CALL   :braces {in} text", b"braces {in} text", None),
+    ],
+)
+def test_message_number_decode(info, text, number):
+    message = Message.from_bytes(info.encode())
+    assert (message.text, message.number) == (text, number)
+    assert bytes(message) == info.encode()
