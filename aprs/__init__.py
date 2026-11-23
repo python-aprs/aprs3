@@ -1,10 +1,64 @@
-"""Encode and decode APRS packets.
+r"""Encode and decode APRS packets.
 
-``APRSFrame`` decodes an AX.25 frame or TNC2 text into typed information
-fields (positions, objects, items, status reports and messages) and encodes
-them back. Connect to APRS-IS with ``TCP`` or ``create_aprsis_connection``,
-or to a TNC with ``SerialKISS``, ``TCPKISS``, ``create_serial_connection``
-and ``create_tcp_connection``.
+``APRSFrame`` is an AX.25 UI frame whose information field is decoded into a
+typed report: ``PositionReport``, ``ObjectReport``, ``ItemReport``,
+``StatusReport`` or ``Message``. Anything else stays an ``InformationField``.
+
+Decoding
+========
+
+APRS-IS sends packets as TNC2 text; a TNC sends AX.25 bytes. Both decode to
+the same frame:
+
+>>> import aprs
+>>> frame = aprs.APRSFrame.from_str(
+...     "KF7HVM-9>APZ069,WIDE1-1:!4610.00N/12255.00W>090/025/A=000500 on the road"
+... )
+>>> str(frame.source), str(frame.destination), [str(p) for p in frame.path]
+('KF7HVM-9', 'APZ069', ['WIDE1-1'])
+>>> aprs.APRSFrame.from_bytes(bytes(frame)) == frame
+True
+
+Read the report's fields directly. Coordinates are decimal degrees:
+
+>>> report = frame.info
+>>> type(report).__name__
+'PositionReport'
+>>> round(float(report.lat), 4), round(float(report.long), 4)
+(46.1667, -122.9167)
+>>> report.symbol_code, report.altitude_ft
+(b'>', 500)
+>>> report.data_ext
+CourseSpeed(course=90, speed=25)
+
+Messages carry the addressee, text and message number:
+
+>>> msg = aprs.APRSFrame.from_str("KF7HVM>APZ069::N0CALL   :hello there{42").info
+>>> msg.addressee, msg.text, msg.number
+(b'N0CALL', b'hello there', b'42')
+
+Encoding
+========
+
+Build a report and wrap it in a frame with ``APRSFrame.ui``:
+
+>>> beacon = aprs.PositionReport(
+...     raw=b"",
+...     data=b"",
+...     data_type=aprs.DataType.POSITION_W_O_TIMESTAMP_MSG,
+...     position=aprs.Position(lat=46.1, long=-122.9, symbol_code=b"-"),
+...     comment=b"Home station",
+... )
+>>> str(aprs.APRSFrame.ui("APZ069", "N0CALL", ["WIDE1-1"], bytes(beacon)))
+'N0CALL>APZ069,WIDE1-1:=4606.00N/12254.00W-Home station'
+
+Connections
+===========
+
+Connect to APRS-IS with ``create_aprsis_connection`` (async) or ``TCP``
+(sync), or to a TNC with ``create_tcp_connection``, ``create_serial_connection``,
+``TCPKISS`` or ``SerialKISS``. All of them yield ``APRSFrame`` objects. The
+``examples/`` directory in the repository has runnable scripts.
 
 Based on the original ``aprs`` module by Greg Albrecht W2GMD
 (https://github.com/ampledata/aprs), Apache License 2.0.
