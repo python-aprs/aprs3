@@ -131,10 +131,19 @@ class TCP(SyncFrameDecode[APRSFrame]):
         """
         if self._protocol is None or self._protocol.transport is None:
             return
-        self._protocol.transport.close()
+        transport = self._protocol.transport
+        if transport.is_closing():
+            return  # already stopped (e.g. stop() and then __del__)
+        transport.close()
         loop = self.loop
-        if loop is not None and not loop.is_running() and not loop.is_closed():
+        if loop is None or loop.is_running() or loop.is_closed():
+            return
+        try:
+            asyncio.get_running_loop()
+        except RuntimeError:
             loop.run_until_complete(asyncio.sleep(0))
+        # else: stop() (or __del__) ran inside another loop's coroutine; this
+        # loop can't run here, and finishes closing the next time it runs
 
     def start(self, **kwargs: Any) -> None:
         """

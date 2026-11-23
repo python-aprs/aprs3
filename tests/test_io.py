@@ -187,6 +187,30 @@ def test_aprsis_sync_tcp():
     assert [str(f) for f in frames] == [POSITION, STATUS, UNKNOWN, MESSAGE]
 
 
+def test_aprsis_sync_tcp_stop_inside_another_loop(recwarn):
+    """
+    stop() from a coroutine (or __del__ during garbage collection there)
+    can't run this instance's loop: it must not raise or leave a never
+    awaited coroutine, and the close completes when the loop next runs.
+    """
+
+    async def script(server, reader, writer):
+        await server.read_until_closed(reader)
+
+    with threaded_server(script) as server:
+        tcp = aprs.TCP(host="127.0.0.1", port=server.port, user="N0CALL")
+        tcp.start()
+
+        async def stop_from_coroutine():
+            tcp.stop()
+            tcp.stop()
+
+        asyncio.run(stop_from_coroutine())
+        assert not [w for w in recwarn if issubclass(w.category, RuntimeWarning)]
+        tcp.loop.run_until_complete(asyncio.sleep(0))
+        server.wait_done()
+
+
 # --- KISS --------------------------------------------------------------------
 
 
