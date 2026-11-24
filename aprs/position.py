@@ -414,6 +414,19 @@ class PositionMixin:
         return DirectionFinding(*(int(g) for g in match.groups()))
 
     @property
+    def weather(self):  # -> aprs.weather.Weather | None
+        """
+        Weather after a position with the ``_`` (weather station) symbol:
+        wind from the course/speed extension, then the comment's fields.
+        None for other symbols.
+        """
+        if self.symbol_code != b"_":
+            return None
+        from .weather import weather_from_comment  # pylint: disable=import-outside-toplevel
+
+        return weather_from_comment(getattr(self, "comment", b""), self.data_ext)
+
+    @property
     def comment_telemetry(self):  # -> aprs.telemetry.CommentTelemetry | None
         """Base91 telemetry (``|ss1122|``) in the comment, else None."""
         from .telemetry import CommentTelemetry  # pylint: disable=import-outside-toplevel
