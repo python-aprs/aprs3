@@ -118,12 +118,20 @@ class Listener:
         threading.Thread(target=self._serve, daemon=True).start()
 
     def _serve(self):
-        conn, _ = self.sock.accept()
-        conn.sendall(self.greeting)
-        while data := conn.recv(4096):
-            self.received += data
-        conn.close()
-        self.done.set()
+        try:
+            conn, _ = self.sock.accept()
+            with conn:
+                # the client may send and hang up before the greeting goes out
+                try:
+                    conn.sendall(self.greeting)
+                except OSError:
+                    pass
+                while data := conn.recv(4096):
+                    self.received += data
+        except OSError:
+            pass  # reset by the client, or closed by close()
+        finally:
+            self.done.set()
 
     def close(self):
         self.sock.close()
