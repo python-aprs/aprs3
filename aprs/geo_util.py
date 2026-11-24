@@ -80,14 +80,16 @@ def ambiguate(pos: bytes, ambiguity: int | None) -> bytes:
     """
     if not isinstance(pos, bytes):
         pos = str(pos).encode("ascii")
-    amb = []
-    for b in reversed(pos):
-        if ord(b"0") <= b <= ord(b"9") and ambiguity:
-            amb.append(ord(b" "))
+    if not ambiguity:
+        return pos
+    amb = bytearray(pos)
+    for ix in range(len(amb) - 1, -1, -1):
+        if not ambiguity:
+            break
+        if 0x30 <= amb[ix] <= 0x39:  # a digit
+            amb[ix] = 0x20  # space
             ambiguity -= 1
-            continue
-        amb.append(b)
-    return bytes(reversed(amb))
+    return bytes(amb)
 
 
 def deambiguate(pos: bytes) -> int:
