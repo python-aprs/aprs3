@@ -413,6 +413,13 @@ class PositionMixin:
             return None
         return DirectionFinding(*(int(g) for g in match.groups()))
 
+    @property
+    def comment_telemetry(self):  # -> aprs.telemetry.CommentTelemetry | None
+        """Base91 telemetry (``|ss1122|``) in the comment, else None."""
+        from .telemetry import CommentTelemetry  # pylint: disable=import-outside-toplevel
+
+        return CommentTelemetry.from_comment(getattr(self, "comment", b""))
+
     def format_altitude(self) -> bytes:
         """The "/A=" comment for altitude_ft, unless it's already encoded."""
         position = self._position

@@ -119,6 +119,12 @@ class InformationField:
             # (APRS101 p17): keep the raw bytes so the frame still decodes
             data_type = None
         handler = None if data_type is None else cls._find_handler(data_type)
+        if handler is not None and handler.__raw_fallback__:
+            try:
+                return handler.from_bytes(raw)
+            except ValueError:
+                log.debug("Keep undecodable %s raw: %r", handler.__name__, raw)
+                handler = None  # e.g. "Test !4903.50N...": try the position
         if (handler is None or data_type == DataType.OBJECT) and (
             data_type not in MIC_E_DATA_TYPES
         ):
@@ -133,12 +139,6 @@ class InformationField:
                     pass  # just a "!" in some other kind of packet
         if handler is None:
             return cls._raw(raw, data_type)
-        if handler.__raw_fallback__:
-            try:
-                return handler.from_bytes(raw)
-            except ValueError:
-                log.debug("Keep undecodable %s raw: %r", handler.__name__, raw)
-                return InformationField._raw(raw, data_type)
         return handler.from_bytes(raw)
 
     @classmethod
@@ -446,6 +446,16 @@ class Message(InformationField):
         """
         match = DIRECTED_QUERY.fullmatch(self.text)
         return None if match is None else match.group(1)
+
+    @property
+    def telemetry_metadata(self):  # -> aprs.telemetry.TelemetryMetadata | None
+        """
+        The parsed ``PARM.``, ``UNIT.``, ``EQNS.`` or ``BITS.`` telemetry
+        metadata this message carries, else None.
+        """
+        from .telemetry import telemetry_metadata  # pylint: disable=import-outside-toplevel
+
+        return telemetry_metadata(self)
 
     @property
     def is_nws(self) -> bool:

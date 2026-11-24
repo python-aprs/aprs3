@@ -115,6 +115,15 @@ from .reports import (
     UserDefinedReport,
     grid_to_lat_long,
 )
+from .telemetry import (
+    CommentTelemetry,
+    TelemetryBits,
+    TelemetryEquations,
+    TelemetryMetadata,
+    TelemetryNames,
+    TelemetryReport,
+    TelemetryUnits,
+)
 from .timestamp import Timestamp
 
 __author__ = "Greg Albrecht W2GMD <oss@undef.net>"
@@ -123,6 +132,13 @@ __license__ = "Apache License, Version 2.0"
 __distribution__ = "aprs3"
 __version__ = version(__distribution__)
 __all__ = [
+    "TelemetryUnits",
+    "TelemetryReport",
+    "TelemetryNames",
+    "TelemetryMetadata",
+    "TelemetryEquations",
+    "TelemetryBits",
+    "CommentTelemetry",
     "DirectionFinding",
     "nmea_checksum",
     "NMEAReport",
