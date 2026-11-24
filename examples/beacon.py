@@ -27,20 +27,16 @@ DEFAULT_TOCALL = "APZ069"  # APZxxx is the experimental software range
 
 def position_frame(args: argparse.Namespace) -> aprs.APRSFrame:
     """The beacon frame for the command line options."""
-    table, symbol = args.symbol.encode()
+    # without a data type, a position report is sent with "=": this
+    # station can receive messages
     report = aprs.PositionReport(
-        raw=b"",
-        data=b"",
-        # "=" says this station can receive messages
-        data_type=aprs.DataType.POSITION_W_O_TIMESTAMP_MSG,
         position=aprs.Position(
             lat=args.lat,
-            long=args.lon,
-            sym_table_id=bytes([table]),
-            symbol_code=bytes([symbol]),
+            lon=args.lon,
+            symbol=args.symbol,
             altitude_ft=args.altitude,
         ),
-        comment=args.comment.encode(),
+        comment=args.comment,
     )
     path = [p for p in args.path.split(",") if p] if not args.aprsis else []
     return aprs.APRSFrame.ui(DEFAULT_TOCALL, args.call, path, bytes(report))

@@ -254,6 +254,10 @@ class MicEReport(InformationField, PositionMixin):
     __data_type__ = sorted(MIC_E_DATA_TYPES, key=lambda d: d.value)
     __raw_fallback__ = True
 
+    def default_data_type(self) -> DataType:
+        """Current Mic-E (`````)."""
+        return DataType.CURRENT_MIC_E_DATA_2
+
     @classmethod
     def new(  # pylint: disable=too-many-arguments
         cls,

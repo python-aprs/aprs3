@@ -88,8 +88,8 @@ class LoginResponse:
 
 
 @define
-class APRSDecode(TNC2Decode):
-    """Decode info fields as APRS."""
+class APRSTNC2Decode(TNC2Decode):
+    """Decode APRS-IS (TNC2 text) lines into ``APRSFrame`` objects."""
 
     comment_callback: Callable[[bytes], None] | None = field(default=None, kw_only=True)
     """Called with each ``#`` comment line the server sends."""
@@ -118,7 +118,7 @@ class APRSISProtocol(TNC2Protocol):
     client can reconnect instead of waiting forever on a dead socket.
     """
 
-    decoder: GenericDecoder[Frame] = field(factory=APRSDecode)
+    decoder: GenericDecoder[Frame] = field(factory=APRSTNC2Decode)
     keepalive_timeout: float | None = field(
         default=DEFAULT_KEEPALIVE_TIMEOUT, kw_only=True
     )
@@ -138,7 +138,10 @@ class APRSISProtocol(TNC2Protocol):
     _warned_unverified: bool = field(default=False, init=False, repr=False)
 
     def __attrs_post_init__(self) -> None:
-        if isinstance(self.decoder, APRSDecode) and self.decoder.comment_callback is None:
+        if (
+            isinstance(self.decoder, APRSTNC2Decode)
+            and self.decoder.comment_callback is None
+        ):
             self.decoder.comment_callback = self._server_comment
 
     def _server_comment(self, line: bytes) -> None:
@@ -247,6 +250,17 @@ class APRSISProtocol(TNC2Protocol):
         super().write(frame)
 
 
+APRSDecode = APRSTNC2Decode
+"""The former name of ``APRSTNC2Decode``."""
+
+
+def _login_command(command: str, filter: str | None) -> str:  # pylint: disable=redefined-builtin
+    """The text after the login: ``command``, then ``filter ...``."""
+    if not filter:
+        return command
+    return " ".join(part for part in (command, f"filter {filter}") if part)
+
+
 def _handle_kwargs(
     protocol_kwargs: dict[str, Any] | None,
     create_connection_kwargs: dict[str, Any] | None,
@@ -273,6 +287,7 @@ async def create_aprsis_connection(  # pylint: disable=too-many-arguments
     loop: asyncio.AbstractEventLoop | None = None,
     create_connection_kwargs: dict[str, Any] | None = None,
     login_timeout: float | None = None,
+    filter: str | None = None,  # pylint: disable=redefined-builtin
 ) -> tuple[asyncio.BaseTransport, APRSISProtocol]:
     """
     Establish an async APRS-IS connection.
@@ -290,6 +305,8 @@ async def create_aprsis_connection(  # pylint: disable=too-many-arguments
     :param login_timeout: wait up to this many seconds for the server's login
         response (``protocol.login_response``) before returning; None returns
         right after sending the login
+    :param filter: a server-side filter (``"r/46.1/-122.9/50"``), sent as
+        ``filter ...`` after ``command``
     :raises TimeoutError: no login response within ``login_timeout``
     :return: (TCPTransport, APRSISProtocol)
     """
@@ -305,7 +322,7 @@ async def create_aprsis_connection(  # pylint: disable=too-many-arguments
         ),
     )
     await protocol.connection_future
-    protocol.login(user, passcode, command)
+    protocol.login(user, passcode, _login_command(command, filter))
     if login_timeout is not None:
         try:
             await protocol.wait_for_login(login_timeout)
@@ -317,15 +334,26 @@ async def create_aprsis_connection(  # pylint: disable=too-many-arguments
 
 class TCP(SyncFrameDecode[APRSFrame]):
     """
-    APRSIS-over-TCP.
+    APRSIS-over-TCP, for code without an event loop.
 
-    Takes the same arguments as ``create_aprsis_connection``.
+    The arguments are those of ``create_aprsis_connection``. Nothing
+    connects until ``start()``.
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(  # pylint: disable=too-many-arguments
+        self,
+        host: str = APRSIS_SERVERS[0],
+        port: int = APRSIS_FILTER_PORT,
+        user: str = DEFAULT_MYCALL,
+        passcode: str | int = "-1",
+        command: str = "",
+        *args: Any,
+        filter: str | None = None,  # pylint: disable=redefined-builtin
+        **kwargs: Any,
+    ) -> None:
         super().__init__()
-        self.args = args
-        self.kwargs = kwargs
+        self.args = (host, port, user, passcode, command, *args)
+        self.kwargs = dict(kwargs, filter=filter)
 
     def stop(self) -> None:
         """

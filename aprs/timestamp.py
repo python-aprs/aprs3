@@ -138,6 +138,11 @@ class TimestampMixin:  # pylint: disable=too-few-public-methods
         def _timestamp(self) -> Timestamp | None: ...
 
     @property
+    def timestamp_info(self) -> Timestamp | None:
+        """The Timestamp, with its format; ``timestamp`` is its datetime."""
+        return self._timestamp
+
+    @property
     def timestamp(self) -> datetime | None:
         if self._timestamp:
             return self._timestamp.timestamp
