@@ -182,21 +182,12 @@ def test_position_fields():
 @pytest.mark.parametrize(
     "tnc2, data_type",
     [
-        ('N0CALL>APRS:`(_fn"Oj/]"4-}=', DataType.CURRENT_MIC_E_DATA_2),
-        (
-            "N0CALL>APRS:_10090556c220s004g005t077r000p000P000h50b09900wRSW",
-            DataType.WEATHER_REPORT_W_O_POSITION,
-        ),
-        ("N0CALL>APRS:T#005,199,000,255,073,123,01101001", DataType.TELEMETRY_DATA),
-        (
-            "N0CALL>APRS:$GPRMC,063909,A,3349.4302,N,11700.3721,W,43.022,89.3,291099,13.6,E*52",
-            DataType.RAW_GPS_DATA,
-        ),
-        (
-            "N0CALL>APRS:}W1AW>APRS,TCPIP,N0CALL*:>hello from IS",
-            DataType.THIRD_PARTY_TRAFFIC,
-        ),
-        ("N0CALL>APRS:?APRS?", DataType.QUERY),
+        ("N0CALL>APRS:,test invalid", DataType.INVALID_DATA),
+        ("N0CALL>APRS:%DF data", DataType.AGRELO_DFJR),
+        ("N0CALL>APRS:#W1AW weather", DataType.PEET_BROS_U_II),
+        # a data type with a decoder, but not in a form it decodes
+        ("N0CALL>APRS:}garbage", DataType.THIRD_PARTY_TRAFFIC),
+        ("N0CALL>APRS:?", DataType.QUERY),
     ],
 )
 def test_unsupported_formats_kept_raw(tnc2, data_type):
@@ -279,9 +270,9 @@ def test_malformed_position_is_rejected(info_text):
 
 def test_bang_in_unsupported_format_stays_raw():
     """A "!" that doesn't start a position leaves the packet undecoded, not dropped."""
-    field = info("N0CALL>APRS:<IGATE,MSG_CNT=30!,LOC_CNT=61")
+    field = info("N0CALL>APRS:,MSG_CNT=30!,LOC_CNT=61")
     assert type(field) is InformationField
-    assert field.data_type is DataType.STATION_CAPABILITIES
+    assert field.data_type is DataType.INVALID_DATA
 
 
 def test_compressed_object():

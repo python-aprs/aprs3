@@ -105,7 +105,16 @@ from .data_ext import (
     DataExt,
 )
 from .kiss import TCPKISS, SerialKISS, create_serial_connection, create_tcp_connection
-from .position import Position
+from .nmea import NMEAReport, nmea_checksum
+from .position import DirectionFinding, Position
+from .reports import (
+    CapabilitiesReport,
+    MaidenheadReport,
+    QueryReport,
+    ThirdPartyReport,
+    UserDefinedReport,
+    grid_to_lat_long,
+)
 from .timestamp import Timestamp
 
 __author__ = "Greg Albrecht W2GMD <oss@undef.net>"
@@ -114,6 +123,15 @@ __license__ = "Apache License, Version 2.0"
 __distribution__ = "aprs3"
 __version__ = version(__distribution__)
 __all__ = [
+    "DirectionFinding",
+    "nmea_checksum",
+    "NMEAReport",
+    "grid_to_lat_long",
+    "UserDefinedReport",
+    "ThirdPartyReport",
+    "QueryReport",
+    "MaidenheadReport",
+    "CapabilitiesReport",
     "APRSFrame",
     "APRSIS_HTTP_HEADERS",
     "APRSIS_SERVERS",

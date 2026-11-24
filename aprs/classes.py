@@ -242,6 +242,8 @@ ACK_REJ = re.compile(rb"(ack|rej)([A-Za-z0-9]{1,5})(\}[A-Za-z0-9]{0,5})?")
 """An ack or reject's whole text: ackNNNNN, or ackMM}AA with a reply-ack."""
 BULLETIN = re.compile(rb"BLN([0-9A-Z])(.{0,5})")
 """Bulletin (BLN0-BLN9, group: BLN0WX) and announcement (BLNA-BLNZ) addressees."""
+DIRECTED_QUERY = re.compile(rb"\?([A-Za-z0-9]+)\??(?:\s.*)?", re.DOTALL)
+"""A directed query: ?APRSP, ?PING? ..., optionally followed by arguments."""
 NWS_PREFIXES = (b"NWS-", b"NWS_", b"SKY", b"CWA", b"BOM")
 """Addressee prefixes of weather service bulletins (APRS101 p76, wx.txt)."""
 
@@ -435,6 +437,15 @@ class Message(InformationField):
         """A group bulletin's group name (b"WX" of BLN3WX); b"" for none."""
         match = self._bulletin()
         return None if match is None else match.group(2).rstrip()
+
+    @property
+    def query(self) -> bytes | None:
+        """
+        A directed query's name (APRS101 ch. 15): b"APRSP" for "?APRSP",
+        b"PING" for "?PING?"; None for other messages.
+        """
+        match = DIRECTED_QUERY.fullmatch(self.text)
+        return None if match is None else match.group(1)
 
     @property
     def is_nws(self) -> bool:

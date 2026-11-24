@@ -108,7 +108,7 @@ ItemReport N0CALL>APRS:)MOBIL!\5L!!<*e79 sT
 ItemReport N0CALL>APRS:)AID #2!/5L!!<*e7>7P[
 ItemReport N0CALL>APRS:)FD!4903.50N/07201.75W;Field Day site
 
-## Formats without a decoder: kept as a raw InformationField and re-encoded unchanged
+## Mic-E, weather, telemetry, NMEA, queries and other data types (#27-#33)
 InformationField N0CALL>APRS:`(_fn"Oj/]"4-}=
 InformationField N0CALL-7>T2SP0W,N0DIGI*,WIDE2-1,qAR,N0GATE:`c51l!?>/`"4V}_%
 InformationField N0CALL-7>T2SP0W:'c7sl!?>/]"4H}
@@ -116,14 +116,14 @@ InformationField N0CALL-9>S32U6T,WIDE1-1:`(_fn"Oj/>=
 InformationField N0CALL>APRS:_10090556c220s004g005t077r000p000P000h50b09900wRSW
 InformationField N0CALL>APRS:T#005,199,000,255,073,123,01101001
 InformationField N0CALL>APRS:T#MIC199,000,255,073,123,01101001
-InformationField N0CALL>APRS:$GPRMC,063909,A,3349.4302,N,11700.3721,W,43.022,89.3,291099,13.6,E*52
-InformationField N0CALL>APRS:$GPGGA,102705,5157.9762,N,00029.3256,W,1,04,2.0,75.7,M,47.6,M,,*62
-InformationField N0CALL>APRS:<IGATE,MSG_CNT=30,LOC_CNT=61
-InformationField N0CALL>APRS:?APRS?
-InformationField N0CALL>APRS:?IGATE?
-InformationField N0CALL>APRS:[IO91SX] 35 miles NNW of London
-InformationField N0CALL>APRS:}W1AW>APRS,TCPIP,N0CALL*:>hello from IS
-InformationField N0CALL>APRS:{Q1qwerty
+NMEAReport N0CALL>APRS:$GPRMC,063909,A,3349.4302,N,11700.3721,W,43.022,89.3,291099,13.6,E*52
+NMEAReport N0CALL>APRS:$GPGGA,102705,5157.9762,N,00029.3256,W,1,04,2.0,75.7,M,47.6,M,,*62
+CapabilitiesReport N0CALL>APRS:<IGATE,MSG_CNT=30,LOC_CNT=61
+QueryReport N0CALL>APRS:?APRS?
+QueryReport N0CALL>APRS:?IGATE?
+MaidenheadReport N0CALL>APRS:[IO91SX] 35 miles NNW of London
+ThirdPartyReport N0CALL>APRS:}W1AW>APRS,TCPIP,N0CALL*:>hello from IS
+UserDefinedReport N0CALL>APRS:{Q1qwerty
 InformationField N0CALL>APRS:,test invalid
 InformationField N0CALL>APRS:#W1AW weather
 InformationField N0CALL>APRS:*Peet Bros weather
@@ -147,3 +147,28 @@ PositionReport N0CALL>APRS:!4903.50N/07201.75W>360/010
 # 25: the longitude keeps its own precision
 PositionReport N0CALL>APRS:!4903.5 N/07201.75W-
 PositionReport N0CALL>APRS:!4903.50N/0720 .  W-
+
+## Decoders added for #30, #31 and #33
+# third-party: a message gated from APRS-IS, and a position inside
+ThirdPartyReport N0GATE>APRS,WIDE2-1:}W1AW>APRS,TCPIP,N0GATE*::N0CALL   :hello from IS{12
+ThirdPartyReport N0GATE>APRS:}N0CALL-9>APDR16,TCPIP,N0GATE*:=4903.50N/07201.75W$ via APRSdroid
+# not a TNC2 header inside: kept raw
+InformationField N0CALL>APRS:}garbage
+# NMEA: GLL and VTG, a sentence without a checksum, and a bad checksum (kept raw)
+NMEAReport N0CALL>APRS:$GPGLL,4916.45,N,12311.12,W,225444,A*31
+NMEAReport N0CALL>APRS:$GPVTG,089.3,T,,M,43.022,N,79.7,K
+NMEAReport N0CALL>APRS:$GPRMC,063909,A,3349.4302,N,11700.3721,W,43.022,89.3,291099,13.6,E
+InformationField N0CALL>APRS:$GPRMC,063909,A,3349.4302,N,11700.3721,W,43.022,89.3,291099,13.6,E*53
+InformationField N0CALL>APRS:$ULTW0031003702CE0069----000086A00001----011901CC00000005
+# queries, capabilities, grid squares, user-defined data
+QueryReport N0CALL>APRS:?WX?
+QueryReport N0CALL>APRS:?APRS? 34.02,-117.15,0200
+InformationField N0CALL>APRS:?
+CapabilitiesReport N0CALL>APRS:<IGATE,MSG_CNT=30,LOC_CNT=61!,EXTRA
+MaidenheadReport N0CALL>APRS:[EM29]
+MaidenheadReport N0CALL>APRS:[io91sx]lower case
+InformationField N0CALL>APRS:[ZZ99]
+UserDefinedReport N0CALL>APRS:{{Iexperimental
+InformationField N0CALL>APRS:{Q
+# DF report: "\\" symbol, course/speed, then /BRG/NRQ
+PositionReport N0CALL>APRS:@092345z4903.50N/07201.75W\088/036/270/729
