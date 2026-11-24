@@ -74,6 +74,9 @@ class CourseSpeed(DataExt):
         return b"%03d/%03d" % (self.course, (self.speed % 1000))
 
 
+PHG_CODES = re.compile(rb"[0-9][0-~][0-9][0-9]")
+
+
 @define(frozen=True, slots=True)
 class PHG(DataExt):
     """
@@ -93,6 +96,10 @@ class PHG(DataExt):
     @classmethod
     def from_bytes(cls, raw: bytes) -> "PHG":
         if not raw.startswith(b"PHG"):
+            raise ValueError(f"{raw!r} is not a PHG extension field")
+        # p, g and d are digits; h may go past "9" (":" is 10240 ft, ...).
+        # Anything else ("PHGR297", "PHG46/0") is left in the comment.
+        if PHG_CODES.fullmatch(raw[3:7]) is None:
             raise ValueError(f"{raw!r} is not a PHG extension field")
         power_code, height_code, gain_code, directivity_code = raw[3:7]
         zero_byte = ord(b"0")

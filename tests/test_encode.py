@@ -191,8 +191,6 @@ def test_report_without_data_type_gets_the_default():
         # message with an addressee that is not left-aligned
         b": U2Z     :race {*in text",
         b":  N0CALL :hello{12",
-        # PHG with a non-digit, decoded leniently
-        b"!4903.50N/07201.75W#PHG72N0/Dire Wolf digi",
         # object with an unusual live/killed byte
         b";LEADER   E092345z4903.50N/07201.75W>088/036",
         # item name with surrounding spaces
@@ -219,6 +217,12 @@ def test_decoded_report_reencodes_exactly(raw, caplog):
         "N0CALL>APRS::N0CALL   :hi{",
         "N0CALL>APRS::N0CALL   :hi {AB}",
         "N0CALL>APRS:!4903.50N/07201.75W#PHG7230/Dire Wolf digi",
+        # not PHG codes: kept in the comment
+        "N0CALL>APRS:!4903.50N/07201.75W#PHG72N0/Dire Wolf digi",
+        "N0CALL>APRS:@240746z4814.93N/01614.66E&PHG46/0Exelberg APRS GW",
+        "N0CALL>APRS:!4814.93N/01614.66E#PHGR297 digi",
+        # compressed, no cs data ("  "), altitude in the comment
+        "N0CALL>APRS:=/:y:DN@\\`[  C/A=001234 x",
         "N0CALL>APRS:;LEADER   *092345z4903.50N/07201.75W>088/036",
         "N0CALL>APRS:>just a status",
     ],

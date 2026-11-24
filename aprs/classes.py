@@ -1,6 +1,7 @@
 """Python APRS Module Class Definitions."""
 
 import enum
+import inspect
 import logging
 import re
 from functools import lru_cache
@@ -753,3 +754,33 @@ class APRSFrame(Frame):
             log.debug("Keep undecodable Mic-E raw: %r", info.raw, exc_info=True)
             return
         object.__setattr__(self, "info", report)
+
+
+_TNC2_UTF8 = "encoding" in inspect.signature(Frame.from_str).parameters
+"""
+True for ax253 releases that read and write TNC2 text as UTF-8 (``encoding``
+on ``Frame.from_str`` and ``TNC2Decode``); older ones use Latin-1.
+"""
+
+
+def _frame_from_line(line: bytes, encoding: str | None = None) -> APRSFrame:
+    """
+    The frame on a TNC2 line, with its info bytes unchanged.
+
+    ``encoding`` is the line's text encoding (``TNC2Decode.encoding``); None
+    means ax253's default: UTF-8, or Latin-1 for releases without one.
+    """
+    if not _TNC2_UTF8:
+        return APRSFrame.from_str(line.decode("latin1"))
+    encoding = encoding or "utf-8"
+    return APRSFrame.from_str(
+        line.decode(encoding, "surrogateescape"),
+        encoding=encoding,  # ty: ignore[unknown-argument]
+    )
+
+
+def _frame_line(frame: Frame) -> bytes:
+    """The frame as a TNC2 line, info bytes unchanged: ``_frame_from_line`` reversed."""
+    if not _TNC2_UTF8:
+        return str(frame).encode("latin1")
+    return str(frame).encode("utf-8", "surrogateescape")
