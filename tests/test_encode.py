@@ -1,5 +1,6 @@
 """Encoding objects built in code, rather than decoded from a packet."""
 
+import logging
 from decimal import Decimal
 
 import attr
@@ -185,11 +186,9 @@ def test_report_without_data_type_does_not_encode():
 @pytest.mark.parametrize(
     "raw",
     [
-        # messages: addressee not left-aligned, empty or reply-ack numbers
+        # message with an addressee that is not left-aligned
         b": U2Z     :race {*in text",
         b":  N0CALL :hello{12",
-        b":N0CALL   :hi{",
-        b":N0CALL   :hi {AB}",
         # PHG with a non-digit, decoded leniently
         b"!4903.50N/07201.75W#PHG72N0/Dire Wolf digi",
         # object with an unusual live/killed byte
@@ -200,11 +199,33 @@ def test_report_without_data_type_does_not_encode():
         b">092345/4903.50N/07201.75W>088/036",
     ],
 )
-def test_decoded_report_reencodes_exactly(raw):
+def test_decoded_report_reencodes_exactly(raw, caplog):
     line = "N0CALL>APRS:" + raw.decode("latin1")
     frame = APRSFrame.from_str(line)
-    assert bytes(frame.info) == raw
-    assert str(frame) == line
+    with caplog.at_level(logging.WARNING, logger="aprs.classes"):
+        assert bytes(frame.info) == raw
+        assert str(frame) == line
+    # the fields can't express these bytes: say so, so it can be fixed
+    assert "doesn't encode back to the bytes" in caplog.text
+    assert repr(raw) in caplog.text
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "N0CALL>APRS::KF7HVM   :hello{12",
+        "N0CALL>APRS::N0CALL   :hi{",
+        "N0CALL>APRS::N0CALL   :hi {AB}",
+        "N0CALL>APRS:!4903.50N/07201.75W#PHG7230/Dire Wolf digi",
+        "N0CALL>APRS:;LEADER   *092345z4903.50N/07201.75W>088/036",
+        "N0CALL>APRS:>just a status",
+    ],
+)
+def test_well_formed_report_encodes_without_warning(line, caplog):
+    frame = APRSFrame.from_str(line)
+    with caplog.at_level(logging.WARNING, logger="aprs.classes"):
+        assert str(frame) == line
+    assert caplog.text == ""
 
 
 def test_changed_report_encodes_from_its_fields():

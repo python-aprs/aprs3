@@ -1,6 +1,7 @@
 """Python APRS Module Class Definitions."""
 
 import enum
+import logging
 import re
 from functools import lru_cache
 from typing import Any, ClassVar, TypeVar
@@ -17,6 +18,8 @@ from .util import attrs_subclasses
 __author__ = "Masen Furer KF7HVM <kf7hvm@0x26.net>"
 __copyright__ = "Copyright 2022 Masen Furer and Contributors"
 __license__ = "Apache License, Version 2.0"
+
+log = logging.getLogger(__name__)
 
 
 class DataType(enum.Enum):
@@ -144,11 +147,21 @@ class InformationField:
 
         A report decoded from bytes encodes back to exactly those bytes,
         even where the decoder was lenient (an addressee not left-aligned,
-        a malformed PHG, an unusual object status byte). A report built from
+        a malformed PHG, an unusual object status byte); each such case
+        logs a warning on the ``aprs.classes`` logger. A report built from
         fields, or changed with ``attr.evolve``, is encoded from its fields.
         """
         encoded = self._encode()
         if self.raw and encoded != self.raw and self._decodes_from_raw():
+            # the decoder accepted something its fields can't express: keep
+            # the bytes heard, but say so, so the gap can be found and fixed
+            log.warning(
+                "%s doesn't encode back to the bytes it was decoded from; "
+                "using those bytes. Heard %r, fields encode as %r",
+                type(self).__name__,
+                self.raw,
+                encoded,
+            )
             return self.raw
         return encoded
 
