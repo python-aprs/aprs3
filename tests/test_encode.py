@@ -1,5 +1,6 @@
 """Encoding objects built in code, rather than decoded from a packet."""
 
+import logging
 from decimal import Decimal
 
 import attr
@@ -179,3 +180,69 @@ def test_report_without_data_type_gets_the_default():
     object.__setattr__(report, "data_type", None)
     with pytest.raises(ValueError, match="data type"):
         bytes(report)
+
+
+# --- issue #44: decoded reports encode back to the bytes heard ---
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        # message with an addressee that is not left-aligned
+        b": U2Z     :race {*in text",
+        b":  N0CALL :hello{12",
+        # PHG with a non-digit, decoded leniently
+        b"!4903.50N/07201.75W#PHG72N0/Dire Wolf digi",
+        # object with an unusual live/killed byte
+        b";LEADER   E092345z4903.50N/07201.75W>088/036",
+        # item name with surrounding spaces
+        b") ID #2_4903.50N/07201.75WA comment",
+        # status with a timestamp that isn't DHM zulu
+        b">092345/4903.50N/07201.75W>088/036",
+    ],
+)
+def test_decoded_report_reencodes_exactly(raw, caplog):
+    line = "N0CALL>APRS:" + raw.decode("latin1")
+    frame = APRSFrame.from_str(line)
+    with caplog.at_level(logging.WARNING, logger="aprs.classes"):
+        assert bytes(frame.info) == raw
+        assert str(frame) == line
+    # the fields can't express these bytes: say so, so it can be fixed
+    assert "doesn't encode back to the bytes" in caplog.text
+    assert repr(raw) in caplog.text
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "N0CALL>APRS::KF7HVM   :hello{12",
+        "N0CALL>APRS::N0CALL   :hi{",
+        "N0CALL>APRS::N0CALL   :hi {AB}",
+        "N0CALL>APRS:!4903.50N/07201.75W#PHG7230/Dire Wolf digi",
+        "N0CALL>APRS:;LEADER   *092345z4903.50N/07201.75W>088/036",
+        "N0CALL>APRS:>just a status",
+    ],
+)
+def test_well_formed_report_encodes_without_warning(line, caplog):
+    frame = APRSFrame.from_str(line)
+    with caplog.at_level(logging.WARNING, logger="aprs.classes"):
+        assert str(frame) == line
+    assert caplog.text == ""
+
+
+def test_changed_report_encodes_from_its_fields():
+    heard = APRSFrame.from_str("N0CALL>APRS:: U2Z     :hello{1").info
+    assert isinstance(heard, Message)
+    changed = attr.evolve(heard, text=b"bye")
+    assert bytes(changed) == b":U2Z      :bye{1"
+
+
+def test_built_report_ignores_unrelated_raw():
+    message = Message(
+        raw=b"not a message",
+        data_type=DataType.MESSAGE,
+        data=b"",
+        addressee=b"N0CALL",
+        text=b"hi",
+    )
+    assert bytes(message) == b":N0CALL   :hi"
