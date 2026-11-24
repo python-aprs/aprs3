@@ -333,6 +333,37 @@ class Position:
         raise ValueError(f"Unknown position format: {self.position_format!r}")
 
 
+DF_REPORT = re.compile(rb"/([0-9]{3})/([0-9])([0-9])([0-9])")
+"""The /BRG/NRQ that follows the course/speed of a DF report (APRS101 p30)."""
+
+
+@define(frozen=True, slots=True)
+class DirectionFinding:
+    """A DF report's bearing and its number/range/quality (NRQ) digits."""
+
+    bearing: int
+    """Degrees, 001-360."""
+    hits: int
+    """N: hits per period, 0 (useless) to 8; 9 means manually reported."""
+    range_code: int
+    """R: the range is 2**R miles."""
+    quality: int
+    """Q: 0 is useless, 1-9 narrow the beamwidth (see ``beamwidth``)."""
+
+    @property
+    def range_mi(self) -> int:
+        """The range in miles."""
+        return 2**self.range_code
+
+    @property
+    def beamwidth(self) -> int | None:
+        """Degrees of beamwidth for quality 1-9 (APRS101 p30); None for 0."""
+        return (None, 240, 120, 64, 32, 16, 8, 4, 2, 1)[self.quality]
+
+    def __bytes__(self) -> bytes:
+        return b"/%03d/%d%d%d" % (self.bearing, self.hits, self.range_code, self.quality)
+
+
 # pylint: disable=no-member,inconsistent-return-statements
 class PositionMixin:
     if TYPE_CHECKING:
@@ -370,6 +401,39 @@ class PositionMixin:
         if self._position:
             return self._position.data_ext
         return b""
+
+    @property
+    def df(self) -> DirectionFinding | None:
+        """
+        The bearing and NRQ of a DF report: a "\\" symbol with course/speed
+        followed by "/BRG/NRQ" (APRS101 p30); None otherwise.
+        """
+        if self.symbol_code != b"\\" or not isinstance(self.data_ext, CourseSpeed):
+            return None
+        match = DF_REPORT.match(getattr(self, "comment", b""))
+        if match is None:
+            return None
+        return DirectionFinding(*(int(g) for g in match.groups()))
+
+    @property
+    def weather(self):  # -> aprs.weather.Weather | None
+        """
+        Weather after a position with the ``_`` (weather station) symbol:
+        wind from the course/speed extension, then the comment's fields.
+        None for other symbols.
+        """
+        if self.symbol_code != b"_":
+            return None
+        from .weather import weather_from_comment  # pylint: disable=import-outside-toplevel
+
+        return weather_from_comment(getattr(self, "comment", b""), self.data_ext)
+
+    @property
+    def comment_telemetry(self):  # -> aprs.telemetry.CommentTelemetry | None
+        """Base91 telemetry (``|ss1122|``) in the comment, else None."""
+        from .telemetry import CommentTelemetry  # pylint: disable=import-outside-toplevel
+
+        return CommentTelemetry.from_comment(getattr(self, "comment", b""))
 
     def format_altitude(self) -> bytes:
         """The "/A=" comment for altitude_ft, unless it's already encoded."""

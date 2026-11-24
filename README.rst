@@ -32,16 +32,38 @@ TNC sends), and decodes the information field into a typed report:
 The report types are:
 
 * ``PositionReport``: compressed or uncompressed, with or without a
-  timestamp, with altitude and a course/speed, PHG, RNG or DFS extension
+  timestamp, with altitude and a course/speed, PHG, RNG or DFS extension.
+  ``.weather`` reads a weather station's data, ``.df`` a DF bearing and
+  ``.comment_telemetry`` base91 ``|ss11|`` telemetry
+* ``MicEReport``: Mic-E positions from Kenwood and Yaesu radios, with the
+  message code, altitude and radio model
 * ``ObjectReport`` and ``ItemReport``
 * ``StatusReport``
-* ``Message``, including acks and rejects
+* ``Message``: acks and rejects (``is_ack``, ``acked_number``), reply-acks,
+  bulletins and announcements, directed queries, and telemetry metadata
+  (``PARM.``/``UNIT.``/``EQNS.``/``BITS.``)
+* ``WeatherReport`` (positionless weather) and ``TelemetryReport`` (``T#``)
+* ``ThirdPartyReport``: a packet gated from APRS-IS, with the inner frame
+* ``NMEAReport``, ``QueryReport``, ``CapabilitiesReport``,
+  ``MaidenheadReport`` and ``UserDefinedReport``
 
->>> aprs.APRSFrame.from_str("KF7HVM>APZ069::N0CALL   :hello there{42").info
-Message(raw=b':N0CALL   :hello there{42', data_type=<DataType.MESSAGE: b':'>, data=b'N0CALL   :hello there{42', comment=b'', addressee=b'N0CALL', text=b'hello there', number=b'42')
+>>> msg = aprs.APRSFrame.from_str("KF7HVM>APZ069::N0CALL   :hello there{42}AB").info
+>>> msg.addressee, msg.text, msg.message_number, msg.reply_ack
+(b'N0CALL', b'hello there', b'42', b'AB')
+>>> aprs.APRSFrame.from_str("N0CALL>APZ069::KF7HVM   :ack42").info.acked_number
+b'42'
+>>> wx = aprs.APRSFrame.from_str(
+...     "N0CALL>APRS:_10090556c220s004g005t077r000p000P000h50b09900wRSW"
+... ).info.weather
+>>> wx.wind_direction, wx.temperature_f, wx.pressure_mbar
+(220, 77, Decimal('990.0'))
+>>> mic_e = aprs.APRSFrame.from_str('N0CALL-9>S32U6T:`(_fn"Oj/>=').info
+>>> type(mic_e).__name__, mic_e.message_text, mic_e.device
+('MicEReport', 'Returning', 'Kenwood TH-D72')
 
-Other data types (telemetry, weather, Mic-E and so on) decode as a plain
-``InformationField`` that keeps the raw bytes.
+Anything else (and a packet that doesn't parse as its data type says)
+decodes as a plain ``InformationField`` that keeps the raw bytes. Every
+decoded packet re-encodes to the same bytes.
 
 Encoding packets
 ================
@@ -60,11 +82,25 @@ is ready for a TNC, and ``str(frame)`` for APRS-IS:
 >>> str(frame)
 'N0CALL>APZ069,WIDE1-1:=4606.00N/12254.00W-Home station'
 
+Messages, acks and telemetry have builders:
+
+>>> bytes(aprs.Message.new("N0CALL-2", "see you at the net", number="7"))
+b':N0CALL-2 :see you at the net{7'
+>>> bytes(aprs.Message.ack_for("N0CALL", "7"))
+b':N0CALL   :ack7'
+>>> bytes(aprs.TelemetryReport.new(1, [120, 30, 5, 0, 0], [1, 0, 0, 0, 0, 0, 0, 0]))
+b'T#001,120,030,005,000,000,10000000'
+
 Connecting to APRS-IS
 =====================
 
 With asyncio, ``create_aprsis_connection`` logs in and ``protocol.read()``
-yields decoded frames. A passcode of ``-1`` is receive-only:
+yields decoded frames. A passcode of ``-1`` is receive-only; ``aprs.passcode``
+computes a callsign's passcode, and ``login_timeout`` waits for the server
+to say whether the login is verified (``protocol.login_response``). A server
+that goes silent for ``keepalive_timeout`` seconds (60 by default; servers
+send a comment every 20 seconds) is treated as gone: the connection closes
+and ``read()`` ends.
 
 .. code-block:: python
 
@@ -79,7 +115,9 @@ yields decoded frames. A passcode of ``-1`` is receive-only:
             user="N0CALL",
             passcode="-1",
             command="filter r/46.1/-122.9/50",  # within 50 km
+            login_timeout=10,
         )
+        print(protocol.login_response)
         async for frame in protocol.read():
             print(frame)
 

@@ -1,9 +1,10 @@
 """Python APRS Module Class Definitions."""
 
 import enum
+import logging
 import re
 from functools import lru_cache
-from typing import Any, ClassVar, TypeVar
+from typing import Any, ClassVar, Self, TypeVar
 
 import attr
 from attrs import define, field
@@ -17,6 +18,8 @@ from .util import attrs_subclasses
 __author__ = "Masen Furer KF7HVM <kf7hvm@0x26.net>"
 __copyright__ = "Copyright 2022 Masen Furer and Contributors"
 __license__ = "Apache License, Version 2.0"
+
+log = logging.getLogger(__name__)
 
 
 class DataType(enum.Enum):
@@ -84,9 +87,20 @@ class InformationField:
     """None when the first byte isn't a known APRS data type identifier."""
     data: bytes
     comment: bytes = field(default=b"")
+    _source: bytes | None = field(default=None, init=False, eq=False, repr=False)
+    """
+    The bytes this report was decoded from, re-sent unchanged by subclasses
+    whose format has several spellings of the same values. Not carried over
+    by ``attrs.evolve``, so a changed copy is encoded from its fields.
+    """
 
     __data_type__: ClassVar[list[DataType]] = []
     """The data types a subclass decodes."""
+    __raw_fallback__: ClassVar[bool] = False
+    """
+    Keep a packet this subclass can't decode as a raw InformationField
+    instead of failing, for formats that used to be kept raw.
+    """
 
     @classmethod
     @lru_cache(len(DataType.__members__))
@@ -105,6 +119,12 @@ class InformationField:
             # (APRS101 p17): keep the raw bytes so the frame still decodes
             data_type = None
         handler = None if data_type is None else cls._find_handler(data_type)
+        if handler is not None and handler.__raw_fallback__:
+            try:
+                return handler.from_bytes(raw)
+            except ValueError:
+                log.debug("Keep undecodable %s raw: %r", handler.__name__, raw)
+                handler = None  # e.g. "Test !4903.50N...": try the position
         if (handler is None or data_type == DataType.OBJECT) and (
             data_type not in MIC_E_DATA_TYPES
         ):
@@ -118,13 +138,22 @@ class InformationField:
                 except ValueError:
                     pass  # just a "!" in some other kind of packet
         if handler is None:
-            return cls(
-                raw=raw,
-                data_type=data_type,
-                data=b"",
-                comment=raw if data_type is None else raw[1:],
-            )
+            return cls._raw(raw, data_type)
         return handler.from_bytes(raw)
+
+    @classmethod
+    def _raw(cls, raw: bytes, data_type: DataType | None) -> "InformationField":
+        return cls(
+            raw=raw,
+            data_type=data_type,
+            data=b"",
+            comment=raw if data_type is None else raw[1:],
+        )
+
+    def _keep_source(self, raw: bytes) -> Self:
+        """Remember the decoded bytes, so ``bytes(self)`` reproduces them."""
+        object.__setattr__(self, "_source", raw)
+        return self
 
     @classmethod
     def from_frame(cls, f: Frame) -> "InformationField":
@@ -209,15 +238,85 @@ MESSAGE_NUMBER = re.compile(rb"\{([A-Za-z0-9]{0,5}(?:\}[A-Za-z0-9]{0,5})?)$")
 
 The number keeps a reply-ack's "}" and acked number (aprs11/replyacks.txt).
 """
+ACK_REJ = re.compile(rb"(ack|rej)([A-Za-z0-9]{1,5})(\}[A-Za-z0-9]{0,5})?")
+"""An ack or reject's whole text: ackNNNNN, or ackMM}AA with a reply-ack."""
+BULLETIN = re.compile(rb"BLN([0-9A-Z])(.{0,5})")
+"""Bulletin (BLN0-BLN9, group: BLN0WX) and announcement (BLNA-BLNZ) addressees."""
+DIRECTED_QUERY = re.compile(rb"\?([A-Za-z0-9]+)\??(?:\s.*)?", re.DOTALL)
+"""A directed query: ?APRSP, ?PING? ..., optionally followed by arguments."""
+NWS_PREFIXES = (b"NWS-", b"NWS_", b"SKY", b"CWA", b"BOM")
+"""Addressee prefixes of weather service bulletins (APRS101 p76, wx.txt)."""
 
 
 @define(frozen=True, slots=True)
 class Message(InformationField):
+    """
+    A message, ack, reject, bulletin or announcement (APRS101 ch. 14).
+
+    ``number`` is everything after the ``{``, including a reply-ack's
+    ``}AA``; ``message_number`` and ``reply_ack`` split it. Acks and rejects
+    carry the number they answer in the text: see ``is_ack``, ``is_rej`` and
+    ``acked_number``.
+    """
+
     addressee: bytes = field(default=b"")
     text: bytes = field(default=b"")
     number: bytes | None = field(default=None)
 
     __data_type__ = [DataType.MESSAGE]
+
+    @classmethod
+    def new(
+        cls,
+        addressee: str | bytes,
+        text: str | bytes,
+        number: str | bytes | None = None,
+        reply_ack: str | bytes | None = None,
+    ) -> "Message":
+        """
+        Build a message to send.
+
+        :param number: the message number, to ask for an ack
+        :param reply_ack: with ``number``, send ``{number}reply_ack``: an
+            empty value advertises reply-ack support, a number also acks the
+            addressee's message with that number
+
+        >>> bytes(Message.new("N0CALL-2", "hello", number="12", reply_ack=""))
+        b':N0CALL-2 :hello{12}'
+        """
+        if reply_ack is not None:
+            if number is None:
+                raise ValueError("a reply-ack needs a message number")
+            number = _as_bytes(number) + b"}" + _as_bytes(reply_ack)
+        return cls(
+            raw=b"",
+            data_type=DataType.MESSAGE,
+            data=b"",
+            addressee=_as_bytes(addressee),
+            text=_as_bytes(text),
+            number=None if number is None else _as_bytes(number),
+        )
+
+    @classmethod
+    def ack_for(
+        cls,
+        addressee: str | bytes,
+        number: str | bytes,
+        reply_ack: str | bytes | None = None,
+        reject: bool = False,
+    ) -> "Message":
+        """
+        Build the ack (or with ``reject``, the reject) of message ``number``.
+
+        >>> bytes(Message.ack_for("N0CALL", "12"))
+        b':N0CALL   :ack12'
+        >>> bytes(Message.ack_for("N0CALL", "12", reply_ack="", reject=True))
+        b':N0CALL   :rej12}'
+        """
+        text = (b"rej" if reject else b"ack") + _as_bytes(number)
+        if reply_ack is not None:
+            text += b"}" + _as_bytes(reply_ack)
+        return cls.new(addressee, text)
 
     @classmethod
     def from_bytes(cls, raw: bytes) -> "Message":
@@ -258,6 +357,114 @@ class Message(InformationField):
                 b"" if self.number is None else b"{%s" % self.number,
             ],
         )
+
+    # --- message numbers and reply-acks ----------------------------------
+
+    @property
+    def message_number(self) -> bytes | None:
+        """This message's number, without a reply-ack ("12" of "{12}AB")."""
+        if self.number is None:
+            return None
+        return self.number.partition(b"}")[0]
+
+    @property
+    def reply_ack(self) -> bytes | None:
+        """
+        The reply-ack (aprs11/replyacks.txt) of a message or ack.
+
+        None without one; b"" when the sender only advertises reply-ack
+        support ("{12}", "ack12}"); otherwise the number of our message it
+        acks ("{12}AB" and "ack12}AB" both ack our message AB).
+        """
+        if self.number is not None:
+            number, brace, reply_ack = self.number.partition(b"}")
+            return reply_ack if brace else None
+        match = self._ack_rej()
+        if match is None or match.group(3) is None:
+            return None
+        return match.group(3)[1:]
+
+    # --- acks and rejects ------------------------------------------------
+
+    def _ack_rej(self) -> "re.Match[bytes] | None":
+        if self.number is not None:
+            return None
+        return ACK_REJ.fullmatch(self.text)
+
+    @property
+    def is_ack(self) -> bool:
+        """True for an ack ("ack12"); its number is ``acked_number``."""
+        match = self._ack_rej()
+        return match is not None and match.group(1) == b"ack"
+
+    @property
+    def is_rej(self) -> bool:
+        """True for a reject ("rej12"); its number is ``acked_number``."""
+        match = self._ack_rej()
+        return match is not None and match.group(1) == b"rej"
+
+    @property
+    def acked_number(self) -> bytes | None:
+        """The message number an ack or reject answers, else None."""
+        match = self._ack_rej()
+        return None if match is None else match.group(2)
+
+    # --- bulletins, announcements and weather service --------------------
+
+    def _bulletin(self) -> "re.Match[bytes] | None":
+        return BULLETIN.fullmatch(self.addressee)
+
+    @property
+    def is_bulletin(self) -> bool:
+        """Addressed BLN0-BLN9, optionally with a group (BLN0WX)."""
+        match = self._bulletin()
+        return match is not None and match.group(1).isdigit()
+
+    @property
+    def is_announcement(self) -> bool:
+        """Addressed BLNA-BLNZ."""
+        match = self._bulletin()
+        return match is not None and match.group(1).isalpha()
+
+    @property
+    def bulletin_id(self) -> bytes | None:
+        """The bulletin or announcement identifier: b"1" of BLN1, b"A" of BLNA."""
+        match = self._bulletin()
+        return None if match is None else match.group(1)
+
+    @property
+    def bulletin_group(self) -> bytes | None:
+        """A group bulletin's group name (b"WX" of BLN3WX); b"" for none."""
+        match = self._bulletin()
+        return None if match is None else match.group(2).rstrip()
+
+    @property
+    def query(self) -> bytes | None:
+        """
+        A directed query's name (APRS101 ch. 15): b"APRSP" for "?APRSP",
+        b"PING" for "?PING?"; None for other messages.
+        """
+        match = DIRECTED_QUERY.fullmatch(self.text)
+        return None if match is None else match.group(1)
+
+    @property
+    def telemetry_metadata(self):  # -> aprs.telemetry.TelemetryMetadata | None
+        """
+        The parsed ``PARM.``, ``UNIT.``, ``EQNS.`` or ``BITS.`` telemetry
+        metadata this message carries, else None.
+        """
+        from .telemetry import telemetry_metadata  # pylint: disable=import-outside-toplevel
+
+        return telemetry_metadata(self)
+
+    @property
+    def is_nws(self) -> bool:
+        """A weather service bulletin (NWS-WARN, SKYCWA ...)."""
+        return self.addressee.upper().startswith(NWS_PREFIXES)
+
+
+def _as_bytes(value: str | bytes) -> bytes:
+    return value.encode("utf-8") if isinstance(value, str) else bytes(value)
 
 
 @define(frozen=True, slots=True)
@@ -403,3 +610,20 @@ class APRSFrame(Frame):
     info: InformationField = field(  # ty: ignore[incompatible-attribute-override, invalid-assignment]
         default=b"", converter=InformationField.from_any
     )
+
+    def __attrs_post_init__(self) -> None:
+        # Mic-E carries half its data in the destination address, which the
+        # info converter can't see: decode it here, once the frame is built
+        info = self.info
+        if type(info) is not InformationField or info.data_type not in MIC_E_DATA_TYPES:
+            return
+        handler = InformationField._find_handler(info.data_type)
+        decode = getattr(handler, "from_bytes_and_destination", None)
+        if decode is None:
+            return
+        try:
+            report = decode(info.raw, self.destination.callsign)
+        except ValueError:
+            log.debug("Keep undecodable Mic-E raw: %r", info.raw, exc_info=True)
+            return
+        object.__setattr__(self, "info", report)
