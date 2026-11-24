@@ -221,3 +221,30 @@ def test_sync_tcp_login_response():
             assert tcp.login_response == LoginResponse("N0CALL", True, "T2TEST")
             assert [str(f) for f in tcp.read(min_frames=1)] == [STATUS]
         server.wait_done()
+
+
+# --- TCP signature, filter=, decoder names (#52) -----------------------------
+
+
+def test_decoder_names():
+    assert aprs.aprsis.APRSDecode is aprs.APRSTNC2Decode
+    assert aprs.kiss.APRSDecode is aprs.APRSKISSDecode
+
+
+def test_tcp_positional_args_and_filter():
+    with threaded_server(logresp_script("verified")) as server:
+        with aprs.TCP("127.0.0.1", server.port, "N0CALL", filter="r/46/-122/50"):
+            pass
+        server.wait_done()
+    login = server.received.split(b"\r\n")[0]
+    assert login.startswith(b"user N0CALL pass -1 vers aprs3 ")
+    assert login.endswith(b" filter r/46/-122/50")
+
+
+def test_login_command_and_filter():
+    from aprs.aprsis import _login_command
+
+    assert _login_command("", None) == ""
+    assert _login_command("cmd", None) == "cmd"
+    assert _login_command("", "b/N0CALL") == "filter b/N0CALL"
+    assert _login_command("cmd", "b/N0CALL") == "cmd filter b/N0CALL"
