@@ -1,8 +1,11 @@
 r"""Encode and decode APRS packets.
 
 ``APRSFrame`` is an AX.25 UI frame whose information field is decoded into a
-typed report: ``PositionReport``, ``ObjectReport``, ``ItemReport``,
-``StatusReport`` or ``Message``. Anything else stays an ``InformationField``.
+typed report: ``PositionReport``, ``MicEReport``, ``ObjectReport``,
+``ItemReport``, ``StatusReport``, ``Message``, ``WeatherReport``,
+``TelemetryReport``, ``ThirdPartyReport``, ``NMEAReport``, ``QueryReport``,
+``CapabilitiesReport``, ``MaidenheadReport`` or ``UserDefinedReport``.
+Anything else stays an ``InformationField``.
 
 Decoding
 ========
