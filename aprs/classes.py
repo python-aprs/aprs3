@@ -217,12 +217,43 @@ class InformationField:
 
     def __bytes__(self) -> bytes:
         """
-        The data type identifier, ``data`` and ``comment``: for a decoded
-        packet, the bytes it was decoded from.
+        Encode the report from its fields.
+
+        A report decoded from bytes encodes back to exactly those bytes,
+        even where the decoder was lenient (an addressee not left-aligned,
+        a malformed PHG, an unusual object status byte); each such case
+        logs a warning on the ``aprs.classes`` logger. A report built from
+        fields, or changed with ``attr.evolve``, is encoded from its fields.
+        """
+        encoded = self._encode()
+        if self.raw and encoded != self.raw and self._decodes_from_raw():
+            # the decoder accepted something its fields can't express: keep
+            # the bytes heard, but say so, so the gap can be found and fixed
+            log.warning(
+                "%s doesn't encode back to the bytes it was decoded from; "
+                "using those bytes. Heard %r, fields encode as %r",
+                type(self).__name__,
+                self.raw,
+                encoded,
+            )
+            return self.raw
+        return encoded
+
+    def _encode(self) -> bytes:
+        """
+        Encode the fields as an info field; subclasses override this. Here:
+        the data type identifier, ``data`` and ``comment``.
         """
         if self.data_type is None:
             return self.data + self.comment
         return self.data_type.value + self.data + self.comment
+
+    def _decodes_from_raw(self) -> bool:
+        """True if decoding ``raw`` gives this report, unchanged."""
+        try:
+            return InformationField.from_bytes(self.raw) == self
+        except ValueError:
+            return False
 
     def _data_type_id(self) -> bytes:
         """The data type identifier byte, for encoding."""
@@ -276,7 +307,7 @@ class PositionReport(InformationField, TimestampMixin, PositionMixin):
             comment=comment,
         )
 
-    def __bytes__(self) -> bytes:
+    def _encode(self) -> bytes:
         return b"".join(
             [
                 self.prefix,
@@ -417,7 +448,7 @@ class Message(InformationField):
             **init_kwargs,
         )
 
-    def __bytes__(self):
+    def _encode(self) -> bytes:
         return b"".join(
             [
                 DataType.MESSAGE.value,
@@ -575,7 +606,7 @@ class StatusReport(InformationField, TimestampMixin):
             status=data,
         )
 
-    def __bytes__(self):
+    def _encode(self) -> bytes:
         return b"".join(
             [
                 DataType.STATUS.value,
@@ -623,7 +654,7 @@ class ObjectReport(InformationField, TimestampMixin, PositionMixin):
             position=position,
         )
 
-    def __bytes__(self) -> bytes:
+    def _encode(self) -> bytes:
         return b"".join(
             [
                 self._data_type_id(),
@@ -679,7 +710,7 @@ class ItemReport(InformationField, PositionMixin):
             position=position,
         )
 
-    def __bytes__(self) -> bytes:
+    def _encode(self) -> bytes:
         return b"".join(
             [
                 self._data_type_id(),

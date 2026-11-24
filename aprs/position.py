@@ -52,7 +52,9 @@ def _decode_dm(text: str, degree_digits: int) -> Decimal:
     max_degrees = 90 if degree_digits == 2 else 180
     if minutes >= 60 or degrees > max_degrees or (degrees == max_degrees and minutes):
         raise ValueError(f"{text!r} is out of range")
-    return dm2decimal(degrees, minutes + AMBIGUITY_CENTER_MINUTES[ambiguity])
+    centered = dm2decimal(degrees, minutes + AMBIGUITY_CENTER_MINUTES[ambiguity])
+    # the middle of a box that touches a pole or 180° can lie past it
+    return min(centered, Decimal(max_degrees))
 
 
 def decode_position_uncompressed(data: bytes):
