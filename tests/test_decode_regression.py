@@ -357,3 +357,41 @@ def test_message_number_decode(info, text, number):
     message = Message.from_bytes(info.encode())
     assert (message.text, message.number) == (text, number)
     assert bytes(message) == info.encode()
+
+
+# --- issue #45: ambiguous positions at a pole or 180° decode ---
+
+
+@pytest.mark.parametrize(
+    "raw, lat, long",
+    [
+        (b"!9000.  N/18000.  W-", 90, -180),
+        (b"!90  .  S/180  .  E-", -90, 180),
+        (b"!9000.0 N/18000.0 E-", 90, 180),
+    ],
+)
+def test_ambiguous_position_at_the_edge(raw, lat, long):
+    report = InformationField.from_bytes(raw)
+    assert isinstance(report, PositionReport)
+    assert report.lat == lat
+    assert report.long == long
+    assert bytes(report) == raw
+
+
+@pytest.mark.parametrize("ambiguity", [1, 2, 3, 4])
+@pytest.mark.parametrize(
+    "lat, long",
+    [(89.99999999999999, 0.0), (0.0, -179.99999999999997), (-90.0, 180.0)],
+)
+def test_ambiguous_edge_position_round_trips(lat, long, ambiguity):
+    report = PositionReport(
+        raw=b"",
+        data=b"",
+        data_type=DataType.POSITION_W_O_TIMESTAMP,
+        position=Position(lat=lat, long=long, symbol_code=b"-", ambiguity=ambiguity),
+    )
+    decoded = InformationField.from_bytes(bytes(report))
+    assert isinstance(decoded, PositionReport)
+    assert decoded.lat is not None and decoded.long is not None
+    assert abs(float(decoded.lat) - lat) <= 1
+    assert abs(float(decoded.long) - long) <= 1

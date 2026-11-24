@@ -1,8 +1,11 @@
 r"""Encode and decode APRS packets.
 
 ``APRSFrame`` is an AX.25 UI frame whose information field is decoded into a
-typed report: ``PositionReport``, ``ObjectReport``, ``ItemReport``,
-``StatusReport`` or ``Message``. Anything else stays an ``InformationField``.
+typed report: ``PositionReport``, ``MicEReport``, ``ObjectReport``,
+``ItemReport``, ``StatusReport``, ``Message``, ``WeatherReport``,
+``TelemetryReport``, ``ThirdPartyReport``, ``NMEAReport``, ``QueryReport``,
+``CapabilitiesReport``, ``MaidenheadReport`` or ``UserDefinedReport``.
+Anything else stays an ``InformationField``.
 
 Decoding
 ========
@@ -67,7 +70,13 @@ Based on the original ``aprs`` module by Greg Albrecht W2GMD
 from importlib.metadata import version
 
 from . import decimaldegrees, geo_util, position, timestamp
-from .aprsis import TCP, APRSISProtocol, create_aprsis_connection
+from .aprsis import (
+    TCP,
+    APRSISProtocol,
+    LoginResponse,
+    create_aprsis_connection,
+    passcode,
+)
 from .classes import (
     APRSFrame,
     DataType,
@@ -99,8 +108,28 @@ from .data_ext import (
     DataExt,
 )
 from .kiss import TCPKISS, SerialKISS, create_serial_connection, create_tcp_connection
-from .position import Position
+from .mic_e import MicEReport
+from .nmea import NMEAReport, nmea_checksum
+from .position import DirectionFinding, Position
+from .reports import (
+    CapabilitiesReport,
+    MaidenheadReport,
+    QueryReport,
+    ThirdPartyReport,
+    UserDefinedReport,
+    grid_to_lat_long,
+)
+from .telemetry import (
+    CommentTelemetry,
+    TelemetryBits,
+    TelemetryEquations,
+    TelemetryMetadata,
+    TelemetryNames,
+    TelemetryReport,
+    TelemetryUnits,
+)
 from .timestamp import Timestamp
+from .weather import Weather, WeatherReport
 
 __author__ = "Greg Albrecht W2GMD <oss@undef.net>"
 __copyright__ = "Copyright 2017 Greg Albrecht and Contributors"
@@ -108,6 +137,25 @@ __license__ = "Apache License, Version 2.0"
 __distribution__ = "aprs3"
 __version__ = version(__distribution__)
 __all__ = [
+    "MicEReport",
+    "WeatherReport",
+    "Weather",
+    "TelemetryUnits",
+    "TelemetryReport",
+    "TelemetryNames",
+    "TelemetryMetadata",
+    "TelemetryEquations",
+    "TelemetryBits",
+    "CommentTelemetry",
+    "DirectionFinding",
+    "nmea_checksum",
+    "NMEAReport",
+    "grid_to_lat_long",
+    "UserDefinedReport",
+    "ThirdPartyReport",
+    "QueryReport",
+    "MaidenheadReport",
+    "CapabilitiesReport",
     "APRSFrame",
     "APRSIS_HTTP_HEADERS",
     "APRSIS_SERVERS",
@@ -128,9 +176,11 @@ __all__ = [
     "DFS",
     "geo_util",
     "ItemReport",
+    "LoginResponse",
     "InformationField",
     "Message",
     "ObjectReport",
+    "passcode",
     "PHG",
     "position",
     "Position",
