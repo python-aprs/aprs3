@@ -67,7 +67,13 @@ Based on the original ``aprs`` module by Greg Albrecht W2GMD
 from importlib.metadata import version
 
 from . import decimaldegrees, geo_util, position, timestamp
-from .aprsis import TCP, APRSISProtocol, create_aprsis_connection
+from .aprsis import (
+    TCP,
+    APRSISProtocol,
+    LoginResponse,
+    create_aprsis_connection,
+    passcode,
+)
 from .classes import (
     APRSFrame,
     DataType,
@@ -128,9 +134,11 @@ __all__ = [
     "DFS",
     "geo_util",
     "ItemReport",
+    "LoginResponse",
     "InformationField",
     "Message",
     "ObjectReport",
+    "passcode",
     "PHG",
     "position",
     "Position",
