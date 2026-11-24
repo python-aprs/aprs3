@@ -228,7 +228,7 @@ def _encode_speed_course(speed: float, course: int) -> bytes:
     return bytes([sp + 28, dc + 28, rest + 28])
 
 
-@define(frozen=True, slots=True)
+@define(frozen=True, slots=True, kw_only=True)
 class MicEReport(InformationField, PositionMixin):
     """
     A Mic-E position report (APRS101 ch. 10).
@@ -239,8 +239,12 @@ class MicEReport(InformationField, PositionMixin):
     destination::
 
         report = MicEReport.new(lat=33.4273, long=-112.1295, symbol_code=b">")
-        frame = APRSFrame.ui(report.destination, "N0CALL", ["WIDE1-1"], bytes(report))
+        frame = APRSFrame.ui(
+            destination=report.destination, source="N0CALL", path=["WIDE1-1"], info=report
+        )
     """
+
+    __match_args__ = ("lat", "long")
 
     _position: Position | None = field(default=None, alias="position")
     message: str = field(default="M0")

@@ -3,7 +3,7 @@
 import math
 import re
 from decimal import Decimal
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, cast, runtime_checkable
 
 from attrs import define, field, fields
 
@@ -244,6 +244,14 @@ def _symbol_byte(value: str | bytes) -> bytes:
     return value.encode("latin-1") if isinstance(value, str) else bytes(value)
 
 
+def _coordinate(value: float | Decimal) -> float:
+    """
+    Accept a Decimal coordinate. ``Position.__attrs_post_init__`` keeps it
+    as the exact value and stores the float.
+    """
+    return cast(float, value)
+
+
 EARTH_RADIUS_KM = 6371.0088
 """The mean Earth radius, for distances."""
 
@@ -259,16 +267,28 @@ def _lat_lon(point) -> tuple[float, float]:
     return float(lat), float(lon)
 
 
-@define(frozen=True, slots=True)
+@define(frozen=True, slots=True, kw_only=True)
 class Position:
-    """Represents a position including any data extension."""
+    """
+    Represents a position including any data extension.
+
+    Fields are keyword-only: ``Position(lat=46.1, lon=-122.9)``.
+    """
+
+    __match_args__ = ("lat", "long")
 
     position_format: PositionFormat = field(default=PositionFormat.Uncompressed)
-    lat: float | Decimal = field(default=0.0, validator=_in_range(90))
-    """Decimal when decoded from uncompressed text (exact), float otherwise."""
+    lat: float = field(default=0.0, converter=_coordinate, validator=_in_range(90))
+    """
+    Degrees north, always a float. A ``Decimal`` is accepted, and kept as
+    ``lat_decimal``.
+    """
     sym_table_id: bytes = field(default=b"/", converter=_symbol_byte)
-    long: float | Decimal = field(default=0.0, validator=_in_range(180))
-    """The longitude; also accepted and readable as ``lon``."""
+    long: float = field(default=0.0, converter=_coordinate, validator=_in_range(180))
+    """
+    Degrees east, always a float; also accepted and readable as ``lon``. A
+    ``Decimal`` is accepted, and kept as ``long_decimal``.
+    """
     symbol_code: bytes = field(default=b"-", converter=_symbol_byte)
     altitude_ft: float | None = field(default=None)
     """Whole feet from "/A=", a float from compressed cs bytes."""
@@ -284,20 +304,27 @@ class Position:
     """Compressed only: the type byte (minus 33); None picks a default."""
     ignored_cs: bytes | None = field(default=None)
     """Compressed only: cs bytes starting with a space, which carry no data."""
-    _lon: float | Decimal | None = field(
-        default=None, alias="lon", eq=False, repr=False, kw_only=True
-    )
+    _lon: float | Decimal | None = field(default=None, alias="lon", eq=False, repr=False)
     """``Position(lon=...)``: sets ``long``."""
     _symbol: "Symbol | str | None" = field(
-        default=None, alias="symbol", eq=False, repr=False, kw_only=True
+        default=None, alias="symbol", eq=False, repr=False
     )
     """``Position(symbol="/>")``: sets ``sym_table_id`` and ``symbol_code``."""
+    _lat_decimal: Decimal | None = field(default=None, init=False, eq=False, repr=False)
+    _long_decimal: Decimal | None = field(default=None, init=False, eq=False, repr=False)
 
     def __attrs_post_init__(self) -> None:
         if self._lon is not None:
             _in_range(180)(self, fields(Position).long, self._lon)
             object.__setattr__(self, "long", self._lon)
             object.__setattr__(self, "_lon", None)
+        # decoded coordinates are exact Decimals: keep them for encoding
+        # and lat_decimal/long_decimal, and give everyone else a float
+        for name in ("lat", "long"):
+            value = getattr(self, name)
+            if isinstance(value, Decimal):
+                object.__setattr__(self, f"_{name}_decimal", value)
+            object.__setattr__(self, name, float(value))
         if self._symbol is not None:
             symbol = Symbol.from_str(self._symbol)
             object.__setattr__(self, "sym_table_id", symbol.table)
@@ -305,9 +332,23 @@ class Position:
             object.__setattr__(self, "_symbol", None)
 
     @property
-    def lon(self) -> float | Decimal:
+    def lon(self) -> float:
         """The longitude: the same as ``long``."""
         return self.long
+
+    @property
+    def lat_decimal(self) -> Decimal:
+        """The latitude as a Decimal: exact when decoded from a packet."""
+        if self._lat_decimal is not None:
+            return self._lat_decimal
+        return Decimal(repr(self.lat))
+
+    @property
+    def long_decimal(self) -> Decimal:
+        """The longitude as a Decimal: exact when decoded from a packet."""
+        if self._long_decimal is not None:
+            return self._long_decimal
+        return Decimal(repr(self.long))
 
     @property
     def symbol(self) -> Symbol:
@@ -399,8 +440,8 @@ class Position:
             return b"".join(
                 [
                     encode_position_uncompressed(
-                        self.lat,
-                        self.long,
+                        self.lat_decimal,
+                        self.long_decimal,
                         self.sym_table_id,
                         self.symbol_code,
                         ambiguity=self.ambiguity,
@@ -467,17 +508,17 @@ class PositionMixin:
         return self._position
 
     @property
-    def lat(self) -> float | Decimal | None:
+    def lat(self) -> float | None:
         if self._position:
             return self._position.lat
 
     @property
-    def long(self) -> float | Decimal | None:
+    def long(self) -> float | None:
         if self._position:
             return self._position.long
 
     @property
-    def lon(self) -> float | Decimal | None:
+    def lon(self) -> float | None:
         """The longitude: the same as ``long``."""
         return self.long
 
@@ -599,10 +640,10 @@ class HasPosition(Protocol):
     def position(self) -> Position | None: ...
 
     @property
-    def lat(self) -> float | Decimal | None: ...
+    def lat(self) -> float | None: ...
 
     @property
-    def long(self) -> float | Decimal | None: ...
+    def long(self) -> float | None: ...
 
     @property
-    def lon(self) -> float | Decimal | None: ...
+    def lon(self) -> float | None: ...

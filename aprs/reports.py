@@ -24,7 +24,7 @@ def _check_data_type(cls: type[InformationField], raw: bytes) -> DataType:
 QUERY = re.compile(rb"([A-Za-z0-9]+)\?(.*)", re.DOTALL)
 
 
-@define(frozen=True, slots=True)
+@define(frozen=True, slots=True, kw_only=True)
 class QueryReport(InformationField):
     """
     A general query (APRS101 ch. 15): ``?APRS?``, ``?IGATE?``, ``?WX?``.
@@ -62,7 +62,7 @@ class QueryReport(InformationField):
         return b"?%s?%s" % (self.query, self.target)
 
 
-@define(frozen=True, slots=True)
+@define(frozen=True, slots=True, kw_only=True)
 class CapabilitiesReport(InformationField):
     """
     Station capabilities (APRS101 p. 85), usually an igate's reply to ``?IGATE?``.
@@ -125,7 +125,7 @@ def grid_to_lat_long(grid: bytes | str) -> tuple[Decimal, Decimal]:
     return lat, long
 
 
-@define(frozen=True, slots=True)
+@define(frozen=True, slots=True, kw_only=True)
 class MaidenheadReport(InformationField):
     """
     A Maidenhead grid locator beacon (APRS101 p. 43): ``[IO91SX] comment``.
@@ -168,7 +168,7 @@ class MaidenheadReport(InformationField):
         return b"[%s]%s" % (self.grid, self.comment)
 
 
-@define(frozen=True, slots=True)
+@define(frozen=True, slots=True, kw_only=True)
 class UserDefinedReport(InformationField):
     """
     User-defined data (APRS101 p. 87): ``{`` + user ID + packet type + data.
@@ -205,7 +205,7 @@ class UserDefinedReport(InformationField):
         return b"{%s%s%s" % (self.user_id[:1], self.packet_type[:1], self.payload)
 
 
-@define(frozen=True, slots=True)
+@define(frozen=True, slots=True, kw_only=True)
 class ThirdPartyReport(InformationField):
     """
     Third-party traffic (APRS101 ch. 17): another station's packet, wrapped.

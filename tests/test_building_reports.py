@@ -20,7 +20,7 @@ from aprs import (
 
 
 def test_ui_accepts_str_info():
-    frame = APRSFrame.ui("APRS", "N0CALL", info=">café")
+    frame = APRSFrame.ui(destination="APRS", source="N0CALL", info=">café")
     assert isinstance(frame.info, StatusReport)
     assert frame.info.status_str == "café"
 
@@ -101,6 +101,6 @@ def test_str_fields_are_stored_as_bytes():
 
 def test_str_properties_fall_back_to_latin1():
     status = APRSFrame.from_bytes(
-        bytes(APRSFrame.ui("APRS", "N0CALL", info=b">caf\xe9"))
+        bytes(APRSFrame.ui(destination="APRS", source="N0CALL", info=b">caf\xe9"))
     ).info
     assert isinstance(status, StatusReport) and status.status_str == "café"

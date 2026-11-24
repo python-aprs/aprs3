@@ -24,7 +24,7 @@ TNC sends), and decodes the information field into a typed report:
 ... )
 >>> type(frame.info).__name__
 'PositionReport'
->>> round(float(frame.info.lat), 4), round(float(frame.info.long), 4)
+>>> round(frame.info.lat, 4), round(frame.info.long, 4)
 (46.1667, -122.9167)
 >>> frame.info.data_ext, frame.info.altitude_ft
 (CourseSpeed(course=90, speed=25), 500)
@@ -77,7 +77,9 @@ without a data type uses ``=`` (position, messaging capable). Text fields take
 ...     position=aprs.Position(lat=46.1, lon=-122.9, symbol=aprs.Symbol.HOUSE),
 ...     comment="Home station",
 ... )
->>> frame = aprs.APRSFrame.ui("APZ069", "N0CALL", ["WIDE1-1"], bytes(beacon))
+>>> frame = aprs.APRSFrame.ui(
+...     destination="APZ069", source="N0CALL", path=["WIDE1-1"], info=beacon
+... )
 >>> str(frame)
 'N0CALL>APZ069,WIDE1-1:=4606.00N/12254.00W-Home station'
 

@@ -132,7 +132,9 @@ def test_ambiguity():
 )
 def test_build_and_decode(kwargs):
     report = MicEReport.new(**kwargs, comment=b"test")
-    f = APRSFrame.ui(report.destination, "N0CALL", ["WIDE1-1"], bytes(report))
+    f = APRSFrame.ui(
+        destination=report.destination, source="N0CALL", path=["WIDE1-1"], info=report
+    )
     decoded = f.info
     assert isinstance(decoded, MicEReport)
     assert float(decoded.lat or 0) == pytest.approx(kwargs["lat"], abs=1 / 6000)

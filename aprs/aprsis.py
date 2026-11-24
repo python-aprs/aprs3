@@ -87,6 +87,21 @@ class LoginResponse:
         )
 
 
+def _frame_from_line(line: bytes, encoding: str | None) -> APRSFrame:
+    """
+    The frame on a TNC2 line, with its info bytes unchanged.
+
+    ax253 releases with an ``encoding`` on TNC2Decode read lines as that
+    encoding (UTF-8 by default); older ones read them as Latin-1.
+    """
+    if encoding is None:
+        return APRSFrame.from_str(line.decode("latin1"))
+    return APRSFrame.from_str(
+        line.decode(encoding, "surrogateescape"),
+        encoding=encoding,  # ty: ignore[unknown-argument]
+    )
+
+
 @define
 class APRSTNC2Decode(TNC2Decode):
     """Decode APRS-IS (TNC2 text) lines into ``APRSFrame`` objects."""
@@ -94,10 +109,9 @@ class APRSTNC2Decode(TNC2Decode):
     comment_callback: Callable[[bytes], None] | None = field(default=None, kw_only=True)
     """Called with each ``#`` comment line the server sends."""
 
-    @staticmethod
-    def decode_frames(frame: bytes) -> Iterable[APRSFrame]:
+    def decode_frames(self, frame: bytes) -> Iterable[APRSFrame]:
         try:
-            yield APRSFrame.from_str(frame.decode("latin1"))
+            yield _frame_from_line(frame, getattr(self, "encoding", None))
         except Exception:  # pylint: disable=broad-except
             log.debug("Ignore frame decode error %r", frame, exc_info=True)
 

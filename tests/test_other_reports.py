@@ -58,7 +58,9 @@ def test_build_third_party():
     inner = APRSFrame.from_str("W1AW>APRS,TCPIP,N0GATE*:>status")
     report = ThirdPartyReport(raw=b"", data_type=None, data=b"", frame=inner)
     assert bytes(report) == b"}W1AW>APRS,TCPIP,N0GATE*:>status"
-    frame = APRSFrame.ui("APRS", "N0GATE", ["WIDE2-1"], bytes(report))
+    frame = APRSFrame.ui(
+        destination="APRS", source="N0GATE", path=["WIDE2-1"], info=report
+    )
     assert isinstance(frame.info, ThirdPartyReport)
     assert isinstance(frame.info.frame.info, StatusReport)
 

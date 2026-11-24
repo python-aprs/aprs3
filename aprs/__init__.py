@@ -27,7 +27,7 @@ Read the report's fields directly. Coordinates are decimal degrees:
 >>> report = frame.info
 >>> type(report).__name__
 'PositionReport'
->>> round(float(report.lat), 4), round(float(report.long), 4)
+>>> round(report.lat, 4), round(report.long, 4)
 (46.1667, -122.9167)
 >>> report.symbol_code, report.altitude_ft
 (b'>', 500)
@@ -57,7 +57,11 @@ Build a report and wrap it in a frame with ``APRSFrame.ui``. Text fields take
 ...     position=aprs.Position(lat=46.1, lon=-122.9, symbol=aprs.Symbol.HOUSE),
 ...     comment="Home station",
 ... )
->>> str(aprs.APRSFrame.ui("APZ069", "N0CALL", ["WIDE1-1"], bytes(beacon)))
+>>> str(
+...     aprs.APRSFrame.ui(
+...         destination="APZ069", source="N0CALL", path=["WIDE1-1"], info=beacon
+...     )
+... )
 'N0CALL>APZ069,WIDE1-1:=4606.00N/12254.00W-Home station'
 
 Connections

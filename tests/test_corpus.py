@@ -9,7 +9,6 @@ TNC2 text and through AX.25 binary (the KISS path).
 
 import datetime
 import re
-from decimal import Decimal
 from pathlib import Path
 
 import pytest
@@ -389,15 +388,15 @@ def test_out_of_range_position_cannot_be_built(kwargs):
 def test_ambiguity_only_centres_blanked_digits():
     """Issue #25."""
     report = info("N0CALL>APRS:!4903.5 N/07201.75W-")
-    assert report.lat == pytest.approx(Decimal("49.059167"), abs=Decimal("1e-6"))
-    assert report.long == pytest.approx(Decimal("-72.029167"), abs=Decimal("1e-6"))
+    assert report.lat == pytest.approx(49.059167, abs=1e-6)
+    assert report.long == pytest.approx(-72.029167, abs=1e-6)
     assert report._position.ambiguity == 1
     assert report._position.long_ambiguity == 0
 
     report = info("N0CALL>APRS:!4903.50N/0720 .  W-")
-    assert report.lat == pytest.approx(Decimal("49.058333"), abs=Decimal("1e-6"))
+    assert report.lat == pytest.approx(49.058333, abs=1e-6)
     # 072 degrees 0x minutes: centred at 072 05'
-    assert report.long == pytest.approx(Decimal("-72.083333"), abs=Decimal("1e-6"))
+    assert report.long == pytest.approx(-72.083333, abs=1e-6)
     assert report._position.long_ambiguity == 3
 
 
