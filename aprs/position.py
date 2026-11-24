@@ -182,7 +182,23 @@ COMPRESSION_TYPE_DEFAULT = ord("#") - 33
 COMPRESSION_TYPE_ALTITUDE = ord("S") - 33
 
 
-def _encode_cs(data_ext, altitude_ft, ignored_cs=None) -> bytes:
+def cs_holds_altitude(compression_type: int | None, data_ext=None) -> bool:
+    """
+    Whether a compressed position's cs bytes carry its altitude: its
+    compression type says the fix came from a GGA sentence (APRS101 p39).
+    A position built without a compression type gets one that does, when it
+    has no course/speed or range.
+    """
+    if data_ext:
+        return False
+    if compression_type is None:
+        return True
+    return (compression_type >> 3) & 0b11 == 0b10
+
+
+def _encode_cs(
+    data_ext, altitude_ft, ignored_cs=None, compression_type: int | None = None
+) -> bytes:
     if isinstance(data_ext, CourseSpeed):
         return (
             # 360 (due north) is code 0: code 90 ("{") marks a range
@@ -193,7 +209,7 @@ def _encode_cs(data_ext, altitude_ft, ignored_cs=None) -> bytes:
         return b"{" + from_decimal(
             int(round(math.log(data_ext.range / 2, 1.08))), 1
         ).encode("ascii")
-    if altitude_ft is not None:
+    if altitude_ft is not None and cs_holds_altitude(compression_type):
         if altitude_ft <= 0:
             # 1.002**c cannot produce 0 (or a negative value); encode the
             # lowest valid code instead of failing on math.log()'s domain error
@@ -225,7 +241,7 @@ def encode_position_compressed(  # pylint: disable=too-many-arguments
             compress_lat(lat),
             compress_long(long),
             symbol_code,
-            _encode_cs(data_ext, altitude_ft, ignored_cs),
+            _encode_cs(data_ext, altitude_ft, ignored_cs, compression_type),
             bytes([compression_type + 33]),
         ]
     )
@@ -587,7 +603,7 @@ class PositionMixin:
         return (
             position is not None
             and position.position_format is PositionFormat.Compressed
-            and not position.data_ext
+            and cs_holds_altitude(position.compression_type, position.data_ext)
         )
 
     def altitude_and_comment(self) -> bytes:
