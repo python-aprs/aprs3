@@ -110,9 +110,9 @@ ItemReport N0CALL>APRS:)FD!4903.50N/07201.75W;Field Day site
 
 ## Mic-E, weather, telemetry, NMEA, queries and other data types (#27-#33)
 InformationField N0CALL>APRS:`(_fn"Oj/]"4-}=
-InformationField N0CALL-7>T2SP0W,N0DIGI*,WIDE2-1,qAR,N0GATE:`c51l!?>/`"4V}_%
-InformationField N0CALL-7>T2SP0W:'c7sl!?>/]"4H}
-InformationField N0CALL-9>S32U6T,WIDE1-1:`(_fn"Oj/>=
+MicEReport N0CALL-7>T2SP0W,N0DIGI*,WIDE2-1,qAR,N0GATE:`c51l!?>/`"4V}_%
+MicEReport N0CALL-7>T2SP0W:'c7sl!?>/]"4H}
+MicEReport N0CALL-9>S32U6T,WIDE1-1:`(_fn"Oj/>=
 WeatherReport N0CALL>APRS:_10090556c220s004g005t077r000p000P000h50b09900wRSW
 TelemetryReport N0CALL>APRS:T#005,199,000,255,073,123,01101001
 TelemetryReport N0CALL>APRS:T#MIC199,000,255,073,123,01101001
@@ -191,3 +191,19 @@ InformationField N0CALL>APRS:_1009
 PositionReport N0CALL>APRS:!4903.50N/07201.75W_.../...g...t-05h00b10132 comment
 PositionReport N0CALL>APRS:=/5L!!<*e7_7P[g005t077r000p000P000h50b09900wRSW
 ObjectReport N0CALL>APRS:;WX-SITE  *092345z4903.50N/07201.75W_220/004g005t077
+
+## Mic-E (#27)
+# built with MicEReport.new: southern/eastern, longitudes 0-9 and 100-179,
+# emergency with altitude and ambiguity, a custom message
+MicEReport N0CALL>SSU2Q3,WIDE1-1:`O(Tl >/hi
+MicEReport N0CALL>UQRXVW,WIDE1-1:`vX%l >/hi
+MicEReport N0CALL>490SZZ,WIDE1-1:`q:x#X>/"3@}hi
+MicEReport N0CALL>A0DPP0,WIDE1-1:`kWDuv>/hi
+# a destination SSID (the generic path) doesn't matter
+MicEReport N0CALL-9>S32U6T-2:`(_fn"Oj/>=
+# a "!" in Mic-E data is not a position (APRS101 p32 doesn't apply)
+MicEReport N0CALL-9>S32U6T:`(_fn"Oj/!4903.50N/07201.75W-
+# not a Mic-E destination, or too short: kept raw
+InformationField N0CALL-9>APRS:`(_fn"Oj/>=
+InformationField N0CALL-9>S32U6T:`(_f
+InformationField N0CALL-9>S32U6T:`\x1b\x1b\x1bn"Oj/

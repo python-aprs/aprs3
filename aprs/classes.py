@@ -610,3 +610,20 @@ class APRSFrame(Frame):
     info: InformationField = field(  # ty: ignore[incompatible-attribute-override, invalid-assignment]
         default=b"", converter=InformationField.from_any
     )
+
+    def __attrs_post_init__(self) -> None:
+        # Mic-E carries half its data in the destination address, which the
+        # info converter can't see: decode it here, once the frame is built
+        info = self.info
+        if type(info) is not InformationField or info.data_type not in MIC_E_DATA_TYPES:
+            return
+        handler = InformationField._find_handler(info.data_type)
+        decode = getattr(handler, "from_bytes_and_destination", None)
+        if decode is None:
+            return
+        try:
+            report = decode(info.raw, self.destination.callsign)
+        except ValueError:
+            log.debug("Keep undecodable Mic-E raw: %r", info.raw, exc_info=True)
+            return
+        object.__setattr__(self, "info", report)

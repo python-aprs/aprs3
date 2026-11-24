@@ -105,6 +105,7 @@ from .data_ext import (
     DataExt,
 )
 from .kiss import TCPKISS, SerialKISS, create_serial_connection, create_tcp_connection
+from .mic_e import MicEReport
 from .nmea import NMEAReport, nmea_checksum
 from .position import DirectionFinding, Position
 from .reports import (
@@ -133,6 +134,7 @@ __license__ = "Apache License, Version 2.0"
 __distribution__ = "aprs3"
 __version__ = version(__distribution__)
 __all__ = [
+    "MicEReport",
     "WeatherReport",
     "Weather",
     "TelemetryUnits",
