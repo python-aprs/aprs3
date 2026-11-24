@@ -10,7 +10,6 @@ from attrs import define, field
 from .base91 import from_decimal, to_decimal
 from .constants import PositionFormat
 from .data_ext import RNG, CourseSpeed, DataExt
-from .decimaldegrees import dm2decimal
 from .geo_util import ambiguate, deambiguate, dec2dm_lat, dec2dm_lng
 
 __author__ = "Masen Furer KF7HVM <kf7hvm@0x26.net>"
@@ -32,6 +31,10 @@ AMBIGUITY_CENTER_MINUTES = (
 )
 
 
+# "DDMM.mm" (latitude) and "DDDMM.mm" (longitude), by number of degree digits
+_DM_REX = {n: re.compile(r"[0-9]{%d}[0-9]{2}\.[0-9]{2}" % n) for n in (2, 3)}
+
+
 def _decode_dm(text: str, degree_digits: int) -> Decimal:
     """
     Decode "DDMM.mm" or "DDDMM.mm", where trailing digits may be blanked.
@@ -39,7 +42,7 @@ def _decode_dm(text: str, degree_digits: int) -> Decimal:
     Blanked digits are centred in their range; digits that were sent are kept.
     """
     unblanked = text.replace(" ", "0")
-    if not re.fullmatch(r"[0-9]{%d}[0-9]{2}\.[0-9]{2}" % degree_digits, unblanked):
+    if not _DM_REX[degree_digits].fullmatch(unblanked):
         raise ValueError(f"{text!r} is not a valid coordinate")
     ambiguity = text.count(" ")
     if ambiguity > 4 or ambiguate(unblanked.encode("ascii"), ambiguity) != text.encode(
@@ -51,7 +54,10 @@ def _decode_dm(text: str, degree_digits: int) -> Decimal:
     max_degrees = 90 if degree_digits == 2 else 180
     if minutes >= 60 or degrees > max_degrees or (degrees == max_degrees and minutes):
         raise ValueError(f"{text!r} is out of range")
-    return dm2decimal(degrees, minutes + AMBIGUITY_CENTER_MINUTES[ambiguity])
+    # dm2decimal(degrees, minutes), without its str() round trips
+    return (
+        Decimal(degrees) + (minutes + AMBIGUITY_CENTER_MINUTES[ambiguity]) / 60
+    ).normalize()
 
 
 def decode_position_uncompressed(data: bytes):
