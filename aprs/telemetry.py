@@ -47,7 +47,7 @@ def _format_bits(bits: Sequence[bool]) -> bytes:
     return bytes(b"1"[0] if b else b"0"[0] for b in bits)
 
 
-@define(frozen=True, slots=True)
+@define(frozen=True, slots=True, kw_only=True)
 class TelemetryReport(InformationField):
     """
     A telemetry report: ``T#sss,a1,a2,a3,a4,a5,bbbbbbbb`` (APRS101 p. 68).

@@ -98,13 +98,19 @@ def _required(value: _V | None, name: str) -> _V:
     return value
 
 
-@define(frozen=True, slots=True)
+@define(frozen=True, slots=True, kw_only=True)
 class InformationField:
     """
     Class for APRS 'Information' Field.
+
+    Fields are keyword-only. ``raw`` and ``data`` are what was heard; they
+    don't take part in equality, so a report built to send equals the same
+    report decoded off the air.
     """
 
-    raw: bytes = field(default=b"", converter=_as_bytes)
+    __match_args__ = ("data_type", "comment")
+
+    raw: bytes = field(default=b"", converter=_as_bytes, eq=False, repr=False)
     """The bytes this report was decoded from; b"" for one built to send."""
     data_type: DataType | None = field(default=None)
     """
@@ -112,7 +118,7 @@ class InformationField:
     report built without one gets its class's usual data type (see
     ``default_data_type``).
     """
-    data: bytes = field(default=b"", converter=_as_bytes)
+    data: bytes = field(default=b"", converter=_as_bytes, eq=False, repr=False)
     comment: bytes = field(default=b"", converter=_as_bytes)
     _source: bytes | None = field(default=None, init=False, eq=False, repr=False)
     """
@@ -225,8 +231,10 @@ class InformationField:
         return self.data_type.value
 
 
-@define(frozen=True, slots=True)
+@define(frozen=True, slots=True, kw_only=True)
 class PositionReport(InformationField, TimestampMixin, PositionMixin):
+    __match_args__ = ("lat", "long")
+
     _timestamp: Timestamp | None = field(default=None, alias="timestamp")
     _position: Position | None = field(default=None, alias="position")
     prefix: bytes = field(default=b"", converter=_as_bytes)
@@ -301,7 +309,7 @@ NWS_PREFIXES = (b"NWS-", b"NWS_", b"SKY", b"CWA", b"BOM")
 """Addressee prefixes of weather service bulletins (APRS101 p76, wx.txt)."""
 
 
-@define(frozen=True, slots=True)
+@define(frozen=True, slots=True, kw_only=True)
 class Message(InformationField):
     """
     A message, ack, reject, bulletin or announcement (APRS101 ch. 14).
@@ -311,6 +319,8 @@ class Message(InformationField):
     carry the number they answer in the text: see ``is_ack``, ``is_rej`` and
     ``acked_number``.
     """
+
+    __match_args__ = ("addressee", "text")
 
     addressee: bytes = field(default=b"", converter=_as_bytes)
     text: bytes = field(default=b"", converter=_as_bytes)
@@ -526,8 +536,10 @@ class Message(InformationField):
         return self.addressee.upper().startswith(NWS_PREFIXES)
 
 
-@define(frozen=True, slots=True)
+@define(frozen=True, slots=True, kw_only=True)
 class StatusReport(InformationField, TimestampMixin):
+    __match_args__ = ("status",)
+
     status: bytes = field(default=b"", converter=_as_bytes)
     _timestamp: Timestamp | None = field(default=None, alias="timestamp")
 
@@ -573,8 +585,10 @@ class StatusReport(InformationField, TimestampMixin):
         )
 
 
-@define(frozen=True, slots=True)
+@define(frozen=True, slots=True, kw_only=True)
 class ObjectReport(InformationField, TimestampMixin, PositionMixin):
+    __match_args__ = ("name", "lat", "long")
+
     name: bytes = field(default=None, converter=_as_name)
     killed: bool = field(default=False)
     _timestamp: Timestamp | None = field(default=None, alias="timestamp")
@@ -622,8 +636,10 @@ class ObjectReport(InformationField, TimestampMixin, PositionMixin):
         )
 
 
-@define(frozen=True, slots=True)
+@define(frozen=True, slots=True, kw_only=True)
 class ItemReport(InformationField, PositionMixin):
+    __match_args__ = ("name", "lat", "long")
+
     name: bytes = field(default=None, converter=_as_name)
     killed: bool = field(default=False)
     _position: Position | None = field(default=None, alias="position")

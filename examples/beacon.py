@@ -39,7 +39,9 @@ def position_frame(args: argparse.Namespace) -> aprs.APRSFrame:
         comment=args.comment,
     )
     path = [p for p in args.path.split(",") if p] if not args.aprsis else []
-    return aprs.APRSFrame.ui(DEFAULT_TOCALL, args.call, path, bytes(report))
+    return aprs.APRSFrame.ui(
+        destination=DEFAULT_TOCALL, source=args.call, path=path, info=report
+    )
 
 
 def connect(args: argparse.Namespace):

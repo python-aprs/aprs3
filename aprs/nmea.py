@@ -60,7 +60,7 @@ def _decimal(value: bytes) -> Decimal | None:
     return Decimal(value.decode("ascii")) if value else None
 
 
-@define(frozen=True, slots=True)
+@define(frozen=True, slots=True, kw_only=True)
 class NMEAReport(InformationField):
     """
     A raw NMEA sentence from a GPS (APRS101 ch. 7).

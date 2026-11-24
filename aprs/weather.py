@@ -272,7 +272,7 @@ def weather_from_comment(comment: bytes, wind: object = None) -> Weather | None:
     return weather or None
 
 
-@define(frozen=True, slots=True)
+@define(frozen=True, slots=True, kw_only=True)
 class WeatherReport(InformationField, TimestampMixin):
     """
     A positionless weather report: ``_`` + MDHM timestamp + weather

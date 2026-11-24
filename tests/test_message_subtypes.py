@@ -78,9 +78,9 @@ def test_bulletins(addressee, bulletin, announcement, bulletin_id, group, nws):
 def test_new_message():
     m = Message.new("N0CALL-2", "hello", number="12")
     assert bytes(m) == b":N0CALL-2 :hello{12"
-    assert APRSFrame.ui("APRS", "N0CALL", info=bytes(m)).info == Message.from_bytes(
-        bytes(m)
-    )
+    assert APRSFrame.ui(
+        destination="APRS", source="N0CALL", info=bytes(m)
+    ).info == Message.from_bytes(bytes(m))
     assert bytes(Message.new(b"N0CALL", b"hi")) == b":N0CALL   :hi"
 
 
