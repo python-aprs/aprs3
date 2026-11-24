@@ -22,7 +22,7 @@ def test_find_handler_skips_pre_slots_class():
 
         @define(frozen=True, slots=True)
         class _UserDefined(InformationField):
-            __data_type__ = [DataType.USER_DEFINED]
+            __data_type__ = [DataType.AGRELO_DFJR]
 
         leftovers = [
             c
@@ -32,8 +32,8 @@ def test_find_handler_skips_pre_slots_class():
         assert leftovers, "expected attrs to leave the pre-slots class behind"
 
         InformationField._find_handler.cache_clear()
-        assert InformationField._find_handler(DataType.USER_DEFINED) is _UserDefined
-        decoded = InformationField.from_bytes(b"{XXhello")
+        assert InformationField._find_handler(DataType.AGRELO_DFJR) is _UserDefined
+        decoded = InformationField.from_bytes(b"%XXhello")
         assert type(decoded) is _UserDefined
     finally:
         gc.enable()
