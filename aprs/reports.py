@@ -5,7 +5,14 @@ from decimal import Decimal
 
 from attrs import define, field
 
-from .classes import APRSFrame, DataType, DataTypeError, InformationField
+from .classes import (
+    APRSFrame,
+    DataType,
+    DataTypeError,
+    InformationField,
+    _frame_from_line,
+    _frame_line,
+)
 
 __author__ = "Masen Furer KF7HVM <kf7hvm@0x26.net>"
 __copyright__ = "Copyright 2026 Masen Furer and Contributors"
@@ -229,7 +236,7 @@ class ThirdPartyReport(InformationField):
         header, colon, _ = raw[1:].partition(b":")
         if not colon or b">" not in header:
             raise ValueError(f"{raw!r} has no inner TNC2 header")
-        frame = APRSFrame.from_str(raw[1:].decode("latin1"))
+        frame = _frame_from_line(raw[1:])
         return cls(raw=raw, data_type=data_type, data=raw[1:], frame=frame)._keep_source(
             raw
         )
@@ -237,4 +244,4 @@ class ThirdPartyReport(InformationField):
     def __bytes__(self) -> bytes:
         if self._source is not None:
             return self._source
-        return b"}" + str(self.frame).encode("latin1")
+        return b"}" + _frame_line(self.frame)

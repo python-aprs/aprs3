@@ -8,7 +8,8 @@ import pytest
 
 import aprs
 from aprs import APRSFrame, LoginResponse, passcode
-from aprs.aprsis import APRSISProtocol, create_aprsis_connection
+from aprs.aprsis import APRSISProtocol, APRSTNC2Decode, create_aprsis_connection
+from aprs.classes import _frame_line
 
 from .test_io import STATUS, Server, read_all, threaded_server
 
@@ -248,3 +249,17 @@ def test_login_command_and_filter():
     assert _login_command("cmd", None) == "cmd"
     assert _login_command("", "b/N0CALL") == "filter b/N0CALL"
     assert _login_command("cmd", "b/N0CALL") == "cmd filter b/N0CALL"
+
+
+@pytest.mark.parametrize(
+    "info",
+    [">café 😀".encode(), b">caf\xe9 (Latin-1)"],
+    ids=["utf-8", "not-utf-8"],
+)
+def test_decoder_keeps_info_bytes(info):
+    """APRS-IS lines are UTF-8; the info field keeps exactly the bytes heard."""
+    line = b"N0CALL>APRS,TCPIP*,qAC,T2TEST:" + info
+    (frame,) = APRSTNC2Decode().update(line + b"\r\n")
+    assert isinstance(frame, APRSFrame)
+    assert frame.info.raw == info
+    assert _frame_line(frame) == line

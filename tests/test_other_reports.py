@@ -258,3 +258,17 @@ def test_df_report():
 )
 def test_not_a_df_report(text):
     assert info(f"N0CALL>APRS:{text}").df is None
+
+
+@pytest.mark.parametrize(
+    "inner_info",
+    ["café 😀".encode(), b"caf\xe9 (Latin-1)"],
+    ids=["utf-8", "not-utf-8"],
+)
+def test_third_party_keeps_inner_info_bytes(inner_info):
+    raw = b"}W1AW>APRS,TCPIP,N0GATE*:>" + inner_info
+    report = APRSFrame.ui(destination="APRS", source="N0GATE", info=raw).info
+    assert isinstance(report, ThirdPartyReport)
+    assert report.frame.info.raw == b">" + inner_info
+    # encoded from its fields (not the kept source bytes), it's still the same
+    assert bytes(attrs.evolve(report)) == raw

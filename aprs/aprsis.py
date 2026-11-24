@@ -15,7 +15,7 @@ from attrs import define, field, frozen
 from ax253 import Frame, GenericDecoder, SyncFrameDecode, TNC2Decode, TNC2Protocol
 
 # pylint: disable=cyclic-import
-from .classes import APRSFrame
+from .classes import APRSFrame, _frame_from_line
 from .constants import APRSIS_FILTER_PORT, APRSIS_SERVERS, DEFAULT_MYCALL
 
 # pylint: disable=duplicate-code
@@ -85,21 +85,6 @@ class LoginResponse:
             verified=match.group("status").lower() == b"verified",
             server=None if server is None else server.decode("latin1"),
         )
-
-
-def _frame_from_line(line: bytes, encoding: str | None) -> APRSFrame:
-    """
-    The frame on a TNC2 line, with its info bytes unchanged.
-
-    ax253 releases with an ``encoding`` on TNC2Decode read lines as that
-    encoding (UTF-8 by default); older ones read them as Latin-1.
-    """
-    if encoding is None:
-        return APRSFrame.from_str(line.decode("latin1"))
-    return APRSFrame.from_str(
-        line.decode(encoding, "surrogateescape"),
-        encoding=encoding,  # ty: ignore[unknown-argument]
-    )
 
 
 @define
