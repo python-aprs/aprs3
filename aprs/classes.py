@@ -11,7 +11,7 @@ from attrs import define, field
 from ax253 import Frame
 
 from .constants import TimestampFormat
-from .position import Position, PositionMixin
+from .position import HasPosition, Position, PositionMixin
 from .timestamp import Timestamp, TimestampMixin
 from .util import attrs_subclasses
 
@@ -70,6 +70,28 @@ class DataTypeError(ValueError):
 _V = TypeVar("_V")
 
 
+def _as_bytes(value: str | bytes) -> bytes:
+    """Text fields are stored as bytes; ``str`` is encoded as UTF-8."""
+    return value.encode("utf-8") if isinstance(value, str) else bytes(value)
+
+
+def _as_bytes_or_none(value: str | bytes | None) -> bytes | None:
+    return None if value is None else _as_bytes(value)
+
+
+def _as_name(value: str | bytes) -> bytes:
+    """An object or item name; None (not yet named) is kept."""
+    return value if value is None else _as_bytes(value)
+
+
+def _as_str(value: bytes) -> str:
+    """Decode wire text: UTF-8, or Latin-1 (which never fails) when invalid."""
+    try:
+        return value.decode("utf-8")
+    except UnicodeDecodeError:
+        return value.decode("latin-1")
+
+
 def _required(value: _V | None, name: str) -> _V:
     if value is None:
         raise ValueError(f"cannot encode this report without a {name}")
@@ -82,11 +104,16 @@ class InformationField:
     Class for APRS 'Information' Field.
     """
 
-    raw: bytes
-    data_type: DataType | None
-    """None when the first byte isn't a known APRS data type identifier."""
-    data: bytes
-    comment: bytes = field(default=b"")
+    raw: bytes = field(default=b"", converter=_as_bytes)
+    """The bytes this report was decoded from; b"" for one built to send."""
+    data_type: DataType | None = field(default=None)
+    """
+    None when the first byte isn't a known APRS data type identifier. A
+    report built without one gets its class's usual data type (see
+    ``default_data_type``).
+    """
+    data: bytes = field(default=b"", converter=_as_bytes)
+    comment: bytes = field(default=b"", converter=_as_bytes)
     _source: bytes | None = field(default=None, init=False, eq=False, repr=False)
     """
     The bytes this report was decoded from, re-sent unchanged by subclasses
@@ -101,6 +128,19 @@ class InformationField:
     Keep a packet this subclass can't decode as a raw InformationField
     instead of failing, for formats that used to be kept raw.
     """
+
+    def __attrs_post_init__(self) -> None:
+        if self.data_type is None:
+            object.__setattr__(self, "data_type", self.default_data_type())
+
+    def default_data_type(self) -> DataType | None:
+        """The data type of a report built without one: the first one decoded."""
+        return self.__data_type__[0] if self.__data_type__ else None
+
+    @property
+    def comment_str(self) -> str:
+        """``comment`` as text: UTF-8, or Latin-1 when it isn't valid UTF-8."""
+        return _as_str(self.comment)
 
     @classmethod
     @lru_cache(len(DataType.__members__))
@@ -165,7 +205,9 @@ class InformationField:
             return obj
         if isinstance(obj, Frame):
             return cls.from_frame(obj)
-        return cls.from_bytes(obj)
+        if isinstance(obj, str):
+            obj = obj.encode("utf-8")  # as ax253.Frame encodes str info
+        return cls.from_bytes(bytes(obj))
 
     def __bytes__(self) -> bytes:
         """
@@ -192,8 +234,13 @@ class InformationField:
         return encoded
 
     def _encode(self) -> bytes:
-        """Encode the fields as an info field; subclasses override this."""
-        return self.raw
+        """
+        Encode the fields as an info field; subclasses override this. Here:
+        the data type identifier, ``data`` and ``comment``.
+        """
+        if self.data_type is None:
+            return self.data + self.comment
+        return self.data_type.value + self.data + self.comment
 
     def _decodes_from_raw(self) -> bool:
         """True if decoding ``raw`` gives this report, unchanged."""
@@ -213,7 +260,7 @@ class InformationField:
 class PositionReport(InformationField, TimestampMixin, PositionMixin):
     _timestamp: Timestamp | None = field(default=None, alias="timestamp")
     _position: Position | None = field(default=None, alias="position")
-    prefix: bytes = field(default=b"")
+    prefix: bytes = field(default=b"", converter=_as_bytes)
     """Text before the "!" of a position that doesn't start the info field."""
 
     __data_type__ = [
@@ -222,6 +269,12 @@ class PositionReport(InformationField, TimestampMixin, PositionMixin):
         DataType.POSITION_W_TIMESTAMP_MSG,
         DataType.POSITION_W_TIMESTAMP_NO_MSG,
     ]
+
+    def default_data_type(self) -> DataType:
+        """``=`` (messaging capable), or ``@`` with a timestamp."""
+        if self._timestamp is not None:
+            return DataType.POSITION_W_TIMESTAMP_MSG
+        return DataType.POSITION_W_O_TIMESTAMP_MSG
 
     @classmethod
     def from_bytes(cls, raw: bytes) -> "PositionReport":
@@ -259,8 +312,7 @@ class PositionReport(InformationField, TimestampMixin, PositionMixin):
                 ]
                 else b"",
                 bytes(_required(self._position, "position")),
-                self.format_altitude(),
-                self.comment,
+                self.altitude_and_comment(),
             ],
         )
 
@@ -291,11 +343,21 @@ class Message(InformationField):
     ``acked_number``.
     """
 
-    addressee: bytes = field(default=b"")
-    text: bytes = field(default=b"")
-    number: bytes | None = field(default=None)
+    addressee: bytes = field(default=b"", converter=_as_bytes)
+    text: bytes = field(default=b"", converter=_as_bytes)
+    number: bytes | None = field(default=None, converter=_as_bytes_or_none)
 
     __data_type__ = [DataType.MESSAGE]
+
+    @property
+    def addressee_str(self) -> str:
+        """``addressee`` as text (see ``comment_str``)."""
+        return _as_str(self.addressee)
+
+    @property
+    def text_str(self) -> str:
+        """``text`` as text: UTF-8, or Latin-1 when it isn't valid UTF-8."""
+        return _as_str(self.text)
 
     @classmethod
     def new(
@@ -495,16 +557,17 @@ class Message(InformationField):
         return self.addressee.upper().startswith(NWS_PREFIXES)
 
 
-def _as_bytes(value: str | bytes) -> bytes:
-    return value.encode("utf-8") if isinstance(value, str) else bytes(value)
-
-
 @define(frozen=True, slots=True)
 class StatusReport(InformationField, TimestampMixin):
-    status: bytes = field(default=b"")
+    status: bytes = field(default=b"", converter=_as_bytes)
     _timestamp: Timestamp | None = field(default=None, alias="timestamp")
 
     __data_type__ = [DataType.STATUS]
+
+    @property
+    def status_str(self) -> str:
+        """``status`` as text: UTF-8, or Latin-1 when it isn't valid UTF-8."""
+        return _as_str(self.status)
 
     @classmethod
     def from_bytes(cls, raw: bytes) -> "StatusReport":
@@ -543,12 +606,17 @@ class StatusReport(InformationField, TimestampMixin):
 
 @define(frozen=True, slots=True)
 class ObjectReport(InformationField, TimestampMixin, PositionMixin):
-    name: bytes = field(default=None)
+    name: bytes = field(default=None, converter=_as_name)
     killed: bool = field(default=False)
     _timestamp: Timestamp | None = field(default=None, alias="timestamp")
     _position: Position | None = field(default=None, alias="position")
 
     __data_type__ = [DataType.OBJECT]
+
+    @property
+    def name_str(self) -> str:
+        """``name`` as text: UTF-8, or Latin-1 when it isn't valid UTF-8."""
+        return _as_str(self.name or b"")
 
     @classmethod
     def from_bytes(cls, raw: bytes) -> "ObjectReport":
@@ -580,19 +648,23 @@ class ObjectReport(InformationField, TimestampMixin, PositionMixin):
                 b"_" if self.killed else b"*",
                 bytes(self._timestamp) if self._timestamp else b"",
                 bytes(self._position) if self._position else b"",
-                self.format_altitude(),
-                self.comment,
+                self.altitude_and_comment(),
             ],
         )
 
 
 @define(frozen=True, slots=True)
 class ItemReport(InformationField, PositionMixin):
-    name: bytes = field(default=None)
+    name: bytes = field(default=None, converter=_as_name)
     killed: bool = field(default=False)
     _position: Position | None = field(default=None, alias="position")
 
     __data_type__ = [DataType.ITEM]
+
+    @property
+    def name_str(self) -> str:
+        """``name`` as text: UTF-8, or Latin-1 when it isn't valid UTF-8."""
+        return _as_str(self.name or b"")
 
     @classmethod
     def from_bytes(cls, raw: bytes) -> "ItemReport":
@@ -629,8 +701,7 @@ class ItemReport(InformationField, PositionMixin):
                 self.name,
                 b"_" if self.killed else b"!",
                 bytes(_required(self._position, "position")),
-                self.format_altitude(),
-                self.comment,
+                self.altitude_and_comment(),
             ],
         )
 
@@ -642,6 +713,13 @@ class APRSFrame(Frame):
     info: InformationField = field(  # ty: ignore[incompatible-attribute-override, invalid-assignment]
         default=b"", converter=InformationField.from_any
     )
+
+    @property
+    def position(self) -> Position | None:
+        """The info field's position, or None when it has none."""
+        if isinstance(self.info, HasPosition):
+            return self.info.position
+        return None
 
     def __attrs_post_init__(self) -> None:
         # Mic-E carries half its data in the destination address, which the

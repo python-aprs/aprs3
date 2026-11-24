@@ -174,8 +174,10 @@ def test_report_without_position_does_not_encode():
         bytes(report)
 
 
-def test_report_without_data_type_does_not_encode():
+def test_report_without_data_type_gets_the_default():
     report = PositionReport(raw=b"", data_type=None, data=b"", position=Position())
+    assert report.data_type is DataType.POSITION_W_O_TIMESTAMP_MSG
+    object.__setattr__(report, "data_type", None)
     with pytest.raises(ValueError, match="data type"):
         bytes(report)
 

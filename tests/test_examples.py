@@ -70,11 +70,16 @@ def test_decode_docstring_example(capsys):
     assert MOBILE in doc and MOBILE_OUT in doc
 
 
-def test_distance_bearing():
-    km, direction = aprsis_monitor.distance_bearing(46.0, -123.0, 47.0, -123.0)
-    assert round(km) == 111 and direction == "N"
-    km, direction = aprsis_monitor.distance_bearing(46.0, -123.0, 46.0, -124.0)
-    assert direction == "W"
+def test_line_for_adds_distance_and_direction():
+    frame = aprs.APRSFrame.from_str("N0CALL>APRS:!4700.00N/12300.00W-")
+    line = aprsis_monitor.line_for(frame, (46.0, -123.0))
+    assert "111.2 km N " in line
+    frame = aprs.APRSFrame.from_str("N0CALL>APRS:!4600.00N/12400.00W-")
+    assert " km W " in aprsis_monitor.line_for(frame, (46.0, -123.0))
+    status = aprs.APRSFrame.from_str("N0CALL>APRS:>hi")
+    assert aprsis_monitor.line_for(status, (46.0, -123.0)) == aprsis_monitor.describe(
+        status
+    )
 
 
 async def test_monitor_against_fake_aprsis(capsys):

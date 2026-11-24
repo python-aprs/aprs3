@@ -69,14 +69,13 @@ Encoding packets
 ================
 
 Build a report, then wrap it in a frame with ``APRSFrame.ui``. ``bytes(frame)``
-is ready for a TNC, and ``str(frame)`` for APRS-IS:
+is ready for a TNC, and ``str(frame)`` for APRS-IS. A position report built
+without a data type uses ``=`` (position, messaging capable). Text fields take
+``str`` (sent as UTF-8) or ``bytes``:
 
 >>> beacon = aprs.PositionReport(
-...     raw=b"",
-...     data=b"",
-...     data_type=aprs.DataType.POSITION_W_O_TIMESTAMP_MSG,
-...     position=aprs.Position(lat=46.1, long=-122.9, symbol_code=b"-"),
-...     comment=b"Home station",
+...     position=aprs.Position(lat=46.1, lon=-122.9, symbol=aprs.Symbol.HOUSE),
+...     comment="Home station",
 ... )
 >>> frame = aprs.APRSFrame.ui("APZ069", "N0CALL", ["WIDE1-1"], bytes(beacon))
 >>> str(frame)

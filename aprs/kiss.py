@@ -20,7 +20,9 @@ log = logging.getLogger(__name__)
 
 
 @define
-class APRSDecode(GenericKISSDecode[APRSFrame]):
+class APRSKISSDecode(GenericKISSDecode[APRSFrame]):
+    """Decode KISS frames from a TNC into ``APRSFrame`` objects."""
+
     strip_df_start: bool = field(default=True, converter=lambda v: True)
 
     def decode_frames(self, frame: bytes) -> Iterable[APRSFrame]:
@@ -32,10 +34,14 @@ class APRSDecode(GenericKISSDecode[APRSFrame]):
                 log.debug("Ignore frame AX.25 decode error %r", frame, exc_info=True)
 
 
+APRSDecode = APRSKISSDecode
+"""The former name of ``APRSKISSDecode``."""
+
+
 async def create_tcp_connection(*args, protocol_kwargs=None, **kwargs):
     if protocol_kwargs is None:
         protocol_kwargs = {}
-    protocol_kwargs["decoder"] = protocol_kwargs.pop("decoder", APRSDecode())
+    protocol_kwargs["decoder"] = protocol_kwargs.pop("decoder", APRSKISSDecode())
     return await kiss.create_tcp_connection(
         *args, protocol_kwargs=protocol_kwargs, **kwargs
     )
@@ -44,15 +50,15 @@ async def create_tcp_connection(*args, protocol_kwargs=None, **kwargs):
 async def create_serial_connection(*args, protocol_kwargs=None, **kwargs):
     if protocol_kwargs is None:
         protocol_kwargs = {}
-    protocol_kwargs["decoder"] = protocol_kwargs.pop("decoder", APRSDecode())
+    protocol_kwargs["decoder"] = protocol_kwargs.pop("decoder", APRSKISSDecode())
     return await kiss.create_serial_connection(
         *args, protocol_kwargs=protocol_kwargs, **kwargs
     )
 
 
 class TCPKISS(kiss.TCPKISS):
-    decode_class = APRSDecode
+    decode_class = APRSKISSDecode
 
 
 class SerialKISS(kiss.SerialKISS):
-    decode_class = APRSDecode
+    decode_class = APRSKISSDecode

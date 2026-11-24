@@ -3,14 +3,15 @@
 import math
 import re
 from decimal import Decimal
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
-from attrs import define, field
+from attrs import define, field, fields
 
 from .base91 import from_decimal, to_decimal
 from .constants import PositionFormat
 from .data_ext import RNG, CourseSpeed, DataExt
 from .geo_util import ambiguate, deambiguate, dec2dm_lat, dec2dm_lng
+from .symbol import Symbol
 
 __author__ = "Masen Furer KF7HVM <kf7hvm@0x26.net>"
 __copyright__ = "Copyright 2022 Masen Furer and Contributors"
@@ -238,6 +239,26 @@ def _in_range(limit):
     return validator
 
 
+def _symbol_byte(value: str | bytes) -> bytes:
+    """A symbol table id or code, given as bytes or a one-character str."""
+    return value.encode("latin-1") if isinstance(value, str) else bytes(value)
+
+
+EARTH_RADIUS_KM = 6371.0088
+"""The mean Earth radius, for distances."""
+
+
+def _lat_lon(point) -> tuple[float, float]:
+    """(lat, lon) of a Position, a report with a position, or a tuple."""
+    if isinstance(point, tuple):
+        lat, lon = point
+    else:
+        lat, lon = point.lat, point.long
+        if lat is None or lon is None:
+            raise ValueError(f"{point!r} has no position")
+    return float(lat), float(lon)
+
+
 @define(frozen=True, slots=True)
 class Position:
     """Represents a position including any data extension."""
@@ -245,9 +266,10 @@ class Position:
     position_format: PositionFormat = field(default=PositionFormat.Uncompressed)
     lat: float | Decimal = field(default=0.0, validator=_in_range(90))
     """Decimal when decoded from uncompressed text (exact), float otherwise."""
-    sym_table_id: bytes = field(default=b"/")
+    sym_table_id: bytes = field(default=b"/", converter=_symbol_byte)
     long: float | Decimal = field(default=0.0, validator=_in_range(180))
-    symbol_code: bytes = field(default=b"-")
+    """The longitude; also accepted and readable as ``lon``."""
+    symbol_code: bytes = field(default=b"-", converter=_symbol_byte)
     altitude_ft: float | None = field(default=None)
     """Whole feet from "/A=", a float from compressed cs bytes."""
     data_ext: bytes | DataExt = field(default=b"")
@@ -262,6 +284,68 @@ class Position:
     """Compressed only: the type byte (minus 33); None picks a default."""
     ignored_cs: bytes | None = field(default=None)
     """Compressed only: cs bytes starting with a space, which carry no data."""
+    _lon: float | Decimal | None = field(
+        default=None, alias="lon", eq=False, repr=False, kw_only=True
+    )
+    """``Position(lon=...)``: sets ``long``."""
+    _symbol: "Symbol | str | None" = field(
+        default=None, alias="symbol", eq=False, repr=False, kw_only=True
+    )
+    """``Position(symbol="/>")``: sets ``sym_table_id`` and ``symbol_code``."""
+
+    def __attrs_post_init__(self) -> None:
+        if self._lon is not None:
+            _in_range(180)(self, fields(Position).long, self._lon)
+            object.__setattr__(self, "long", self._lon)
+            object.__setattr__(self, "_lon", None)
+        if self._symbol is not None:
+            symbol = Symbol.from_str(self._symbol)
+            object.__setattr__(self, "sym_table_id", symbol.table)
+            object.__setattr__(self, "symbol_code", symbol.code)
+            object.__setattr__(self, "_symbol", None)
+
+    @property
+    def lon(self) -> float | Decimal:
+        """The longitude: the same as ``long``."""
+        return self.long
+
+    @property
+    def symbol(self) -> Symbol:
+        """The symbol table and code as one value."""
+        return Symbol(self.sym_table_id, self.symbol_code)
+
+    def distance_to(self, other: "Position | HasPosition | tuple[float, float]") -> float:
+        """
+        The great-circle distance in km to ``other``: a Position, a report
+        with a position, or a (lat, lon) tuple.
+
+        >>> round(Position(lat=47.6, lon=-122.3).distance_to((45.5, -122.7)))
+        236
+        """
+        lat1, lon1 = map(math.radians, _lat_lon(self))
+        lat2, lon2 = map(math.radians, _lat_lon(other))
+        a = (
+            math.sin((lat2 - lat1) / 2) ** 2
+            + math.cos(lat1) * math.cos(lat2) * math.sin((lon2 - lon1) / 2) ** 2
+        )
+        return 2 * EARTH_RADIUS_KM * math.asin(min(1.0, math.sqrt(a)))
+
+    def bearing_to(self, other: "Position | HasPosition | tuple[float, float]") -> float:
+        """
+        The initial bearing in degrees (0-360, clockwise from true north) to
+        ``other``.
+
+        >>> round(Position(lat=47.6, lon=-122.3).bearing_to((45.5, -122.7)))
+        188
+        """
+        lat1, lon1 = map(math.radians, _lat_lon(self))
+        lat2, lon2 = map(math.radians, _lat_lon(other))
+        dlon = lon2 - lon1
+        x = math.sin(dlon) * math.cos(lat2)
+        y = math.cos(lat1) * math.sin(lat2) - math.sin(lat1) * math.cos(lat2) * math.cos(
+            dlon
+        )
+        return math.degrees(math.atan2(x, y)) % 360
 
     @classmethod
     def from_bytes_with_data_and_remainder(
@@ -378,6 +462,11 @@ class PositionMixin:
         def _position(self) -> Position | None: ...
 
     @property
+    def position(self) -> Position | None:
+        """The Position, with its format, ambiguity and data extension."""
+        return self._position
+
+    @property
     def lat(self) -> float | Decimal | None:
         if self._position:
             return self._position.lat
@@ -386,6 +475,17 @@ class PositionMixin:
     def long(self) -> float | Decimal | None:
         if self._position:
             return self._position.long
+
+    @property
+    def lon(self) -> float | Decimal | None:
+        """The longitude: the same as ``long``."""
+        return self.long
+
+    @property
+    def symbol(self) -> Symbol | None:
+        """The symbol table and code as one value."""
+        if self._position:
+            return self._position.symbol
 
     @property
     def sym_table_id(self) -> bytes | None:
@@ -441,17 +541,68 @@ class PositionMixin:
 
         return CommentTelemetry.from_comment(getattr(self, "comment", b""))
 
-    def format_altitude(self) -> bytes:
-        """The "/A=" comment for altitude_ft, unless it's already encoded."""
+    def _altitude_in_cs(self) -> bool:
         position = self._position
-        if (
+        return (
             position is not None
             and position.position_format is PositionFormat.Compressed
             and not position.data_ext
-        ):
+        )
+
+    def altitude_and_comment(self) -> bytes:
+        """
+        The comment, with an "/A=" for ``altitude_ft`` when it isn't carried
+        in compressed cs bytes.
+
+        A decoded "/A=" stays where it was in the comment, holding the current
+        ``altitude_ft``: re-encoding a decoded report gives back its bytes,
+        and a changed altitude replaces the old one. Without an altitude, the
+        "/A=" is dropped from the comment.
+        """
+        comment = getattr(self, "comment", b"")
+        if self._altitude_in_cs():
+            return comment
+        match = ALTITUDE_REX.search(comment)
+        altitude = self.altitude_ft
+        if match is None:
+            return self.format_altitude() + comment
+        if altitude is not None and int(match.group(1)) == altitude:
+            return comment  # unchanged: keep the bytes as heard
+        replacement = b"" if altitude is None else b"/A=%06d" % altitude
+        return comment[: match.start()] + replacement + comment[match.end() :]
+
+    def format_altitude(self) -> bytes:
+        """The "/A=" comment for altitude_ft, unless it's already encoded."""
+        if self._altitude_in_cs():
             return b""  # carried in the compressed cs bytes
         if self.altitude_ft is not None and not ALTITUDE_REX.search(
             getattr(self, "comment", b"")
         ):
             return b"/A=%06d" % self.altitude_ft
         return b""
+
+
+@runtime_checkable
+class HasPosition(Protocol):
+    """
+    A report that can carry a position: position, object, item and Mic-E
+    reports. ``position`` (and ``lat``/``long``/``lon``) are None when a
+    report has no position.
+
+    >>> import aprs
+    >>> frame = aprs.APRSFrame.from_str("N0CALL>APRS:!4610.00N/12255.00W-")
+    >>> isinstance(frame.info, aprs.HasPosition)
+    True
+    """
+
+    @property
+    def position(self) -> Position | None: ...
+
+    @property
+    def lat(self) -> float | Decimal | None: ...
+
+    @property
+    def long(self) -> float | Decimal | None: ...
+
+    @property
+    def lon(self) -> float | Decimal | None: ...

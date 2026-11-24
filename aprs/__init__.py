@@ -34,6 +34,13 @@ Read the report's fields directly. Coordinates are decimal degrees:
 >>> report.data_ext
 CourseSpeed(course=90, speed=25)
 
+Anything that can carry a position is an ``aprs.HasPosition``:
+
+>>> isinstance(report, aprs.HasPosition), str(report.symbol)
+(True, '/>')
+>>> round(report.position.distance_to((45.52, -122.68)))  # km to Portland
+74
+
 Messages carry the addressee, text and message number:
 
 >>> msg = aprs.APRSFrame.from_str("KF7HVM>APZ069::N0CALL   :hello there{42").info
@@ -43,14 +50,12 @@ Messages carry the addressee, text and message number:
 Encoding
 ========
 
-Build a report and wrap it in a frame with ``APRSFrame.ui``:
+Build a report and wrap it in a frame with ``APRSFrame.ui``. Text fields take
+``str`` (sent as UTF-8) or ``bytes``; ``*_str`` properties read them back:
 
 >>> beacon = aprs.PositionReport(
-...     raw=b"",
-...     data=b"",
-...     data_type=aprs.DataType.POSITION_W_O_TIMESTAMP_MSG,
-...     position=aprs.Position(lat=46.1, long=-122.9, symbol_code=b"-"),
-...     comment=b"Home station",
+...     position=aprs.Position(lat=46.1, lon=-122.9, symbol=aprs.Symbol.HOUSE),
+...     comment="Home station",
 ... )
 >>> str(aprs.APRSFrame.ui("APZ069", "N0CALL", ["WIDE1-1"], bytes(beacon)))
 'N0CALL>APZ069,WIDE1-1:=4606.00N/12254.00W-Home station'
@@ -73,6 +78,7 @@ from . import decimaldegrees, geo_util, position, timestamp
 from .aprsis import (
     TCP,
     APRSISProtocol,
+    APRSTNC2Decode,
     LoginResponse,
     create_aprsis_connection,
     passcode,
@@ -107,10 +113,16 @@ from .data_ext import (
     CourseSpeed,
     DataExt,
 )
-from .kiss import TCPKISS, SerialKISS, create_serial_connection, create_tcp_connection
+from .kiss import (
+    TCPKISS,
+    APRSKISSDecode,
+    SerialKISS,
+    create_serial_connection,
+    create_tcp_connection,
+)
 from .mic_e import MicEReport
 from .nmea import NMEAReport, nmea_checksum
-from .position import DirectionFinding, Position
+from .position import DirectionFinding, HasPosition, Position
 from .reports import (
     CapabilitiesReport,
     MaidenheadReport,
@@ -119,6 +131,7 @@ from .reports import (
     UserDefinedReport,
     grid_to_lat_long,
 )
+from .symbol import Symbol
 from .telemetry import (
     CommentTelemetry,
     TelemetryBits,
@@ -163,6 +176,8 @@ __all__ = [
     "APRSIS_RX_PORT",
     "APRSIS_URL",
     "APRSISProtocol",
+    "APRSKISSDecode",
+    "APRSTNC2Decode",
     "AreaObject",
     "CourseSpeed",
     "create_aprsis_connection",
@@ -184,6 +199,8 @@ __all__ = [
     "PHG",
     "position",
     "Position",
+    "HasPosition",
+    "Symbol",
     "PositionFormat",
     "PositionReport",
     "RNG",
